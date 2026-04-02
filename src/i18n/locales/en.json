@@ -6,7 +6,25 @@
     "login": "Sign in",
     "register": "Register",
     "profile": "Profile",
-    "logout": "Sign out"
+    "logout": "Sign out",
+    "language": "Language",
+    "language_switcher_label": "Switch language to {{language}}",
+    "open_menu": "Open menu",
+    "close_menu": "Close menu",
+    "menu": "Menu",
+    "account": "Account",
+    "access": "Access",
+    "tagline": "Research and protected community"
+  },
+  "footer": {
+    "badge": "Trust & orientation",
+    "navigation": "Navigation",
+    "legal": "Legal",
+    "community": "Account & community",
+    "trust_privacy": "Privacy-first structure",
+    "trust_adults": "Adults-only membership",
+    "trust_moderation": "Transparent moderation",
+    "bottom_note": "Legal documents and privacy contact remain permanently available."
   },
   "landing": {
     "origin_label": "Built out of friendship",
@@ -94,6 +112,7 @@
     "register_title": "Join the community",
     "email": "Email",
     "password": "Password",
+    "confirm_password": "Repeat password",
     "display_name": "Your name",
     "login_button": "Sign in",
     "register_button": "Create account",
@@ -102,6 +121,7 @@
     "has_account": "Already a member?",
     "error_invalid_credentials": "Email or password is incorrect.",
     "error_email_in_use": "This email address is already registered.",
+    "error_password_mismatch": "The passwords do not match.",
     "error_generic": "Something went wrong. Please try again."
   },
   "profile": {
