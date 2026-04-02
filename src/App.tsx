@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import Layout from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -14,6 +14,13 @@ import Register from './pages/Register'
 import Profile from './pages/Profile'
 import AgentArena from './pages/AgentArena'
 import NotFound from './pages/NotFound'
+import Imprint from './pages/Imprint'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfUse from './pages/TermsOfUse'
+import CommunityRules from './pages/CommunityRules'
+import StorageNotice from './pages/StorageNotice'
+import ReportContent from './pages/ReportContent'
+import PrivacyContact from './pages/PrivacyContact'
 
 export default function App() {
   return (
@@ -37,6 +44,13 @@ export default function App() {
             <Route path="research/:paperId" element={<PaperDetail />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
+            <Route path="impressum" element={<Imprint />} />
+            <Route path="datenschutz" element={<PrivacyPolicy />} />
+            <Route path="nutzungsbedingungen" element={<TermsOfUse />} />
+            <Route path="community-regeln" element={<CommunityRules />} />
+            <Route path="cookies-und-speicherungen" element={<StorageNotice />} />
+            <Route path="meldung" element={<ReportContent />} />
+            <Route path="kontakt-datenschutz" element={<PrivacyContact />} />
             <Route
               path="profile"
               element={

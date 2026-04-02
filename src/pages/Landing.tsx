@@ -6,6 +6,8 @@ import { usePageMeta } from '../hooks/usePageMeta'
 export default function Landing() {
   const { t, i18n } = useTranslation()
   const isGerman = i18n.language.startsWith('de')
+  const heroImageUrl = '/images/hero_section_abstr.jpg'
+  const logoImageUrl = '/images/logo.png'
 
   usePageMeta({
     title: 'SpondylAtlas',
@@ -16,37 +18,75 @@ export default function Landing() {
 
   return (
     <div>
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-800 via-primary-700 to-accent-700 px-4 py-24 text-white md:py-36">
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}
-        />
-        <div className="relative mx-auto max-w-4xl text-center">
-          <p className="mb-4 text-sm font-medium uppercase tracking-widest text-primary-200">
-            {t('landing.origin_label')}
-          </p>
-          <h1 className="font-serif text-5xl font-bold leading-tight tracking-tight md:text-7xl">
-            SpondylAtlas
-          </h1>
-          <p className="mt-5 text-xl text-primary-100 md:text-2xl">
-            {t('landing.hero_subtitle')}
-          </p>
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-primary-200">
-            {t('landing.hero_description')}
-          </p>
-          <div className="mt-12 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              to="/forum"
-              className="rounded-full bg-white px-8 py-3.5 font-semibold text-primary-800 shadow-lg transition-all hover:bg-primary-50 hover:shadow-xl"
-            >
-              {t('landing.cta_forum')}
-            </Link>
-            <Link
-              to="/research"
-              className="rounded-full border-2 border-white/40 px-8 py-3.5 font-semibold text-white transition-all hover:border-white hover:bg-white/10"
-            >
-              {t('landing.cta_research')}
-            </Link>
+      <section className="relative isolate overflow-hidden bg-stone-950 px-4 py-20 text-white md:py-28">
+        <div className="absolute inset-0">
+          <img
+            src={heroImageUrl}
+            alt=""
+            aria-hidden="true"
+            className="h-full w-full object-cover object-[58%_34%]"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(17,10,7,0.94)_6%,rgba(37,19,11,0.84)_38%,rgba(59,32,18,0.56)_62%,rgba(20,11,7,0.9)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_51%_43%,rgba(252,211,77,0.28),transparent_24%),radial-gradient(circle_at_80%_22%,rgba(255,247,237,0.18),transparent_30%)]" />
+        </div>
+
+        <div className="pointer-events-none absolute -right-12 bottom-0 hidden lg:block">
+          <img
+            src={logoImageUrl}
+            alt=""
+            aria-hidden="true"
+            className="h-[30rem] w-[30rem] object-contain opacity-16 drop-shadow-[0_0_60px_rgba(251,191,36,0.35)]"
+          />
+        </div>
+
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[minmax(0,1fr)_20rem]">
+          <div className="text-center lg:text-left">
+            <div className="inline-flex items-center gap-3 rounded-full border border-white/15 bg-white/10 px-4 py-2 backdrop-blur-sm">
+              <img src={logoImageUrl} alt="" aria-hidden="true" className="h-7 w-7 object-contain" />
+              <p className="text-xs font-semibold uppercase tracking-[0.32em] text-primary-100 sm:text-sm">
+                {t('landing.origin_label')}
+              </p>
+            </div>
+
+            <h1 className="mt-8 font-serif text-5xl font-bold leading-tight tracking-tight text-white md:text-7xl">
+              SpondylAtlas
+            </h1>
+            <p className="mt-5 text-xl text-primary-50 md:max-w-2xl md:text-2xl lg:mx-0">
+              {t('landing.hero_subtitle')}
+            </p>
+            <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-primary-100/90 lg:mx-0">
+              {t('landing.hero_description')}
+            </p>
+            <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row lg:justify-start">
+              <Link
+                to="/forum"
+                className="rounded-full bg-white px-8 py-3.5 font-semibold text-primary-800 shadow-lg shadow-black/20 transition-all hover:bg-primary-50 hover:shadow-xl"
+              >
+                {t('landing.cta_forum')}
+              </Link>
+              <Link
+                to="/research"
+                className="rounded-full border-2 border-white/45 bg-white/8 px-8 py-3.5 font-semibold text-white backdrop-blur-sm transition-all hover:border-white hover:bg-white/14"
+              >
+                {t('landing.cta_research')}
+              </Link>
+            </div>
+          </div>
+
+          <div className="relative mx-auto w-full max-w-xs lg:mx-0 lg:justify-self-end">
+            <div className="absolute inset-6 rounded-full bg-primary-300/25 blur-3xl" />
+            <div className="relative rounded-[2rem] border border-white/15 bg-white/10 p-6 shadow-2xl shadow-black/30 backdrop-blur-md">
+              <div className="rounded-[1.5rem] border border-white/10 bg-black/15 p-5">
+                <img
+                  src={logoImageUrl}
+                  alt="SpondylAtlas Logo"
+                  className="mx-auto h-44 w-44 object-contain drop-shadow-[0_14px_30px_rgba(0,0,0,0.35)]"
+                />
+              </div>
+              <p className="mt-5 text-center text-xs font-semibold uppercase tracking-[0.3em] text-primary-100/85">
+                {isGerman ? 'Forschung trifft Community' : 'Research meets community'}
+              </p>
+            </div>
           </div>
         </div>
       </section>

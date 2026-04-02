@@ -6,7 +6,25 @@
     "login": "Anmelden",
     "register": "Registrieren",
     "profile": "Profil",
-    "logout": "Abmelden"
+    "logout": "Abmelden",
+    "language": "Sprache",
+    "language_switcher_label": "Sprache auf {{language}} wechseln",
+    "open_menu": "Menü öffnen",
+    "close_menu": "Menü schließen",
+    "menu": "Menü",
+    "account": "Konto",
+    "access": "Zugang",
+    "tagline": "Forschung und geschützte Community"
+  },
+  "footer": {
+    "badge": "Vertrauen & Orientierung",
+    "navigation": "Navigation",
+    "legal": "Rechtliches",
+    "community": "Konto & Community",
+    "trust_privacy": "Datenschutzorientierte Struktur",
+    "trust_adults": "Nur für volljährige Mitglieder",
+    "trust_moderation": "Transparente Moderation",
+    "bottom_note": "Rechtliche Dokumente und Datenschutzkontakt sind dauerhaft erreichbar."
   },
   "landing": {
     "origin_label": "Aus Freundschaft entstanden",
@@ -94,6 +112,7 @@
     "register_title": "Werde Teil der Community",
     "email": "E-Mail",
     "password": "Passwort",
+    "confirm_password": "Passwort wiederholen",
     "display_name": "Dein Name",
     "login_button": "Anmelden",
     "register_button": "Konto erstellen",
@@ -102,6 +121,7 @@
     "has_account": "Bereits dabei?",
     "error_invalid_credentials": "E-Mail oder Passwort stimmt nicht.",
     "error_email_in_use": "Diese E-Mail-Adresse ist bereits registriert.",
+    "error_password_mismatch": "Die Passwörter stimmen nicht überein.",
     "error_generic": "Etwas ist schiefgelaufen. Bitte versuche es noch einmal."
   },
   "profile": {
