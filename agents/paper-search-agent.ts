@@ -432,10 +432,10 @@ async function main() {
   console.log("=== SpondylAtlas Paper Search Agent ===");
   console.log(`Run started at ${new Date().toISOString()}\n`);
 
+  const db = initFirebase();
+
   initLogger("paper-search");
   await logStart("Suche neue axSpA-Studien in PubMed & Europe PMC");
-
-  const db = initFirebase();
   const anthropic = createAnthropicClient();
 
   // 1. Fetch from both sources in parallel
