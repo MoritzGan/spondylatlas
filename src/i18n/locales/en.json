@@ -122,7 +122,13 @@
     "error_invalid_credentials": "Email or password is incorrect.",
     "error_email_in_use": "This email address is already registered.",
     "error_password_mismatch": "The passwords do not match.",
-    "error_generic": "Something went wrong. Please try again."
+    "error_generic": "Something went wrong. Please try again.",
+    "forgot_password_link": "Forgot password?",
+    "forgot_password_title": "Reset password",
+    "forgot_password_description": "Enter your email address and we will send you a link to reset your password.",
+    "forgot_password_button": "Send reset link",
+    "forgot_password_success": "If an account with this email address exists, you will receive an email with a reset link shortly. Please also check your spam folder.",
+    "back_to_login": "Back to login"
   },
   "profile": {
     "title": "My Profile",

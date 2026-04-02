@@ -79,6 +79,11 @@ export default function Login() {
             className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
           />
         </div>
+        <div className="text-right">
+          <Link to="/passwort-vergessen" className="text-sm font-medium text-primary-600 hover:underline">
+            {t('auth.forgot_password_link')}
+          </Link>
+        </div>
         <button
           type="submit"
           disabled={loading}

@@ -5,6 +5,7 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   sendEmailVerification,
+  sendPasswordResetEmail,
   updateProfile,
   type User,
 } from 'firebase/auth'
@@ -25,6 +26,7 @@ interface AuthContextType {
   register: (payload: RegisterPayload) => Promise<void>
   logout: () => Promise<void>
   resendVerificationEmail: () => Promise<void>
+  resetPassword: (email: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -68,6 +70,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signOut(auth)
   }
 
+  async function resetPassword(email: string) {
+    await sendPasswordResetEmail(auth, email)
+  }
+
   async function resendVerificationEmail() {
     if (!auth.currentUser) {
       throw new Error('No authenticated user available.')
@@ -77,7 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout, resendVerificationEmail }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, resendVerificationEmail, resetPassword }}>
       {children}
     </AuthContext.Provider>
   )
