@@ -143,6 +143,19 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+
+    // ── /agent_events ─────────────────────────────────────────────────────────
+    match /agent_events/{eventId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── /agent_runs ───────────────────────────────────────────────────────────
+    match /agent_runs/{runId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }
