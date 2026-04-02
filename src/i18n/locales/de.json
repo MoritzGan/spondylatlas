@@ -122,7 +122,13 @@
     "error_invalid_credentials": "E-Mail oder Passwort stimmt nicht.",
     "error_email_in_use": "Diese E-Mail-Adresse ist bereits registriert.",
     "error_password_mismatch": "Die Passwörter stimmen nicht überein.",
-    "error_generic": "Etwas ist schiefgelaufen. Bitte versuche es noch einmal."
+    "error_generic": "Etwas ist schiefgelaufen. Bitte versuche es noch einmal.",
+    "forgot_password_link": "Passwort vergessen?",
+    "forgot_password_title": "Passwort zurücksetzen",
+    "forgot_password_description": "Gib deine E-Mail-Adresse ein. Wir schicken dir einen Link zum Zurücksetzen deines Passworts.",
+    "forgot_password_button": "Reset-Link senden",
+    "forgot_password_success": "Falls ein Konto mit dieser E-Mail-Adresse existiert, hast du in Kürze eine E-Mail mit einem Reset-Link erhalten. Bitte prüfe auch deinen Spam-Ordner.",
+    "back_to_login": "Zurück zur Anmeldung"
   },
   "profile": {
     "title": "Mein Profil",

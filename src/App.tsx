@@ -10,6 +10,7 @@ import NewPost from './pages/NewPost'
 import Research from './pages/Research'
 import PaperDetail from './pages/PaperDetail'
 import Login from './pages/Login'
+import ForgotPassword from './pages/ForgotPassword'
 import Register from './pages/Register'
 import Profile from './pages/Profile'
 import Hypotheses from './pages/Hypotheses'
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="research" element={<Research />} />
             <Route path="research/:paperId" element={<PaperDetail />} />
             <Route path="login" element={<Login />} />
+            <Route path="passwort-vergessen" element={<ForgotPassword />} />
             <Route path="register" element={<Register />} />
             <Route path="impressum" element={<Imprint />} />
             <Route path="datenschutz" element={<PrivacyPolicy />} />
