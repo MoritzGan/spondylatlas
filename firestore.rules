@@ -1,0 +1,106 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helper functions ─────────────────────────────────────────────────────
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    function isModerator() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ["admin", "moderator"];
+    }
+
+    function notChanging(field) {
+      return !(field in request.resource.data) ||
+             request.resource.data[field] == resource.data[field];
+    }
+
+    // ── /users ───────────────────────────────────────────────────────────────
+    // Public profiles readable by all signed-in users.
+    // Only the owner can write their own doc; admins can write any.
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── /papers ──────────────────────────────────────────────────────────────
+    // Research papers — public read, write only via service account (agents).
+    // The service account bypasses client rules, so we only need to protect
+    // against client-side writes.
+    match /papers/{paperId} {
+      allow read: if true;           // public — no auth required
+      allow write: if isAdmin();     // clients: only admins; agents use SA
+    }
+
+    // ── /trials ──────────────────────────────────────────────────────────────
+    // Clinical trials — same pattern as papers
+    match /trials/{trialId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ── /forum_posts ─────────────────────────────────────────────────────────
+    // Only published posts are publicly readable.
+    // Authors can create; moderators/admins can update status.
+    match /forum_posts/{postId} {
+      allow read: if resource.data.status == "published" ||
+                     isOwner(resource.data.authorId) ||
+                     isModerator();
+
+      allow create: if isSignedIn() &&
+                       request.resource.data.authorId == request.auth.uid &&
+                       request.resource.data.status == "pending_moderation" &&
+                       request.resource.data.content.size() <= 10000 &&
+                       request.resource.data.title.size() <= 300;
+
+      // Author can edit content/title (stays in pending_moderation)
+      allow update: if isOwner(resource.data.authorId) &&
+                       notChanging("status") &&
+                       notChanging("authorId") ||
+                    isModerator();  // moderators can change status
+
+      allow delete: if isAdmin() || isOwner(resource.data.authorId);
+    }
+
+    // ── /forum_comments ──────────────────────────────────────────────────────
+    match /forum_comments/{commentId} {
+      allow read: if true;
+      allow create: if isSignedIn() &&
+                       request.resource.data.authorId == request.auth.uid &&
+                       request.resource.data.content.size() <= 3000;
+      allow update: if isOwner(resource.data.authorId) &&
+                       notChanging("authorId") &&
+                       notChanging("postId");
+      allow delete: if isAdmin() || isOwner(resource.data.authorId);
+    }
+
+    // ── /reports ─────────────────────────────────────────────────────────────
+    // Users can report content; only moderators/admins can read reports.
+    match /reports/{reportId} {
+      allow read: if isModerator();
+      allow create: if isSignedIn() &&
+                       request.resource.data.reporterId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+
+    // ── Catch-all: deny everything else ──────────────────────────────────────
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
