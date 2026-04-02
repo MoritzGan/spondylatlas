@@ -46,18 +46,20 @@
   "research": {
     "title": "Research Hub",
     "subtitle": "Current scientific papers on axSpA",
-    "search_placeholder": "Search papers...",
+    "search_placeholder": "Search by title or tags...",
     "no_papers": "No papers available yet.",
+    "no_results": "No papers match your search.",
     "back_to_research": "Back to Research",
     "authors": "Authors",
     "published": "Published",
     "tags": "Tags",
     "source": "Source",
     "read_full": "Read full paper",
+    "view_original": "View original",
     "summary": "Summary",
     "abstract": "Abstract",
-    "placeholder_title": "Example Paper",
-    "placeholder_abstract": "This is a placeholder. Research content will be added soon."
+    "paper_not_found": "Paper not found.",
+    "paper_count": "{{count}} paper(s) found"
   },
   "auth": {
     "login_title": "Login",

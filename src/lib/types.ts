@@ -10,6 +10,8 @@ export interface Paper {
   tags: string[]
   url: string
   source: string
+  pubmedId?: string
+  doi?: string
   lang: 'de' | 'en'
 }
 

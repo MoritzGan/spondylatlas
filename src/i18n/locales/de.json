@@ -46,18 +46,20 @@
   "research": {
     "title": "Forschungs-Hub",
     "subtitle": "Aktuelle wissenschaftliche Arbeiten zu axSpA",
-    "search_placeholder": "Studien durchsuchen...",
+    "search_placeholder": "Nach Titel oder Schlagwörtern suchen...",
     "no_papers": "Noch keine Studien verfügbar.",
+    "no_results": "Keine Studien zu Ihrer Suche gefunden.",
     "back_to_research": "Zurück zur Forschung",
     "authors": "Autor:innen",
     "published": "Veröffentlicht",
     "tags": "Schlagwörter",
     "source": "Quelle",
     "read_full": "Vollständige Studie lesen",
+    "view_original": "Original ansehen",
     "summary": "Zusammenfassung",
     "abstract": "Abstract",
-    "placeholder_title": "Beispiel-Studie",
-    "placeholder_abstract": "Dies ist ein Platzhalter. Forschungsinhalte werden bald hinzugefügt."
+    "paper_not_found": "Studie nicht gefunden.",
+    "paper_count": "{{count}} Studie(n) gefunden"
   },
   "auth": {
     "login_title": "Anmelden",
