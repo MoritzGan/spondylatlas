@@ -1,0 +1,18 @@
+{
+  "name": "spondylatlas-agents",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "paper-search": "tsx paper-search-agent.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "firebase-admin": "^13.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.0",
+    "@types/node": "^22.0.0"
+  }
+}
