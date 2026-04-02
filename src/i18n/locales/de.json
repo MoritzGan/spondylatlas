@@ -57,7 +57,18 @@
     "posted_by": "Von",
     "no_posts": "Noch keine Antworten.",
     "placeholder_title": "Beispiel-Thema",
-    "placeholder_body": "Dies ist ein Platzhalter. Inhalte werden bald verfügbar sein."
+    "placeholder_body": "Dies ist ein Platzhalter. Inhalte werden bald verfügbar sein.",
+    "new_post": "Neues Thema",
+    "be_first": "Sei die erste Person, die schreibt!",
+    "post_title": "Titel",
+    "post_content": "Inhalt",
+    "submit_post": "Veröffentlichen",
+    "write_reply": "Antwort schreiben",
+    "reply_placeholder": "Deine Antwort...",
+    "submit_reply": "Antworten",
+    "login_to_reply": "Melde dich an, um zu antworten.",
+    "login_to_post": "Melde dich an, um einen Beitrag zu erstellen.",
+    "post_not_found": "Beitrag nicht gefunden."
   },
   "research": {
     "title": "Forschungs-Hub",

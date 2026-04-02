@@ -57,7 +57,18 @@
     "posted_by": "By",
     "no_posts": "No replies yet.",
     "placeholder_title": "Example Topic",
-    "placeholder_body": "This is a placeholder. Content will be available soon."
+    "placeholder_body": "This is a placeholder. Content will be available soon.",
+    "new_post": "New Topic",
+    "be_first": "Be the first to post!",
+    "post_title": "Title",
+    "post_content": "Content",
+    "submit_post": "Publish",
+    "write_reply": "Write a reply",
+    "reply_placeholder": "Your reply...",
+    "submit_reply": "Reply",
+    "login_to_reply": "Sign in to reply.",
+    "login_to_post": "Sign in to create a post.",
+    "post_not_found": "Post not found."
   },
   "research": {
     "title": "Research Hub",

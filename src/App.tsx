@@ -4,7 +4,9 @@ import Layout from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
 import Landing from './pages/Landing'
 import Forum from './pages/Forum'
+import ForumCategory from './pages/ForumCategory'
 import ForumThread from './pages/ForumThread'
+import NewPost from './pages/NewPost'
 import Research from './pages/Research'
 import PaperDetail from './pages/PaperDetail'
 import Login from './pages/Login'
@@ -20,7 +22,16 @@ export default function App() {
           <Route element={<Layout />}>
             <Route index element={<Landing />} />
             <Route path="forum" element={<Forum />} />
-            <Route path="forum/:threadId" element={<ForumThread />} />
+            <Route path="forum/:category" element={<ForumCategory />} />
+            <Route
+              path="forum/:category/new"
+              element={
+                <ProtectedRoute>
+                  <NewPost />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="forum/:category/:postId" element={<ForumThread />} />
             <Route path="research" element={<Research />} />
             <Route path="research/:paperId" element={<PaperDetail />} />
             <Route path="login" element={<Login />} />
