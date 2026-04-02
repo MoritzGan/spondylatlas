@@ -26,7 +26,18 @@
     "feature_open_desc": "Open source, transparent, no ads. Because some things matter more than business models.",
     "cta_bottom_title": "Become part of the community",
     "cta_bottom_text": "Register for free — and join a community that is there for each other.",
-    "cta_join": "Join now"
+    "cta_join": "Join now",
+    "how_title": "How SpondylAtlas works",
+    "how_intro": "Behind the platform, AI agents work around the clock — built with OpenClaw and Claude by Anthropic.",
+    "how_step1_title": "Research collected automatically",
+    "how_step1_text": "Agents search PubMed and Europe PMC daily for new AS studies and store them directly in the database.",
+    "how_step2_title": "Graded by evidence quality",
+    "how_step2_text": "Every study is automatically classified using the Oxford standard — from case reports to systematic reviews.",
+    "how_step3_title": "Explained in plain language",
+    "how_step3_text": "Claude summarises each study clearly: what was studied, what was found, and what it means for patients.",
+    "how_step4_title": "Finding new patterns",
+    "how_step4_text": "Over time, the agents will look beyond individual papers — surfacing connections that no one has explicitly described before.",
+    "how_badge": "Powered by OpenClaw & Claude"
   },
   "forum": {
     "title": "Community Forum",

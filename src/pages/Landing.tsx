@@ -42,13 +42,30 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Personal story */}
-      <section className="px-4 py-16 md:py-20">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="font-serif text-2xl leading-relaxed text-stone-700 italic md:text-3xl">
-            &ldquo;{t('landing.origin_quote')}&rdquo;
+      {/* How it works */}
+      <section className="px-4 py-16 md:py-24">
+        <div className="mx-auto max-w-5xl">
+          <div className="mb-4 flex justify-center">
+            <span className="inline-flex items-center gap-2 rounded-full bg-primary-100 px-4 py-1.5 text-sm font-medium text-primary-800">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+              </svg>
+              {t('landing.how_badge')}
+            </span>
+          </div>
+          <h2 className="font-serif text-3xl font-semibold text-center text-stone-800 md:text-4xl">
+            {t('landing.how_title')}
+          </h2>
+          <p className="mx-auto mt-4 max-w-2xl text-center text-lg leading-relaxed text-stone-600">
+            {t('landing.how_intro')}
           </p>
-          <p className="mt-6 text-stone-500">{t('landing.origin_author')}</p>
+
+          <div className="mt-12 grid gap-6 md:grid-cols-2">
+            <HowStep number="01" title={t('landing.how_step1_title')} text={t('landing.how_step1_text')} />
+            <HowStep number="02" title={t('landing.how_step2_title')} text={t('landing.how_step2_text')} />
+            <HowStep number="03" title={t('landing.how_step3_title')} text={t('landing.how_step3_text')} />
+            <HowStep number="04" title={t('landing.how_step4_title')} text={t('landing.how_step4_text')} accent />
+          </div>
         </div>
       </section>
 
@@ -115,6 +132,16 @@ export default function Landing() {
           {t('landing.cta_join')}
         </Link>
       </section>
+    </div>
+  )
+}
+
+function HowStep({ number, title, text, accent = false }: { number: string; title: string; text: string; accent?: boolean }) {
+  return (
+    <div className={`rounded-2xl p-7 ${accent ? 'bg-primary-50 border border-primary-200' : 'bg-stone-50 border border-stone-100'} shadow-sm`}>
+      <span className={`text-sm font-semibold tracking-widest ${accent ? 'text-primary-600' : 'text-stone-400'}`}>{number}</span>
+      <h3 className="font-serif mt-2 text-xl font-semibold text-stone-800">{title}</h3>
+      <p className="mt-2 leading-relaxed text-stone-600">{text}</p>
     </div>
   )
 }

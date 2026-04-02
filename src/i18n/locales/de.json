@@ -26,7 +26,18 @@
     "feature_open_desc": "Open Source, transparent, ohne Werbung. Weil manche Dinge wichtiger sind als Geschäftsmodelle.",
     "cta_bottom_title": "Teil der Community werden",
     "cta_bottom_text": "Registriere dich kostenlos — und werde Teil einer Gemeinschaft, die füreinander da ist.",
-    "cta_join": "Jetzt mitmachen"
+    "cta_join": "Jetzt mitmachen",
+    "how_title": "Wie SpondylAtlas funktioniert",
+    "how_intro": "Hinter der Plattform arbeiten KI-Agenten rund um die Uhr — gebaut mit OpenClaw und Claude von Anthropic.",
+    "how_step1_title": "Forschung automatisch gesammelt",
+    "how_step1_text": "Agenten durchsuchen täglich PubMed und Europe PMC nach neuen Studien zu Morbus Bechterew und speichern sie direkt in die Datenbank.",
+    "how_step2_title": "Bewertet nach Evidenzqualität",
+    "how_step2_text": "Jede Studie wird automatisch nach dem Oxford-Standard eingestuft — von der Einzelfallstudie bis zum systematischen Review.",
+    "how_step3_title": "Verständlich erklärt",
+    "how_step3_text": "Claude fasst jede Studie in klarer Sprache zusammen: Was wurde untersucht, was wurde gefunden, was bedeutet das für Patienten?",
+    "how_step4_title": "Muster erkennen",
+    "how_step4_text": "Langfristig sollen die Agenten über die gesammelte Forschung hinausdenken — und Zusammenhänge sichtbar machen, die bisher niemand explizit beschrieben hat.",
+    "how_badge": "Betrieben mit OpenClaw & Claude"
   },
   "forum": {
     "title": "Community-Forum",
