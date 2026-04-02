@@ -16,7 +16,7 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 async function writePatientSummary(title: string, abstract: string, evidenceLevel: string) {
   const msg = await anthropic.messages.create({
-    model: "claude-3-haiku-20240307",
+    model: "claude-3-5-haiku-latest",
     max_tokens: 800,
     messages: [{
       role: "user",
