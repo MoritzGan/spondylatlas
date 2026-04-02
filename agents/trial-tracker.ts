@@ -6,7 +6,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import * as fs from "fs";
 
 const serviceAccount = JSON.parse(
-  fs.readFileSync(new URL("./firebase-service-account.json", import.meta.url).pathname, "utf-8")
+  process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+    ?? fs.readFileSync(process.env.GOOGLE_APPLICATION_CREDENTIALS ?? "./firebase-service-account.json", "utf-8")
 ) as ServiceAccount;
 
 initializeApp({ credential: cert(serviceAccount) });

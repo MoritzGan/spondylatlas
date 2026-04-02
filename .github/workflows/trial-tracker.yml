@@ -1,4 +1,4 @@
-name: Trial Tracker Agent
+name: Trial-tracker Agent
 on:
   schedule:
     - cron: '30 */2 * * *'
@@ -12,12 +12,13 @@ jobs:
         with: { node-version: 20, cache: npm, cache-dependency-path: agents/package-lock.json }
       - run: npm install
         working-directory: agents
-      - run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}' > /tmp/sa-key.json
-      - run: npx tsx trial-tracker.ts
+      - name: Write service account key
+        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/sa-key.json
+      - name: Run agent
+        run: npx tsx trial-tracker.ts
         working-directory: agents
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
           GOOGLE_APPLICATION_CREDENTIALS: /tmp/sa-key.json
       - if: always()
         run: rm -f /tmp/sa-key.json

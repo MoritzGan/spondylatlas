@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { readFileSync } from "fs";
 import { initializeApp, cert, type ServiceAccount } from "firebase-admin/app";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import Anthropic from "@anthropic-ai/sdk";
@@ -7,13 +8,7 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const serviceAccount = JSON.parse(
   process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON ??
-    (() => {
-      const fs = require("fs");
-      return fs.readFileSync(
-        process.env.GOOGLE_APPLICATION_CREDENTIALS ?? "",
-        "utf8"
-      );
-    })()
+    readFileSync(process.env.GOOGLE_APPLICATION_CREDENTIALS ?? "", "utf8")
 ) as ServiceAccount;
 
 initializeApp({ credential: cert(serviceAccount) });
