@@ -1,3 +1,4 @@
+import { initLogger, logStart, logComplete, logError, logEvent } from "./lib/logger.js";
 import "dotenv/config";
 import { initializeApp, cert, type ServiceAccount } from "firebase-admin/app";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
@@ -44,6 +45,10 @@ async function run() {
     .slice(0, 15);
 
   if (toSummarize.length === 0) { console.log("✅ Alle bewerteten Papers haben Zusammenfassungen."); return; }
+  initLogger("summary-writer");
+  await logStart("Schreibe patientenfreundliche Zusammenfassungen");
+  if (toSummarize.length === 0) { await logComplete("Alle Papers bereits zusammengefasst", 0); console.log("✅ Fertig."); return; }
+  await logEvent("step", `${toSummarize.length} Papers zu zusammenfassen`);
   console.log(`✍️  Schreibe ${toSummarize.length} Patientenzusammenfassungen...`);
 
   let written = 0;
@@ -56,11 +61,13 @@ async function run() {
         summarizedAt: Timestamp.now(),
       });
       written++;
+      await logEvent("step", `Zusammenfassung geschrieben`, data.title.substring(0, 100));
       console.log(`  ✓ ${data.title.substring(0, 60)}`);
     } catch (err) { console.error(`  ✗ ${data.title.substring(0, 40)}`, err); }
     await new Promise(r => setTimeout(r, 400));
   }
+  await logComplete(`${written}/${toSummarize.length} Zusammenfassungen geschrieben`, written);
   console.log(`\n✅ ${written}/${toSummarize.length} Zusammenfassungen geschrieben.`);
 }
 
-run().catch(console.error);
+run().catch(async (err) => { try { await logError(err.message); } catch {} console.error(err); });

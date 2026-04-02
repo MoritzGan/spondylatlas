@@ -12,6 +12,7 @@ import PaperDetail from './pages/PaperDetail'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Profile from './pages/Profile'
+import AgentArena from './pages/AgentArena'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -44,6 +45,7 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="arena" element={<AgentArena />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

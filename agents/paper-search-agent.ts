@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { initLogger, logStart, logComplete, logError, logEvent } from "./lib/logger.js";
 import { initializeApp, cert, type ServiceAccount } from "firebase-admin/app";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import Anthropic from "@anthropic-ai/sdk";
@@ -431,6 +432,9 @@ async function main() {
   console.log("=== SpondylAtlas Paper Search Agent ===");
   console.log(`Run started at ${new Date().toISOString()}\n`);
 
+  initLogger("paper-search");
+  await logStart("Suche neue axSpA-Studien in PubMed & Europe PMC");
+
   const db = initFirebase();
   const anthropic = createAnthropicClient();
 
@@ -453,6 +457,7 @@ async function main() {
   });
 
   const allPapers = [...pubmedPapers, ...europeResults];
+  await logEvent("step", `${allPapers.length} Papers gefunden`, `PubMed: ${pubmedPapers.length}, EuropePMC: ${europeResults.length}`);
   console.log(`\n[Total] ${allPapers.length} papers fetched (${pubmedPapers.length} PubMed, ${europeResults.length} EuropePMC)`);
 
   // 3. Deduplicate within the batch (prefer PubMed source)
@@ -471,6 +476,7 @@ async function main() {
   const existing = await getExistingIdentifiers(db);
   const newPapers = uniquePapers.filter((p) => !isDuplicate(p, existing));
   console.log(`[Dedup] ${newPapers.length} new papers after Firestore dedup`);
+  await logEvent("step", `${newPapers.length} neue Papers nach Duplikat-Prüfung`);
 
   // 5. Limit to MAX_NEW_PAPERS for cost control
   const toProcess = newPapers.slice(0, MAX_NEW_PAPERS);
@@ -490,6 +496,7 @@ async function main() {
       const docId = await storePaper(db, paper, summary);
 
       console.log(`  -> Stored as ${docId}`);
+      await logEvent("step", `Paper gespeichert`, paper.title.slice(0, 120));
       added++;
     } catch (err: any) {
       console.error(`  -> Error: ${err.message}`);
@@ -500,14 +507,17 @@ async function main() {
   // 7. Summary
   console.log("\n=== Run Summary ===");
   console.log(`Papers found:   ${allPapers.length}`);
-  console.log(`Already stored: ${uniquePapers.length - newPapers.length}`);
   console.log(`New added:      ${added}`);
   console.log(`Errors:         ${errors}`);
-  console.log(`Skipped (limit):${Math.max(0, newPapers.length - MAX_NEW_PAPERS)}`);
+  await logComplete(
+    `${added} neue Paper gespeichert, ${errors} Fehler, ${uniquePapers.length - newPapers.length} Duplikate`,
+    added
+  );
   console.log(`\nFinished at ${new Date().toISOString()}`);
 }
 
-main().catch((err) => {
+main().catch(async (err) => {
   console.error("Fatal error:", err);
+  try { await logError(err.message); } catch {}
   process.exit(1);
 });

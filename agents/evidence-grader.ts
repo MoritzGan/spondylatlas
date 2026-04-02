@@ -1,3 +1,4 @@
+import { initLogger, logStart, logComplete, logError, logEvent } from "./lib/logger.js";
 import "dotenv/config";
 import { initializeApp, cert, type ServiceAccount } from "firebase-admin/app";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
@@ -36,11 +37,18 @@ Antworte NUR mit JSON:
 }
 
 async function run() {
+  initLogger("evidence-grader");
+  await logStart("Bewerte Evidenzqualität neuer Papers");
+
   const snapshot = await db.collection("papers").orderBy("createdAt", "desc").limit(100).get();
   const toGrade = snapshot.docs.filter(d => !d.data().evidenceLevel).slice(0, 20);
 
-  if (toGrade.length === 0) { console.log("✅ Alle Papers bewertet."); return; }
+  if (toGrade.length === 0) {
+    await logComplete("Alle Papers bereits bewertet", 0);
+    console.log("✅ Alle Papers bewertet."); return;
+  }
   console.log(`📊 Bewerte ${toGrade.length} Papers...`);
+  await logEvent("step", `${toGrade.length} Papers zu bewerten`);
 
   let graded = 0;
   for (const doc of toGrade) {
@@ -56,11 +64,13 @@ async function run() {
         tags: [...new Set([...(data.tags || []), ...result.tags])],
       });
       graded++;
+      await logEvent("step", `[${result.level}] ${data.title.substring(0, 80)}`, result.rationale);
       console.log(`  ✓ [${result.level}] ${data.title.substring(0, 60)}`);
     } catch (err) { console.error(`  ✗ ${data.title.substring(0, 40)}`, err); }
     await new Promise(r => setTimeout(r, 400));
   }
+  await logComplete(`${graded}/${toGrade.length} Papers bewertet`, graded);
   console.log(`\n✅ ${graded}/${toGrade.length} bewertet.`);
 }
 
-run().catch(console.error);
+run().catch(async (err) => { try { await logError(err.message); } catch {} console.error(err); });

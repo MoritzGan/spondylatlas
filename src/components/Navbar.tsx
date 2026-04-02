@@ -34,6 +34,9 @@ export default function Navbar() {
           <Link to="/research" className="text-gray-600 transition-colors hover:text-primary-700">
             {t('nav.research')}
           </Link>
+          <Link to="/arena" className="text-gray-600 transition-colors hover:text-primary-700">
+            ⚙️ Arena
+          </Link>
           {user ? (
             <>
               <Link to="/profile" className="text-gray-600 transition-colors hover:text-primary-700">

@@ -1,3 +1,4 @@
+import { initLogger, logStart, logComplete, logError, logEvent } from "./lib/logger.js";
 import "dotenv/config";
 import { initializeApp, cert, type ServiceAccount } from "firebase-admin/app";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
@@ -103,7 +104,9 @@ async function run() {
     } catch (err) { console.error(`  ✗ ${nctId}`, err); }
     await new Promise(r => setTimeout(r, 400));
   }
+  await logEvent("step", `Klinische Studie gespeichert`, "trial-tracker");
   console.log(`\n✅ Studien-Datenbank aktualisiert.`);
+  await logComplete("Klinische Studien aktualisiert");
 }
 
-run().catch(console.error);
+run().catch(async (err) => { try { await logError(err.message); } catch {} console.error(err); });
