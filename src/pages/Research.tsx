@@ -1,44 +1,54 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { collection, query, orderBy, getDocs } from 'firebase/firestore'
+import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import type { Paper } from '../lib/types'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 export default function Research() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [papers, setPapers] = useState<Paper[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
 
+  usePageMeta({
+    title: `${t('research.title')} | SpondylAtlas`,
+    description: i18n.language.startsWith('de')
+      ? 'Öffentlicher Forschungsbereich mit Paper-Metadaten ohne Werbe- oder Tracking-Cookies.'
+      : 'Public research area with paper metadata and no advertising or tracking cookies.',
+  })
+
   useEffect(() => {
     const fetchPapers = async () => {
       try {
-        const q = query(collection(db, 'papers'), orderBy('publishedAt', 'desc'))
-        const snapshot = await getDocs(q)
-        const docs = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
+        const papersQuery = query(collection(db, 'papers'), orderBy('publishedAt', 'desc'))
+        const snapshot = await getDocs(papersQuery)
+        const docs = snapshot.docs.map((entry) => ({
+          id: entry.id,
+          ...entry.data(),
         })) as Paper[]
         setPapers(docs)
-      } catch (err) {
-        console.error('Failed to fetch papers:', err)
-        setError((err as Error).message)
+      } catch (fetchError) {
+        console.error('Failed to fetch papers:', fetchError)
+        setError((fetchError as Error).message)
       } finally {
         setLoading(false)
       }
     }
-    fetchPapers()
+
+    void fetchPapers()
   }, [])
 
   const filtered = useMemo(() => {
     if (!search.trim()) return papers
     const term = search.toLowerCase()
+
     return papers.filter(
-      (p) =>
-        p.title.toLowerCase().includes(term) ||
-        p.tags.some((tag) => tag.toLowerCase().includes(term))
+      (paper) =>
+        paper.title.toLowerCase().includes(term) ||
+        paper.tags.some((tag) => tag.toLowerCase().includes(term)),
     )
   }, [papers, search])
 
@@ -46,7 +56,7 @@ export default function Research() {
     try {
       return paper.publishedAt.toDate().toLocaleDateString()
     } catch {
-      return '—'
+      return '-'
     }
   }
 
@@ -61,11 +71,17 @@ export default function Research() {
       <h1 className="text-3xl font-bold text-gray-900">{t('research.title')}</h1>
       <p className="mt-2 text-gray-600">{t('research.subtitle')}</p>
 
+      <div className="mt-4 rounded-2xl border border-stone-200 bg-stone-50 p-4 text-sm leading-6 text-stone-700">
+        {i18n.language.startsWith('de')
+          ? 'Dieser Bereich ist öffentlich. Er verwendet keine Werbe- oder Analyse-Cookies und enthält nur Forschungsdaten, die für die Bereitstellung des Dienstes geladen werden.'
+          : 'This area is public. It does not use advertising or analytics cookies and loads only the research data required to provide the service.'}
+      </div>
+
       <div className="mt-6">
         <input
           type="search"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(event) => setSearch(event.target.value)}
           placeholder={t('research.search_placeholder')}
           className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
         />

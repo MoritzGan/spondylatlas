@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /forum
+Disallow: /forum/
+Disallow: /profile
+Disallow: /profile/
+Disallow: /login
+Disallow: /register

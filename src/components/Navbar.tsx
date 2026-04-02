@@ -1,11 +1,12 @@
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import LanguageSwitcher from './LanguageSwitcher'
-import { useState } from 'react'
+import { PUBLIC_LEGAL_NAV, localize } from '../lib/legal'
 
 export default function Navbar() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -21,12 +22,11 @@ export default function Navbar() {
         <Link to="/" className="flex items-center gap-2 text-xl font-bold text-primary-700">
           <svg className="h-8 w-8" viewBox="0 0 64 64" fill="none">
             <circle cx="32" cy="32" r="30" fill="currentColor" />
-            <text x="32" y="42" textAnchor="middle" fontSize="28" fontFamily="Arial" fontWeight="bold" fill="white">SA</text>
+            <text x="32" y="42" textAnchor="middle" fontSize="28" fontFamily="Georgia" fontWeight="bold" fill="white">SA</text>
           </svg>
           SpondylAtlas
         </Link>
 
-        {/* Desktop nav */}
         <nav className="hidden items-center gap-6 md:flex">
           <Link to="/forum" className="text-gray-600 transition-colors hover:text-primary-700">
             {t('nav.forum')}
@@ -62,7 +62,6 @@ export default function Navbar() {
           <LanguageSwitcher />
         </nav>
 
-        {/* Mobile menu button */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className="flex items-center md:hidden"
@@ -78,7 +77,6 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile nav */}
       {menuOpen && (
         <nav className="border-t border-gray-100 bg-white px-4 pb-4 md:hidden">
           <div className="flex flex-col gap-3 pt-3">
@@ -93,7 +91,13 @@ export default function Navbar() {
                 <Link to="/profile" onClick={() => setMenuOpen(false)} className="text-gray-600">
                   {t('nav.profile')}
                 </Link>
-                <button onClick={() => { handleLogout(); setMenuOpen(false) }} className="text-left text-gray-600">
+                <button
+                  onClick={() => {
+                    void handleLogout()
+                    setMenuOpen(false)
+                  }}
+                  className="text-left text-gray-600"
+                >
                   {t('nav.logout')}
                 </button>
               </>
@@ -108,6 +112,24 @@ export default function Navbar() {
               </>
             )}
             <LanguageSwitcher />
+
+            <div className="mt-2 border-t border-stone-100 pt-3">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-stone-400">
+                {i18n.language.startsWith('de') ? 'Rechtliches' : 'Legal'}
+              </p>
+              <div className="flex flex-col gap-2">
+                {PUBLIC_LEGAL_NAV.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMenuOpen(false)}
+                    className="text-gray-600"
+                  >
+                    {localize(i18n.language, item.label)}
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
         </nav>
       )}

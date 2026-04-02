@@ -1,8 +1,14 @@
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 export default function NotFound() {
   const { t } = useTranslation()
+
+  usePageMeta({
+    title: '404 | SpondylAtlas',
+    robots: 'noindex, nofollow',
+  })
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 text-center">
