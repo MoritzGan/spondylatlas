@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { initializeApp, cert, type ServiceAccount } from "firebase-admin/app";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import Anthropic from "@anthropic-ai/sdk";
@@ -315,7 +316,7 @@ async function generateSummary(
   }
 
   const message = await client.messages.create({
-    model: "claude-3-5-haiku-20241022",
+    model: "claude-3-haiku-20240307",
     max_tokens: 300,
     messages: [
       {
