@@ -43,7 +43,9 @@ export const AGENT_META: Record<string, { label: string; emoji: string; color: s
   'evidence-grader':{ label: 'Evidence Grader', emoji: '📊', color: 'purple' },
   'summary-writer': { label: 'Summary Writer',  emoji: '✍️',  color: 'green'  },
   'trial-tracker':  { label: 'Trial Tracker',   emoji: '🧪', color: 'orange' },
-  'forum-moderator':{ label: 'Forum Moderator', emoji: '🛡️',  color: 'red'    },
+  'forum-moderator':    { label: 'Forum Moderator',      emoji: '🛡️',  color: 'red'    },
+  'hypothesis-generator': { label: 'Hypothesis Generator', emoji: '💡', color: 'yellow' },
+  'hypothesis-critic':    { label: 'Hypothesis Critic',    emoji: '🔬', color: 'indigo' },
 }
 
 export function subscribeToEvents(
