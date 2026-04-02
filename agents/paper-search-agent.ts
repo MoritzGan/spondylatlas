@@ -53,7 +53,7 @@ const PUBMED_QUERY =
 const EUROPEPMC_QUERY =
   '"ankylosing spondylitis" OR "axial spondyloarthritis"';
 
-const MAX_NEW_PAPERS = 10;
+const MAX_NEW_PAPERS = 50;
 
 // ---------------------------------------------------------------------------
 // Firebase init
