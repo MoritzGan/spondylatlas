@@ -9,23 +9,28 @@
     "logout": "Abmelden"
   },
   "landing": {
-    "hero_title": "SpondylAtlas",
+    "origin_label": "Aus Freundschaft entstanden",
     "hero_subtitle": "Forschung & Gemeinschaft für Menschen mit Morbus Bechterew",
-    "hero_description": "Eine offene Plattform, die wissenschaftliche Forschung und persönlichen Austausch für Menschen mit axialer Spondyloarthritis (axSpA) verbindet.",
-    "cta_forum": "Zum Forum",
+    "hero_description": "Eine offene Plattform, die aktuelle Wissenschaft verständlich macht — und einen Ort schafft, an dem Betroffene nicht allein sind.",
+    "cta_forum": "Zur Community",
     "cta_research": "Forschung entdecken",
-    "mission_title": "Unsere Mission",
-    "mission_text": "SpondylAtlas macht aktuelle Forschungsergebnisse zu Morbus Bechterew zugänglich und bietet eine Plattform für den Austausch von Erfahrungen und Wissen innerhalb der Community.",
-    "feature_research": "Forschungs-Hub",
-    "feature_research_desc": "Aktuelle wissenschaftliche Arbeiten, verständlich zusammengefasst.",
-    "feature_forum": "Community-Forum",
-    "feature_forum_desc": "Austausch mit anderen Betroffenen und Expert:innen.",
-    "feature_open": "Open Source",
-    "feature_open_desc": "Transparent, gemeinschaftlich entwickelt und für alle zugänglich."
+    "origin_quote": "Ich habe diese Plattform für meinen besten Freund gebaut. Damit er und alle anderen, die mit Morbus Bechterew leben, wissen: jemand denkt an euch.",
+    "origin_author": "— Moritz, Gründer von SpondylAtlas",
+    "mission_title": "Wissen, das wirklich hilft",
+    "mission_text": "Medizinische Studien sind oft schwer zugänglich — für Betroffene und manchmal sogar für Ärzte. SpondylAtlas liest die Forschung, bewertet sie und erklärt sie so, dass du verstehst, was sie für deinen Alltag bedeutet.",
+    "feature_research": "Verständliche Forschung",
+    "feature_research_desc": "Aktuelle Studien, automatisch bewertet und in klare Sprache übersetzt. Kein Fachjargon ohne Erklärung.",
+    "feature_forum": "Du bist nicht allein",
+    "feature_forum_desc": "Ein Forum für Betroffene und Angehörige — zum Austausch, zur Unterstützung, zum Verständnis.",
+    "feature_open": "Mit Herz gebaut",
+    "feature_open_desc": "Open Source, transparent, ohne Werbung. Weil manche Dinge wichtiger sind als Geschäftsmodelle.",
+    "cta_bottom_title": "Teil der Community werden",
+    "cta_bottom_text": "Registriere dich kostenlos — und werde Teil einer Gemeinschaft, die füreinander da ist.",
+    "cta_join": "Jetzt mitmachen"
   },
   "forum": {
     "title": "Community-Forum",
-    "subtitle": "Tauschen Sie sich mit anderen Betroffenen aus",
+    "subtitle": "Austausch mit Menschen, die verstehen, wie es sich anfühlt",
     "categories": {
       "general": "Allgemein",
       "symptoms": "Symptome & Diagnose",
@@ -45,10 +50,10 @@
   },
   "research": {
     "title": "Forschungs-Hub",
-    "subtitle": "Aktuelle wissenschaftliche Arbeiten zu axSpA",
+    "subtitle": "Was die Wissenschaft weiß — verständlich erklärt",
     "search_placeholder": "Nach Titel oder Schlagwörtern suchen...",
     "no_papers": "Noch keine Studien verfügbar.",
-    "no_results": "Keine Studien zu Ihrer Suche gefunden.",
+    "no_results": "Keine Studien zu deiner Suche gefunden.",
     "back_to_research": "Zurück zur Forschung",
     "authors": "Autor:innen",
     "published": "Veröffentlicht",
@@ -62,36 +67,36 @@
     "paper_count": "{{count}} Studie(n) gefunden"
   },
   "auth": {
-    "login_title": "Anmelden",
-    "register_title": "Registrieren",
+    "login_title": "Willkommen zurück",
+    "register_title": "Werde Teil der Community",
     "email": "E-Mail",
     "password": "Passwort",
-    "display_name": "Anzeigename",
+    "display_name": "Dein Name",
     "login_button": "Anmelden",
-    "register_button": "Registrieren",
-    "google_login": "Mit Google anmelden",
+    "register_button": "Konto erstellen",
+    "google_login": "Mit Google fortfahren",
     "no_account": "Noch kein Konto?",
-    "has_account": "Bereits ein Konto?",
-    "error_invalid_credentials": "Ungültige Anmeldedaten.",
-    "error_email_in_use": "Diese E-Mail-Adresse wird bereits verwendet.",
-    "error_generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+    "has_account": "Bereits dabei?",
+    "error_invalid_credentials": "E-Mail oder Passwort stimmt nicht.",
+    "error_email_in_use": "Diese E-Mail-Adresse ist bereits registriert.",
+    "error_generic": "Etwas ist schiefgelaufen. Bitte versuche es noch einmal."
   },
   "profile": {
     "title": "Mein Profil",
-    "member_since": "Mitglied seit",
+    "member_since": "Dabei seit",
     "role": "Rolle",
     "language": "Sprache",
     "roles": {
-      "user": "Nutzer:in",
+      "user": "Mitglied",
       "moderator": "Moderator:in",
       "admin": "Administrator:in"
     }
   },
   "common": {
-    "loading": "Laden...",
+    "loading": "Einen Moment...",
     "error": "Fehler",
     "not_found": "Seite nicht gefunden",
-    "not_found_desc": "Die angeforderte Seite existiert nicht.",
+    "not_found_desc": "Diese Seite existiert leider nicht.",
     "back_home": "Zurück zur Startseite"
   }
 }
