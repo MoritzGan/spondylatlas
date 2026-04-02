@@ -1,0 +1,95 @@
+{
+  "nav": {
+    "home": "Startseite",
+    "forum": "Forum",
+    "research": "Forschung",
+    "login": "Anmelden",
+    "register": "Registrieren",
+    "profile": "Profil",
+    "logout": "Abmelden"
+  },
+  "landing": {
+    "hero_title": "SpondylAtlas",
+    "hero_subtitle": "Forschung & Gemeinschaft für Menschen mit Morbus Bechterew",
+    "hero_description": "Eine offene Plattform, die wissenschaftliche Forschung und persönlichen Austausch für Menschen mit axialer Spondyloarthritis (axSpA) verbindet.",
+    "cta_forum": "Zum Forum",
+    "cta_research": "Forschung entdecken",
+    "mission_title": "Unsere Mission",
+    "mission_text": "SpondylAtlas macht aktuelle Forschungsergebnisse zu Morbus Bechterew zugänglich und bietet eine Plattform für den Austausch von Erfahrungen und Wissen innerhalb der Community.",
+    "feature_research": "Forschungs-Hub",
+    "feature_research_desc": "Aktuelle wissenschaftliche Arbeiten, verständlich zusammengefasst.",
+    "feature_forum": "Community-Forum",
+    "feature_forum_desc": "Austausch mit anderen Betroffenen und Expert:innen.",
+    "feature_open": "Open Source",
+    "feature_open_desc": "Transparent, gemeinschaftlich entwickelt und für alle zugänglich."
+  },
+  "forum": {
+    "title": "Community-Forum",
+    "subtitle": "Tauschen Sie sich mit anderen Betroffenen aus",
+    "categories": {
+      "general": "Allgemein",
+      "symptoms": "Symptome & Diagnose",
+      "treatment": "Therapie & Behandlung",
+      "exercise": "Bewegung & Sport",
+      "mental_health": "Psychische Gesundheit",
+      "research_discussion": "Forschungsdiskussion"
+    },
+    "thread_count": "{{count}} Themen",
+    "no_threads": "Noch keine Themen in dieser Kategorie.",
+    "back_to_forum": "Zurück zum Forum",
+    "replies": "{{count}} Antworten",
+    "posted_by": "Von",
+    "no_posts": "Noch keine Antworten.",
+    "placeholder_title": "Beispiel-Thema",
+    "placeholder_body": "Dies ist ein Platzhalter. Inhalte werden bald verfügbar sein."
+  },
+  "research": {
+    "title": "Forschungs-Hub",
+    "subtitle": "Aktuelle wissenschaftliche Arbeiten zu axSpA",
+    "search_placeholder": "Studien durchsuchen...",
+    "no_papers": "Noch keine Studien verfügbar.",
+    "back_to_research": "Zurück zur Forschung",
+    "authors": "Autor:innen",
+    "published": "Veröffentlicht",
+    "tags": "Schlagwörter",
+    "source": "Quelle",
+    "read_full": "Vollständige Studie lesen",
+    "summary": "Zusammenfassung",
+    "abstract": "Abstract",
+    "placeholder_title": "Beispiel-Studie",
+    "placeholder_abstract": "Dies ist ein Platzhalter. Forschungsinhalte werden bald hinzugefügt."
+  },
+  "auth": {
+    "login_title": "Anmelden",
+    "register_title": "Registrieren",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "display_name": "Anzeigename",
+    "login_button": "Anmelden",
+    "register_button": "Registrieren",
+    "google_login": "Mit Google anmelden",
+    "no_account": "Noch kein Konto?",
+    "has_account": "Bereits ein Konto?",
+    "error_invalid_credentials": "Ungültige Anmeldedaten.",
+    "error_email_in_use": "Diese E-Mail-Adresse wird bereits verwendet.",
+    "error_generic": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
+  },
+  "profile": {
+    "title": "Mein Profil",
+    "member_since": "Mitglied seit",
+    "role": "Rolle",
+    "language": "Sprache",
+    "roles": {
+      "user": "Nutzer:in",
+      "moderator": "Moderator:in",
+      "admin": "Administrator:in"
+    }
+  },
+  "common": {
+    "loading": "Laden...",
+    "error": "Fehler",
+    "not_found": "Seite nicht gefunden",
+    "not_found_desc": "Die angeforderte Seite existiert nicht.",
+    "back_home": "Zurück zur Startseite"
+  }
+}

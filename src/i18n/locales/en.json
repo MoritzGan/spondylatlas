@@ -1,0 +1,95 @@
+{
+  "nav": {
+    "home": "Home",
+    "forum": "Forum",
+    "research": "Research",
+    "login": "Login",
+    "register": "Register",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "landing": {
+    "hero_title": "SpondylAtlas",
+    "hero_subtitle": "Research & Community for People with Ankylosing Spondylitis",
+    "hero_description": "An open platform connecting scientific research and personal exchange for people with axial spondyloarthritis (axSpA).",
+    "cta_forum": "Visit Forum",
+    "cta_research": "Explore Research",
+    "mission_title": "Our Mission",
+    "mission_text": "SpondylAtlas makes current research on Ankylosing Spondylitis accessible and provides a platform for sharing experiences and knowledge within the community.",
+    "feature_research": "Research Hub",
+    "feature_research_desc": "Current scientific papers, summarized in plain language.",
+    "feature_forum": "Community Forum",
+    "feature_forum_desc": "Connect with other patients and experts.",
+    "feature_open": "Open Source",
+    "feature_open_desc": "Transparent, community-driven, and accessible to all."
+  },
+  "forum": {
+    "title": "Community Forum",
+    "subtitle": "Connect with others affected by axSpA",
+    "categories": {
+      "general": "General",
+      "symptoms": "Symptoms & Diagnosis",
+      "treatment": "Therapy & Treatment",
+      "exercise": "Exercise & Sports",
+      "mental_health": "Mental Health",
+      "research_discussion": "Research Discussion"
+    },
+    "thread_count": "{{count}} threads",
+    "no_threads": "No threads in this category yet.",
+    "back_to_forum": "Back to Forum",
+    "replies": "{{count}} replies",
+    "posted_by": "By",
+    "no_posts": "No replies yet.",
+    "placeholder_title": "Example Thread",
+    "placeholder_body": "This is a placeholder. Content will be available soon."
+  },
+  "research": {
+    "title": "Research Hub",
+    "subtitle": "Current scientific papers on axSpA",
+    "search_placeholder": "Search papers...",
+    "no_papers": "No papers available yet.",
+    "back_to_research": "Back to Research",
+    "authors": "Authors",
+    "published": "Published",
+    "tags": "Tags",
+    "source": "Source",
+    "read_full": "Read full paper",
+    "summary": "Summary",
+    "abstract": "Abstract",
+    "placeholder_title": "Example Paper",
+    "placeholder_abstract": "This is a placeholder. Research content will be added soon."
+  },
+  "auth": {
+    "login_title": "Login",
+    "register_title": "Register",
+    "email": "Email",
+    "password": "Password",
+    "display_name": "Display Name",
+    "login_button": "Login",
+    "register_button": "Register",
+    "google_login": "Sign in with Google",
+    "no_account": "Don't have an account?",
+    "has_account": "Already have an account?",
+    "error_invalid_credentials": "Invalid credentials.",
+    "error_email_in_use": "This email is already in use.",
+    "error_generic": "An error occurred. Please try again."
+  },
+  "profile": {
+    "title": "My Profile",
+    "member_since": "Member since",
+    "role": "Role",
+    "language": "Language",
+    "roles": {
+      "user": "User",
+      "moderator": "Moderator",
+      "admin": "Administrator"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "not_found": "Page not found",
+    "not_found_desc": "The requested page does not exist.",
+    "back_home": "Back to Home"
+  }
+}
