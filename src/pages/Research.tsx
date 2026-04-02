@@ -6,6 +6,15 @@ import { db } from '../lib/firebase'
 import type { Paper } from '../lib/types'
 import { usePageMeta } from '../hooks/usePageMeta'
 
+function decodeHtml(raw: string): string {
+  return raw
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#([0-9]+);/g, (_, dec) => String.fromCodePoint(Number(dec)))
+    .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&nbsp;/g, ' ')
+}
+
+
 export default function Research() {
   const { t, i18n } = useTranslation()
   const [papers, setPapers] = useState<Paper[]>([])
@@ -137,7 +146,7 @@ export default function Research() {
                 )}
 
                 <p className="mt-2 line-clamp-3 text-gray-600">
-                  {paper.summary || paper.abstract}
+                  {decodeHtml(paper.summary || paper.abstract || "")}
                 </p>
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">

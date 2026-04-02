@@ -6,6 +6,20 @@ import { db } from '../lib/firebase'
 import type { Paper } from '../lib/types'
 import { usePageMeta } from '../hooks/usePageMeta'
 
+// Decode HTML entities from PubMed raw text
+function decodeHtml(raw: string): string {
+  return raw
+    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#([0-9]+);/g, (_, dec) => String.fromCodePoint(Number(dec)))
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&apos;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+}
+
+
 export default function PaperDetail() {
   const { paperId } = useParams<{ paperId: string }>()
   const { t, i18n } = useTranslation()
@@ -145,13 +159,13 @@ export default function PaperDetail() {
         {paper.summary && (
           <section className="mt-8">
             <h2 className="text-lg font-semibold text-gray-900">{t('research.summary')}</h2>
-            <p className="mt-2 whitespace-pre-line text-gray-700">{paper.summary}</p>
+            <p className="mt-2 whitespace-pre-line text-gray-700">{decodeHtml(paper.summary)}</p>
           </section>
         )}
 
         <section className="mt-8">
           <h2 className="text-lg font-semibold text-gray-900">{t('research.abstract')}</h2>
-          <p className="mt-2 whitespace-pre-line text-gray-700">{paper.abstract}</p>
+          <p className="mt-2 whitespace-pre-line text-gray-700">{decodeHtml(paper.abstract)}</p>
         </section>
 
         {paper.url && (
