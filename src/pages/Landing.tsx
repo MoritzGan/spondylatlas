@@ -6,8 +6,8 @@ import { usePageMeta } from '../hooks/usePageMeta'
 export default function Landing() {
   const { t, i18n } = useTranslation()
   const isGerman = i18n.language.startsWith('de')
-  const heroImageUrl = '/images/hero_section_abstr.jpg'
-  const logoImageUrl = '/images/logo.png'
+  const heroImageUrl = '/images/hero.webp'
+  const logoImageUrl = '/images/logo.webp'
 
   usePageMeta({
     title: 'SpondylAtlas',

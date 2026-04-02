@@ -58,7 +58,7 @@ export default function Navbar() {
             className="flex min-w-0 items-center gap-3 rounded-full px-2 py-1.5 transition duration-200 hover:bg-stone-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40"
           >
             <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-primary-700 via-primary-600 to-accent-600 p-1.5 text-white shadow-lg shadow-primary-900/15">
-              <img src="/images/logo.png" alt="" className="h-full w-full object-contain" aria-hidden="true" />
+              <img src="/images/logo.webp" alt="" className="h-full w-full object-contain" aria-hidden="true" />
             </span>
             <span className="min-w-0">
               <span className="block truncate font-serif text-2xl font-semibold tracking-tight text-stone-900">
