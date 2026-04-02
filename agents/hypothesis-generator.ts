@@ -95,7 +95,7 @@ Antworte NUR mit diesem JSON-Array (kein Markdown):
 ]`;
 
   const response = await anthropic.messages.create({
-    model: "claude-3-haiku-20240307",
+    model: "claude-opus-4-5",
     max_tokens: 2000,
     messages: [{ role: "user", content: prompt }],
   });
