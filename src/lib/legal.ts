@@ -30,11 +30,11 @@ export type LegalDocument = {
 }
 
 export const OPERATOR_DETAILS = {
-  operatorName: '[REPLACE BEFORE GO-LIVE: Betreibername]',
+  operatorName: 'Moritz Gansel',
   address: '[REPLACE BEFORE GO-LIVE: vollständige ladungsfähige Anschrift]',
-  email: '[REPLACE BEFORE GO-LIVE: kontakt@example.eu]',
-  privacyEmail: '[REPLACE BEFORE GO-LIVE: datenschutz@example.eu]',
-  legalContactEmail: '[REPLACE BEFORE GO-LIVE: legal@example.eu]',
+  email: 'moritzgansel.mg@gmail.com',
+  privacyEmail: 'moritzgansel.mg@gmail.com',
+  legalContactEmail: 'moritzgansel.mg@gmail.com',
 }
 
 export const LEGAL_DOCUMENTS: Record<LegalDocumentKey, LegalDocument> = {
