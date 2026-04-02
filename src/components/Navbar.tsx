@@ -45,6 +45,7 @@ export default function Navbar() {
     { to: '/', label: t('nav.home'), end: true },
     { to: '/research', label: t('nav.research') },
     { to: '/forum', label: t('nav.forum') },
+    { to: '/hypotheses', label: '💡 Hypothesen' },
     { to: '/arena', label: '⚙️ Arena' },
   ]
 

@@ -12,6 +12,8 @@ import PaperDetail from './pages/PaperDetail'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Profile from './pages/Profile'
+import Hypotheses from './pages/Hypotheses'
+import HypothesisDetail from './pages/HypothesisDetail'
 import AgentArena from './pages/AgentArena'
 import NotFound from './pages/NotFound'
 import Imprint from './pages/Imprint'
@@ -59,6 +61,8 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="hypotheses" element={<Hypotheses />} />
+            <Route path="hypotheses/:id" element={<HypothesisDetail />} />
             <Route path="arena" element={<AgentArena />} />
             <Route path="*" element={<NotFound />} />
           </Route>

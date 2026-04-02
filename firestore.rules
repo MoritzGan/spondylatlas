@@ -144,6 +144,32 @@ service cloud.firestore {
     }
 
 
+
+    // ── /hypotheses ───────────────────────────────────────────────────────────
+    match /hypotheses/{hypoId} {
+      allow read: if true;
+      allow write: if isAdmin();
+      allow update: if isAdmin();  // agents use SA
+    }
+
+    // ── /hypothesis_comments ──────────────────────────────────────────────────
+    match /hypothesis_comments/{commentId} {
+      allow read: if true;
+      allow create: if isSignedIn() &&
+                       request.resource.data.authorId == request.auth.uid &&
+                       request.resource.data.content.size() <= 3000;
+      allow update: if isOwner(resource.data.authorId) &&
+                       notChanging("authorId") &&
+                       notChanging("hypothesisId");
+      allow delete: if isAdmin() || isOwner(resource.data.authorId);
+    }
+
+    // ── /research_tasks ───────────────────────────────────────────────────────
+    match /research_tasks/{taskId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // ── /agent_events ─────────────────────────────────────────────────────────
     match /agent_events/{eventId} {
       allow read: if true;
