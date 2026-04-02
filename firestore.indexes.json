@@ -10,6 +10,14 @@
       ]
     },
     {
+      "collectionGroup": "forum_posts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status", "order": "ASCENDING" },
+        { "fieldPath": "category", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "forum_comments",
       "queryScope": "COLLECTION",
       "fields": [
