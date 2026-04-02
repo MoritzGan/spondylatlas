@@ -4,37 +4,47 @@ import { useTranslation } from 'react-i18next'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import type { Paper } from '../lib/types'
+import { usePageMeta } from '../hooks/usePageMeta'
 
 export default function PaperDetail() {
   const { paperId } = useParams<{ paperId: string }>()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [paper, setPaper] = useState<Paper | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!paperId) return
+
     const fetchPaper = async () => {
       try {
-        const snap = await getDoc(doc(db, 'papers', paperId))
-        if (snap.exists()) {
-          setPaper({ id: snap.id, ...snap.data() } as Paper)
+        const snapshot = await getDoc(doc(db, 'papers', paperId))
+        if (snapshot.exists()) {
+          setPaper({ id: snapshot.id, ...snapshot.data() } as Paper)
         }
-      } catch (err) {
-        console.error('Failed to fetch paper:', err)
-        setError((err as Error).message)
+      } catch (fetchError) {
+        console.error('Failed to fetch paper:', fetchError)
+        setError((fetchError as Error).message)
       } finally {
         setLoading(false)
       }
     }
-    fetchPaper()
+
+    void fetchPaper()
   }, [paperId])
 
-  const formatDate = (p: Paper) => {
+  usePageMeta({
+    title: paper ? `${paper.title} | SpondylAtlas` : `${t('research.title')} | SpondylAtlas`,
+    description: i18n.language.startsWith('de')
+      ? 'Öffentliche Detailansicht einer Forschungszusammenfassung.'
+      : 'Public detail view for a research summary.',
+  })
+
+  const formatDate = (paperEntry: Paper) => {
     try {
-      return p.publishedAt.toDate().toLocaleDateString()
+      return paperEntry.publishedAt.toDate().toLocaleDateString()
     } catch {
-      return '—'
+      return '-'
     }
   }
 
@@ -83,7 +93,13 @@ export default function PaperDetail() {
       </Link>
 
       <article className="mt-6 rounded-xl border border-gray-200 bg-white p-6">
-        <div className="flex items-start justify-between gap-4">
+        <div className="rounded-2xl bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-600">
+          {i18n.language.startsWith('de')
+            ? 'Diese Detailseite ist öffentlich. Es werden nur die für den Forschungsbereich erforderlichen Daten geladen.'
+            : 'This detail page is public. Only the data required for the research area is loaded.'}
+        </div>
+
+        <div className="mt-5 flex items-start justify-between gap-4">
           <h1 className="text-2xl font-bold text-gray-900">{paper.title}</h1>
           <span
             className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${

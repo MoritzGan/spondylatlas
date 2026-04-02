@@ -11,6 +11,13 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Profile from './pages/Profile'
 import NotFound from './pages/NotFound'
+import Imprint from './pages/Imprint'
+import PrivacyPolicy from './pages/PrivacyPolicy'
+import TermsOfUse from './pages/TermsOfUse'
+import CommunityRules from './pages/CommunityRules'
+import StorageNotice from './pages/StorageNotice'
+import PrivacyContact from './pages/PrivacyContact'
+import ReportContent from './pages/ReportContent'
 
 export default function App() {
   return (
@@ -19,8 +26,22 @@ export default function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<Landing />} />
-            <Route path="forum" element={<Forum />} />
-            <Route path="forum/:threadId" element={<ForumThread />} />
+            <Route
+              path="forum"
+              element={
+                <ProtectedRoute requireVerifiedEmail>
+                  <Forum />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="forum/:threadId"
+              element={
+                <ProtectedRoute requireVerifiedEmail>
+                  <ForumThread />
+                </ProtectedRoute>
+              }
+            />
             <Route path="research" element={<Research />} />
             <Route path="research/:paperId" element={<PaperDetail />} />
             <Route path="login" element={<Login />} />
@@ -33,6 +54,13 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="impressum" element={<Imprint />} />
+            <Route path="datenschutz" element={<PrivacyPolicy />} />
+            <Route path="nutzungsbedingungen" element={<TermsOfUse />} />
+            <Route path="community-regeln" element={<CommunityRules />} />
+            <Route path="cookies-und-speicherungen" element={<StorageNotice />} />
+            <Route path="kontakt-datenschutz" element={<PrivacyContact />} />
+            <Route path="meldung" element={<ReportContent />} />
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>

@@ -17,8 +17,14 @@ i18n
       escapeValue: false,
     },
     detection: {
-      order: ['localStorage', 'navigator'],
-      caches: ['localStorage'],
+      order: ['cookie', 'navigator'],
+      caches: ['cookie'],
+      cookieMinutes: 60 * 24 * 365,
+      cookieOptions: {
+        path: '/',
+        sameSite: 'strict',
+        secure: window.location.protocol === 'https:',
+      },
     },
   })
 
