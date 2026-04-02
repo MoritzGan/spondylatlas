@@ -1,0 +1,42 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './contexts/AuthContext'
+import Layout from './components/Layout'
+import ProtectedRoute from './components/ProtectedRoute'
+import Landing from './pages/Landing'
+import Forum from './pages/Forum'
+import ForumThread from './pages/ForumThread'
+import Research from './pages/Research'
+import PaperDetail from './pages/PaperDetail'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import Profile from './pages/Profile'
+import NotFound from './pages/NotFound'
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route index element={<Landing />} />
+            <Route path="forum" element={<Forum />} />
+            <Route path="forum/:threadId" element={<ForumThread />} />
+            <Route path="research" element={<Research />} />
+            <Route path="research/:paperId" element={<PaperDetail />} />
+            <Route path="login" element={<Login />} />
+            <Route path="register" element={<Register />} />
+            <Route
+              path="profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  )
+}
