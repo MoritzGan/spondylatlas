@@ -1,4 +1,4 @@
-name: Forum-moderator Agent
+name: Forum Moderator Agent
 on:
   schedule:
     - cron: '*/15 * * * *'

@@ -1,4 +1,4 @@
-name: Trial-tracker Agent
+name: Trial Tracker Agent
 on:
   schedule:
     - cron: '30 */2 * * *'

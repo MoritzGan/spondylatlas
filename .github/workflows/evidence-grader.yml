@@ -1,9 +1,7 @@
-name: Evidence-grader Agent
+name: Evidence Grader Agent
 on:
   schedule:
-    - cron: '*/20 * * * *
-10 */1 * * *
-30 */2 * * *'
+    - cron: '*/20 * * * *'
   workflow_dispatch:
 jobs:
   run:
