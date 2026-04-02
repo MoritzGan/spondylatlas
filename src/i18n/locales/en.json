@@ -68,7 +68,8 @@
     "submit_reply": "Reply",
     "login_to_reply": "Sign in to reply.",
     "login_to_post": "Sign in to create a post.",
-    "post_not_found": "Post not found."
+    "post_not_found": "Post not found.",
+    "post_submitted": "Your post has been submitted and will be reviewed shortly. It will appear once approved."
   },
   "research": {
     "title": "Research Hub",

@@ -34,7 +34,7 @@ export async function createPost(
     category,
     authorId,
     authorName,
-    status: 'published', // simplified: no moderation queue for MVP
+    status: 'pending_moderation',
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
     replyCount: 0,

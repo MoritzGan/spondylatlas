@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getPostsByCategory, formatDate } from '../lib/forum'
 import type { ForumPost, ForumCategory } from '../types/forum'
@@ -7,6 +7,8 @@ import type { ForumPost, ForumCategory } from '../types/forum'
 export default function ForumCategory() {
   const { category } = useParams<{ category: string }>()
   const { t } = useTranslation()
+  const location = useLocation()
+  const pendingModeration = (location.state as any)?.pendingModeration
   const [posts, setPosts] = useState<ForumPost[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -35,6 +37,12 @@ export default function ForumCategory() {
           {t('forum.new_post')}
         </Link>
       </div>
+
+      {pendingModeration && (
+        <div className="mt-4 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
+          ✅ {t('forum.post_submitted')}
+        </div>
+      )}
 
       <div className="mt-8 space-y-3">
         {loading && (

@@ -68,7 +68,8 @@
     "submit_reply": "Antworten",
     "login_to_reply": "Melde dich an, um zu antworten.",
     "login_to_post": "Melde dich an, um einen Beitrag zu erstellen.",
-    "post_not_found": "Beitrag nicht gefunden."
+    "post_not_found": "Beitrag nicht gefunden.",
+    "post_submitted": "Dein Beitrag wurde eingereicht und wird in Kürze geprüft. Er erscheint sobald er freigegeben wurde."
   },
   "research": {
     "title": "Forschungs-Hub",

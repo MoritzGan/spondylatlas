@@ -32,14 +32,14 @@ export default function NewPost() {
     setSubmitting(true)
     setError('')
     try {
-      const postId = await createPost(
+      await createPost(
         title.trim(),
         content.trim(),
         category as ForumCategory,
         user.uid,
         user.displayName ?? user.email ?? 'Anonym',
       )
-      navigate(`/forum/${category}/${postId}`)
+      navigate(`/forum/${category}`, { state: { pendingModeration: true } })
     } catch {
       setError(t('common.error'))
       setSubmitting(false)
