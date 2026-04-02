@@ -1,272 +1,103 @@
 # SpondylAtlas 🧭
 
-**Die offene Forschungs- und Community-Plattform für Morbus Bechterew (axiale Spondyloarthritis)**
+**The open research and community platform for Ankylosing Spondylitis (axSpA)**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red)](https://github.com/MoritzGan/spondylatlas)
-[![Language](https://img.shields.io/badge/Sprache-DE%20%7C%20EN-green)]()
+[![Built with Claude](https://img.shields.io/badge/Built%20with-Claude%20%26%20OpenClaw-orange)]()
+[![Firebase](https://img.shields.io/badge/Firebase-Hosting%20%7C%20Firestore%20%7C%20Auth-yellow)](https://firebase.google.com)
 
 ---
 
-## 🎯 Was ist SpondylAtlas?
+## What is SpondylAtlas?
 
-SpondylAtlas ist eine offene, community-getriebene Plattform, die Betroffenen, Angehörigen und Forschern einen strukturierten Zugang zur aktuellen wissenschaftlichen Literatur über **Morbus Bechterew** (auch: axiale Spondyloarthritis / axSpA) bietet — kombiniert mit einem Forum für den direkten Austausch.
+SpondylAtlas is an open, community-driven platform that gives patients, caregivers, and researchers structured access to current scientific literature on **Ankylosing Spondylitis** (AS, also known as axial Spondyloarthritis / axSpA) — combined with a multilingual forum for direct exchange.
 
-**Dieses Projekt ersetzt keine medizinische Beratung.** Es ist ein Werkzeug zur Orientierung und Vernetzung — ein Atlas in einer komplexen Landschaft.
+**This project does not replace medical advice.** It is a tool for orientation and connection — an atlas in a complex landscape.
 
----
+### Why this exists
 
-## 💡 Warum SpondylAtlas?
-
-Morbus Bechterew ist eine chronisch-entzündliche Erkrankung der Wirbelsäule, die weltweit Millionen Menschen betrifft. Die Forschung schreitet stetig voran — doch aktuelle Studienergebnisse sind für Betroffene oft schwer zugänglich:
-
-- Verstreut über dutzende Fachzeitschriften
-- Hinter Paywalls versteckt
-- In medizinischem Fachjargon verfasst
-- Ohne Kontext oder Einordnung
-
-SpondylAtlas löst dieses Problem durch **automatisierte Forschungsagenten**, die kontinuierlich neue Paper suchen, zusammenfassen und verständlich aufbereiten — kombiniert mit einem **mehrsprachigen Forum** für den Austausch unter Gleichgesinnten.
+This platform was built for a friend living with Ankylosing Spondylitis. The goal is simple: make the science accessible, and make sure that nobody has to navigate this alone.
 
 ---
 
-## ✨ Funktionen
+## Features
 
-### 📚 Research Hub
-- Automatisch kuratierte Sammlung aktueller wissenschaftlicher Paper
-- KI-generierte Zusammenfassungen der wichtigsten Erkenntnisse
-- Filterung nach Tags, Datum, Themengebiet
-- Direkte Links zu Original-Quellen (PubMed, Europe PMC, Semantic Scholar)
-- Vollständig durchsuchbar
-
-### 💬 Community Forum
-- Mehrsprachig (Deutsch & Englisch)
-- Kategorien: Diagnose, Therapie, Alltag, Forschung, Fragen & Antworten
-- Benutzerprofile mit Sprach- und Benachrichtigungseinstellungen
-- Automatische KI-Moderation für respektvollen Umgang
-- Upvote-System für hilfreiche Beiträge
-
-### 🤖 Automatisierte Forschungsagenten (Hintergrund)
-- **Search-Agent**: Durchsucht täglich PubMed, Europe PMC und Semantic Scholar nach neuen Bechterew-relevanten Studien
-- **Summary-Agent**: Erstellt verständliche Zusammenfassungen mit den wichtigsten Erkenntnissen (via Anthropic Claude)
-- **Dedup-Agent**: Verhindert doppelte Einträge durch intelligenten Abgleich
-- **Moderation-Agent**: Überprüft Forum-Beiträge auf Regelkonformität
-
-### 🌐 Mehrsprachigkeit
-- Vollständig auf Deutsch und Englisch verfügbar
-- Automatische Spracherkennung per Browser-Einstellung
-- Manueller Sprachwechsel jederzeit möglich
-
----
-
-## 🏗️ Technische Architektur
-
-### Frontend
-```
-React 19 + Vite + TypeScript
-Tailwind CSS v4
-React Router v7
-i18next (DE/EN)
-```
-
-### Backend & Datenbank
-```
-Firebase Authentication  →  Nutzer-Login (Email + Google OAuth)
-Firebase Firestore       →  Datenbank (NoSQL, Echtzeit)
-Firebase Hosting         →  Deployment
-Firebase Storage         →  Datei-Uploads (optional)
-```
-
-### Firestore Datenmodell
-
-```
-/papers/{paperId}
-  ├── title: string
-  ├── abstract: string
-  ├── summary: string          # KI-generierte Zusammenfassung
-  ├── authors: string[]
-  ├── publishedAt: timestamp
-  ├── tags: string[]
-  ├── url: string              # Link zum Original
-  ├── source: string           # "pubmed" | "europepmc" | "semanticscholar"
-  └── lang: "de" | "en"
-
-/forum_threads/{threadId}
-  ├── title: string
-  ├── body: string
-  ├── authorId: string
-  ├── category: string
-  ├── lang: "de" | "en"
-  ├── createdAt: timestamp
-  └── updatedAt: timestamp
-
-/forum_posts/{postId}
-  ├── threadId: string
-  ├── body: string
-  ├── authorId: string
-  ├── createdAt: timestamp
-  └── moderation_status: "approved" | "pending" | "rejected"
-
-/users/{userId}
-  ├── displayName: string
-  ├── lang: "de" | "en"
-  ├── role: "user" | "moderator" | "admin"
-  └── createdAt: timestamp
-```
-
-### Seiten & Routing
-
-| Route | Beschreibung |
+| Feature | Description |
 |---|---|
-| `/` | Landing Page — Mission, Features, Einstieg |
-| `/forum` | Forum-Übersicht mit Kategorien |
-| `/forum/:threadId` | Einzelner Thread mit Antworten |
-| `/research` | Research Hub — Paper-Liste mit Suche & Filter |
-| `/research/:paperId` | Paper-Detailseite mit vollständiger Zusammenfassung |
-| `/login` | Anmeldung (Email oder Google) |
-| `/register` | Registrierung |
-| `/profile` | Nutzerprofil (geschützt) |
-
-### Agenten-Pipeline
-
-```
-┌─────────────────────────────────────────────────────┐
-│                  Täglicher Cron-Job                  │
-└──────────────────────┬──────────────────────────────┘
-                       │
-              ┌────────▼────────┐
-              │  Search-Agent   │
-              │  PubMed API     │
-              │  Europe PMC     │
-              │  Semantic Scholar│
-              └────────┬────────┘
-                       │ Neue Paper
-              ┌────────▼────────┐
-              │  Dedup-Agent    │
-              │  Abgleich mit   │
-              │  Firestore      │
-              └────────┬────────┘
-                       │ Unbekannte Paper
-              ┌────────▼────────┐
-              │  Summary-Agent  │
-              │  Anthropic API  │
-              │  → Zusammen-    │
-              │    fassung (DE) │
-              └────────┬────────┘
-                       │
-              ┌────────▼────────┐
-              │   Firestore     │
-              │  papers/{id}    │
-              └─────────────────┘
-```
+| 📚 Research Hub | Curated AS papers from PubMed & Europe PMC, graded by evidence level |
+| 🤖 AI Agents | Automated pipeline: search → grade → summarise → track trials |
+| 💬 Community Forum | Moderated space for patients, caregivers, and researchers |
+| 🌍 Multilingual | Full DE / EN support via i18next |
+| 🔓 Open Source | MIT licensed, transparent, no ads |
 
 ---
 
-## 🚀 Lokale Entwicklung
-
-### Voraussetzungen
-- Node.js 20+
-- npm oder pnpm
-- Firebase CLI (`npm install -g firebase-tools`)
-- Ein Firebase-Projekt ([console.firebase.google.com](https://console.firebase.google.com))
-
-### Setup
+## Quick Start
 
 ```bash
-# Repository klonen
+# Clone the repository
 git clone https://github.com/MoritzGan/spondylatlas.git
 cd spondylatlas
 
-# Dependencies installieren
+# Install dependencies
 npm install
 
-# Umgebungsvariablen konfigurieren
+# Set up environment variables
 cp .env.example .env
-# .env mit eigenen Firebase-Werten befüllen
+# → Fill in your Firebase config values
 
-# Entwicklungsserver starten
+# Start development server
 npm run dev
 ```
 
-### Umgebungsvariablen (`.env`)
-
-```env
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-```
-
-### Verfügbare Befehle
-
-```bash
-npm run dev        # Entwicklungsserver (localhost:5173)
-npm run build      # Produktions-Build
-npm run preview    # Build lokal vorschauen
-npm run lint       # ESLint
-npm run typecheck  # TypeScript-Prüfung
-```
+See [docs/contributing/SETUP.md](docs/contributing/SETUP.md) for the full local setup guide.
 
 ---
 
-## 🤝 Mitmachen
+## Documentation
 
-SpondylAtlas ist ein Community-Projekt und lebt von Beiträgen. Ob Code, Übersetzungen, Design oder Dokumentation — jede Hilfe ist willkommen.
-
-**Bitte lies [`CONTRIBUTING.md`](CONTRIBUTING.md) bevor du einen Pull Request öffnest.**
-
-### Schnellstart für Contributor
-
-1. Fork erstellen
-2. Feature-Branch anlegen: `git checkout -b feature/mein-feature`
-3. Änderungen committen: `git commit -m 'feat: mein feature'`
-4. Branch pushen: `git push origin feature/mein-feature`
-5. Pull Request öffnen
-
----
-
-## 🗺️ Roadmap
-
-- [x] Projektstruktur & Tech-Stack
-- [ ] Firebase Auth (Email + Google)
-- [ ] Forum-Grundstruktur
-- [ ] Research Hub UI
-- [ ] PubMed Search-Agent
-- [ ] KI-Zusammenfassungen (Anthropic)
-- [ ] Forum-Moderation-Agent
-- [ ] Mobile Optimierung
-- [ ] E-Mail-Benachrichtigungen
-- [ ] Erweiterte Paper-Suche & Filter
-- [ ] Benutzerabonnements für Themengebiete
-- [ ] API für externe Entwickler
+| Document | Description |
+|---|---|
+| [Architecture Overview](docs/architecture/OVERVIEW.md) | Tech stack, system design, data flow |
+| [AI Agent Pipeline](docs/agents/PIPELINE.md) | How the research automation works |
+| [Agent Reference](docs/agents/AGENTS.md) | All agents: what they do, how often, how to run them |
+| [Firestore Data Model](docs/architecture/DATA-MODEL.md) | Collections, fields, relationships |
+| [Security & Rules](docs/security/FIRESTORE-RULES.md) | Firestore security rules explained |
+| [CI/CD](docs/architecture/CICD.md) | GitHub Actions workflows |
+| [Local Setup](docs/contributing/SETUP.md) | Getting started for contributors |
+| [Contributing Guide](docs/contributing/CONTRIBUTING.md) | How to contribute |
 
 ---
 
-## ⚠️ Medizinischer Hinweis
+## Tech Stack
 
-SpondylAtlas ist **kein medizinisches Produkt** und ersetzt keine ärztliche Beratung oder Behandlung. Die Plattform dient ausschließlich der Information und dem Austausch. Bei gesundheitlichen Fragen wende dich immer an qualifiziertes medizinisches Fachpersonal.
-
----
-
-## 📄 Lizenz
-
-MIT License — siehe [`LICENSE`](LICENSE)
+- **Frontend:** React 19 + TypeScript + Vite + Tailwind CSS v4
+- **Backend:** Firebase (Firestore, Auth, Hosting)
+- **AI:** Anthropic Claude (claude-3-haiku) via API
+- **Automation:** OpenClaw agent scheduler + GitHub Actions
+- **i18n:** i18next (DE, EN)
 
 ---
 
-## 💙 Hintergrund
+## Project Status
 
-Dieses Projekt entstand aus dem Wunsch, einem guten Freund und allen anderen Betroffenen zu helfen, die täglich mit Morbus Bechterew leben. Es ist nicht kommerziell, nicht akademisch — es ist persönlich.
+> 🟡 Early development — core pipeline running, UI in progress.
+
+- [x] Research pipeline (paper search + evidence grading + patient summaries)
+- [x] Clinical trial tracker
+- [x] Forum foundation
+- [x] Firebase Auth (Email + Google)
+- [x] Firestore security rules
+- [ ] Full forum UI
+- [ ] User profiles
+- [ ] Trial detail pages
+- [ ] Pattern recognition across papers
 
 ---
 
-*Made with ❤️ for the Bechterew community*
+## License
 
----
+MIT — see [LICENSE](LICENSE).
 
-## English Summary
-
-**SpondylAtlas** is an open-source research and community platform for people affected by Ankylosing Spondylitis (axSpA / Morbus Bechterew). It combines an automatically curated research hub (powered by AI agents scanning PubMed, Europe PMC, and Semantic Scholar daily) with a multilingual community forum. Built with React, Vite, TypeScript, Tailwind CSS, and Firebase. Available in German and English.
-
-> This project does not provide medical advice. Always consult a qualified healthcare professional.
+**Medical disclaimer:** SpondylAtlas is an informational resource only. Nothing on this platform constitutes medical advice. Always consult a qualified healthcare professional.
