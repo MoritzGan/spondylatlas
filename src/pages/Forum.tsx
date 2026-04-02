@@ -14,12 +14,12 @@ const CATEGORIES: ForumCategory[] = [
 ]
 
 const CATEGORY_ICONS: Record<ForumCategory, string> = {
-  general: '💬',
-  symptoms: '🩺',
-  treatment: '💊',
-  exercise: '🏃',
-  mental_health: '🧠',
-  research_discussion: '🔬',
+  general: '',
+  symptoms: '',
+  treatment: '',
+  exercise: '',
+  mental_health: '',
+  research_discussion: '',
 }
 
 export default function Forum() {

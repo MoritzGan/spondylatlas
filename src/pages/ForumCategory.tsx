@@ -40,7 +40,7 @@ export default function ForumCategory() {
 
       {pendingModeration && (
         <div className="mt-4 rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800">
-          ✅ {t('forum.post_submitted')}
+           {t('forum.post_submitted')}
         </div>
       )}
 

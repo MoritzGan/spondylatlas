@@ -4,8 +4,8 @@ import { useAuth } from '../contexts/AuthContext'
 import { getHypothesis, getComments, addComment, formatTs, type Hypothesis, type HypothesisComment } from '../lib/hypotheses'
 
 const STATUS_LABEL: Record<string, { label: string; color: string; icon: string; desc: string }> = {
-  open:       { label: 'Offen',       icon: '💡', color: 'amber', desc: 'Nicht widerlegbar — Hypothese steht im Raum.' },
-  challenged: { label: 'Angefochten', icon: '⚔️', color: 'red',   desc: 'Der Critic-Agent hat Gegenargumente gefunden.' },
+  open:       { label: 'Offen',       icon: '', color: 'amber', desc: 'Nicht widerlegbar — Hypothese steht im Raum.' },
+  challenged: { label: 'Angefochten', icon: '', color: 'red',   desc: 'Der Critic-Agent hat Gegenargumente gefunden.' },
 }
 
 export default function HypothesisDetail() {
@@ -63,7 +63,7 @@ export default function HypothesisDetail() {
         </div>
 
         <div className="mt-1 text-xs text-gray-400">
-          🤖 Generiert am {formatTs(hypo.generatedAt)}
+           Generiert am {formatTs(hypo.generatedAt)}
         </div>
 
         <p className="mt-5 text-gray-700 leading-relaxed">{hypo.description}</p>
@@ -82,7 +82,7 @@ export default function HypothesisDetail() {
             : 'border-gray-200 bg-gray-50'
         }`}>
           <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">
-            🔬 Critic-Agent — {cfg?.desc}
+             Critic-Agent — {cfg?.desc}
           </p>
           <p className="text-sm text-gray-700 leading-relaxed">{hypo.criticArgument}</p>
           {hypo.reviewedAt && (
@@ -94,7 +94,7 @@ export default function HypothesisDetail() {
       {/* Comments */}
       <section className="mt-10">
         <h2 className="text-lg font-semibold text-gray-900">
-          💬 {comments.length} Kommentar{comments.length !== 1 ? 'e' : ''}
+           {comments.length} Kommentar{comments.length !== 1 ? 'e' : ''}
         </h2>
 
         <div className="mt-4 space-y-4">

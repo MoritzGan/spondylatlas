@@ -13,11 +13,11 @@ import {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const EVENT_ICON: Record<string, string> = {
-  start: '🚀',
-  step: '⚡',
-  complete: '✅',
-  error: '❌',
-  skip: '⏭️',
+  start: '',
+  step: '',
+  complete: '',
+  error: '',
+  skip: '',
 }
 
 const EVENT_COLOR: Record<string, string> = {
@@ -45,7 +45,7 @@ const STATUS_LABEL: Record<string, string> = {
 function AgentCard({ runs }: { runs: AgentRun[] }) {
   const lastRun = runs[0]
   if (!lastRun) return null
-  const meta = AGENT_META[lastRun.agent] ?? { label: lastRun.agent, emoji: '🤖', color: 'gray' }
+  const meta = AGENT_META[lastRun.agent] ?? { label: lastRun.agent, emoji: '', color: 'gray' }
   const runningCount = runs.filter((r) => r.status === 'running').length
 
   return (
@@ -82,7 +82,7 @@ function AgentCard({ runs }: { runs: AgentRun[] }) {
 // ── Live Feed Item ────────────────────────────────────────────────────────────
 
 function FeedItem({ event, isNew }: { event: AgentEvent; isNew: boolean }) {
-  const meta = AGENT_META[event.agent] ?? { label: event.agent, emoji: '🤖' }
+  const meta = AGENT_META[event.agent] ?? { label: event.agent, emoji: '' }
   return (
     <div
       className={`flex gap-3 rounded-lg border p-3 text-sm transition-all duration-500 ${
@@ -109,7 +109,7 @@ function FeedItem({ event, isNew }: { event: AgentEvent; isNew: boolean }) {
 // ── Run History Row ───────────────────────────────────────────────────────────
 
 function RunRow({ run }: { run: AgentRun }) {
-  const meta = AGENT_META[run.agent] ?? { label: run.agent, emoji: '🤖' }
+  const meta = AGENT_META[run.agent] ?? { label: run.agent, emoji: '' }
   return (
     <tr className="border-b border-gray-100 hover:bg-gray-50">
       <td className="py-2 pr-4 text-sm">
@@ -225,7 +225,7 @@ export default function AgentArena() {
           >
             {events.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-gray-400 text-sm">
-                <span className="text-4xl mb-3">🤖</span>
+                <span className="text-4xl mb-3"></span>
                 <p>Noch keine Events — Agenten starten bald.</p>
               </div>
             ) : (
