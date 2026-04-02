@@ -32,37 +32,37 @@ export default function Layout() {
       <main className="flex-1">
         <Outlet />
       </main>
-      <footer className="relative mt-16 border-t border-stone-200/80 bg-[linear-gradient(180deg,rgba(245,245,244,0.65),rgba(255,255,255,0.98))]">
+      <footer className="relative mt-10 border-t border-stone-200/80 bg-[linear-gradient(180deg,rgba(245,245,244,0.65),rgba(255,255,255,0.98))]">
         <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-200 to-transparent" />
-        <div className="mx-auto max-w-6xl px-4 py-6 sm:py-8">
-          <div className="rounded-[2rem] border border-white/80 bg-white/92 p-6 shadow-[0_24px_60px_-42px_rgba(28,25,23,0.45)] ring-1 ring-stone-200/70 sm:p-8 lg:p-10">
-            <div className="grid gap-10 lg:grid-cols-[1.25fr,1.75fr]">
+        <div className="mx-auto max-w-6xl px-4 py-4 sm:py-5">
+          <div className="rounded-[1.6rem] border border-white/80 bg-white/92 p-5 shadow-[0_20px_48px_-40px_rgba(28,25,23,0.4)] ring-1 ring-stone-200/70 sm:p-6 lg:p-7">
+            <div className="grid gap-8 lg:grid-cols-[1.1fr,1.75fr] lg:items-start">
               <div className="max-w-xl">
-                <span className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-primary-700">
+                <span className="inline-flex items-center gap-2 rounded-full bg-primary-50 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-primary-700">
                   <span className="h-2 w-2 rounded-full bg-primary-500" />
                   {t('footer.badge')}
                 </span>
-                <h2 className="mt-4 font-serif text-3xl font-semibold tracking-tight text-stone-900">
+                <h2 className="mt-3 font-serif text-2xl font-semibold tracking-tight text-stone-900">
                   SpondylAtlas
                 </h2>
-                <p className="mt-4 max-w-lg text-sm leading-7 text-stone-600 sm:text-base">
+                <p className="mt-3 max-w-lg text-sm leading-6 text-stone-600">
                   {isGerman
                     ? 'Privater Forschungs- und Community-Dienst mit datenschutzorientierter Struktur, Erwachsenenfokus und transparenter Moderation.'
                     : 'Private research and community service with a privacy-first structure, adult-only access, and transparent moderation.'}
                 </p>
-                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                <div className="mt-4 flex flex-wrap gap-2">
                   {trustPoints.map((point) => (
-                    <div
+                    <span
                       key={point}
-                      className="rounded-2xl border border-stone-100 bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-700"
+                      className="inline-flex rounded-full border border-stone-200 bg-stone-50 px-3 py-1.5 text-xs font-medium text-stone-700"
                     >
                       {point}
-                    </div>
+                    </span>
                   ))}
                 </div>
               </div>
 
-              <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 <FooterColumn title={t('footer.navigation')}>
                   {primaryLinks.map((item) => (
                     <FooterLink key={item.to} to={item.to}>
@@ -89,7 +89,7 @@ export default function Layout() {
               </div>
             </div>
 
-            <div className="mt-10 flex flex-col gap-3 border-t border-stone-200 pt-6 text-sm text-stone-500 md:flex-row md:items-center md:justify-between">
+            <div className="mt-6 flex flex-col gap-2 border-t border-stone-200 pt-4 text-sm text-stone-500 md:flex-row md:items-center md:justify-between">
               <p>&copy; {new Date().getFullYear()} SpondylAtlas</p>
               <p>{t('footer.bottom_note')}</p>
             </div>
@@ -112,7 +112,7 @@ function FooterColumn({
       <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">
         {title}
       </p>
-      <div className="mt-4 flex flex-col gap-2.5">
+      <div className="mt-3 flex flex-col gap-1.5">
         {children}
       </div>
     </div>
@@ -123,7 +123,7 @@ function FooterLink({ to, children }: { to: string; children: ReactNode }) {
   return (
     <Link
       to={to}
-      className="rounded-xl px-3 py-2 text-sm text-stone-600 transition duration-200 hover:bg-stone-100 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40"
+      className="rounded-lg px-2.5 py-1.5 text-sm text-stone-600 transition duration-200 hover:bg-stone-100 hover:text-stone-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500/40"
     >
       {children}
     </Link>
