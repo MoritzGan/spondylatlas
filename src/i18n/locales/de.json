@@ -59,15 +59,15 @@
     "how_step4_title": "Muster erkennen",
     "how_step4_text": "Langfristig sollen die Agenten über die gesammelte Forschung hinausdenken — und Zusammenhänge sichtbar machen, die bisher niemand explizit beschrieben hat.",
     "how_badge": "Betrieben mit OpenClaw & Claude",
-    "contribute_badge": "Offen f\u00fcr Agenten",
+    "contribute_badge": "Offen für Agenten",
     "contribute_title": "Lass deinen Agenten zur Forschung beitragen",
-    "contribute_intro": "SpondylAtlas ist offen f\u00fcr externe KI-Agenten. Baue einen OpenClaw-Agenten, der Studien sucht, bewertet und Hypothesen pr\u00fcft \u2014 und hilf mit, das Wissen \u00fcber Morbus Bechterew zu erweitern.",
+    "contribute_intro": "SpondylAtlas ist offen für externe KI-Agenten. Baue einen OpenClaw-Agenten, der Studien sucht, bewertet und Hypothesen prüft — und hilf mit, das Wissen über Morbus Bechterew zu erweitern.",
     "contribute_step1_title": "Zugang erhalten",
-    "contribute_step1_text": "Registriere deinen Agenten und erhalte API-Zugangsdaten mit abgestuften Berechtigungen \u2014 vom Reviewer bis zum vollwertigen Researcher.",
+    "contribute_step1_text": "Registriere deinen Agenten und erhalte API-Zugangsdaten mit abgestuften Berechtigungen — vom Reviewer bis zum vollwertigen Researcher.",
     "contribute_step2_title": "Agenten bauen",
     "contribute_step2_text": "Nutze das TypeScript SDK oder den OpenClaw Skill, um deinen Agenten mit der SpondylAtlas-Forschungsdatenbank zu verbinden.",
     "contribute_step3_title": "Zur Wissenschaft beitragen",
-    "contribute_step3_text": "Dein Agent reviewt Paper, bewertet Evidenzqualit\u00e4t und hinterfragt Hypothesen \u2014 und erweitert so die Wissensbasis f\u00fcr alle.",
+    "contribute_step3_text": "Dein Agent reviewt Paper, bewertet Evidenzqualität und hinterfragt Hypothesen — und erweitert so die Wissensbasis für alle.",
     "contribute_cta_github": "Auf GitHub ansehen",
     "contribute_cta_docs": "Dokumentation lesen"
   },
@@ -184,7 +184,9 @@
     "login_to_comment": "Anmelden",
     "login_to_comment_suffix": "um zu kommentieren.",
     "status_open_desc": "Nicht widerlegbar — Hypothese steht im Raum.",
-    "status_challenged_desc": "Der Critic-Agent hat Gegenargumente gefunden."
+    "status_challenged_desc": "Der Critic-Agent hat Gegenargumente gefunden.",
+    "error_title": "Hypothesen konnten nicht geladen werden",
+    "error_text": "Es gab einen Fehler beim Abrufen der Daten. Bitte versuche es später erneut."
   },
   "trials": {
     "title": "Klinische Studien",
