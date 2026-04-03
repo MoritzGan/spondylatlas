@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { getPost, getComments, addComment, formatDate } from '../lib/forum'
 import type { ForumPost, ForumComment } from '../types/forum'
+import { DetailSkeleton } from '../components/Skeleton'
 
 export default function ForumThread() {
   const { category, postId } = useParams<{ category: string; postId: string }>()
@@ -51,8 +52,8 @@ export default function ForumThread() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-10 text-gray-500">
-        {t('common.loading')}
+      <div className="mx-auto max-w-4xl px-4 py-10">
+        <DetailSkeleton />
       </div>
     )
   }
@@ -60,7 +61,7 @@ export default function ForumThread() {
   if (!post) {
     return (
       <div className="mx-auto max-w-4xl px-4 py-10">
-        <p className="text-gray-500">{t('forum.post_not_found')}</p>
+        <p className="text-stone-500">{t('forum.post_not_found')}</p>
         <Link to="/forum" className="mt-4 inline-block text-primary-600 hover:underline">
           ← {t('forum.back_to_forum')}
         </Link>
@@ -75,36 +76,36 @@ export default function ForumThread() {
       </Link>
 
       {/* Original post */}
-      <article className="mt-6 rounded-xl border border-gray-200 bg-white p-6">
-        <h1 className="text-2xl font-bold text-gray-900">{post.title}</h1>
-        <div className="mt-1 flex items-center gap-4 text-sm text-gray-500">
+      <article className="mt-6 rounded-xl border border-stone-200 bg-white p-6">
+        <h1 className="text-2xl font-bold text-stone-900">{post.title}</h1>
+        <div className="mt-1 flex items-center gap-4 text-sm text-stone-500">
           <span>{post.authorName}</span>
           <span>{formatDate(post.createdAt)}</span>
         </div>
-        <div className="mt-4 whitespace-pre-wrap text-gray-700">{post.content}</div>
+        <div className="mt-4 whitespace-pre-wrap text-stone-700">{post.content}</div>
       </article>
 
       {/* Comments */}
       <section className="mt-8">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-stone-900">
           {t('forum.replies', { count: comments.length })}
         </h2>
 
         {comments.length === 0 && (
-          <p className="mt-4 text-gray-500">{t('forum.no_posts')}</p>
+          <p className="mt-4 text-stone-500">{t('forum.no_posts')}</p>
         )}
 
         <div className="mt-4 space-y-4">
           {comments.map((comment) => (
             <div
               key={comment.id}
-              className="rounded-xl border border-gray-100 bg-gray-50 p-5"
+              className="rounded-xl border border-stone-100 bg-stone-50 p-5"
             >
-              <div className="flex items-center gap-3 text-sm text-gray-500">
-                <span className="font-medium text-gray-800">{comment.authorName}</span>
+              <div className="flex items-center gap-3 text-sm text-stone-500">
+                <span className="font-medium text-stone-800">{comment.authorName}</span>
                 <span>{formatDate(comment.createdAt)}</span>
               </div>
-              <p className="mt-2 whitespace-pre-wrap text-gray-700">{comment.content}</p>
+              <p className="mt-2 whitespace-pre-wrap text-stone-700">{comment.content}</p>
             </div>
           ))}
         </div>
@@ -113,19 +114,19 @@ export default function ForumThread() {
       {/* Reply form */}
       <section className="mt-8">
         {user ? (
-          <form onSubmit={handleReply} className="rounded-xl border border-gray-200 bg-white p-6">
-            <h3 className="text-base font-semibold text-gray-900">{t('forum.write_reply')}</h3>
+          <form onSubmit={handleReply} className="rounded-xl border border-stone-200 bg-white p-6">
+            <h3 className="text-base font-semibold text-stone-900">{t('forum.write_reply')}</h3>
             <textarea
               value={replyText}
               onChange={(e) => setReplyText(e.target.value)}
               rows={4}
               maxLength={3000}
               placeholder={t('forum.reply_placeholder')}
-              className="mt-3 w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+              className="mt-3 w-full rounded-lg border border-stone-300 p-3 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
             />
             {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
             <div className="mt-3 flex items-center justify-between">
-              <span className="text-xs text-gray-400">{replyText.length}/3000</span>
+              <span className="text-xs text-stone-400">{replyText.length}/3000</span>
               <button
                 type="submit"
                 disabled={submitting || !replyText.trim()}
@@ -136,7 +137,7 @@ export default function ForumThread() {
             </div>
           </form>
         ) : (
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-6 text-center text-sm text-gray-500">
+          <div className="rounded-xl border border-stone-200 bg-stone-50 p-6 text-center text-sm text-stone-500">
             {t('forum.login_to_reply')}{' '}
             <Link to="/login" className="text-primary-600 hover:underline">
               {t('auth.login_button')}

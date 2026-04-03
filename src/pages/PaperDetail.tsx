@@ -6,6 +6,7 @@ import { db } from '../lib/firebase'
 import type { Paper } from '../lib/types'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { decodeHtml, stripAiPromptPrefix } from '../lib/textUtils'
+import { DetailSkeleton } from '../components/Skeleton'
 
 export default function PaperDetail() {
   const { paperId } = useParams<{ paperId: string }>()
@@ -57,8 +58,8 @@ export default function PaperDetail() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-10 text-center text-gray-500">
-        {t('common.loading')}
+      <div className="mx-auto max-w-4xl px-4 py-10">
+        <DetailSkeleton />
       </div>
     )
   }
@@ -82,7 +83,7 @@ export default function PaperDetail() {
         <Link to="/research" className="text-sm text-primary-600 hover:underline">
           &larr; {t('research.back_to_research')}
         </Link>
-        <div className="mt-6 text-center text-gray-500">{t('research.paper_not_found')}</div>
+        <div className="mt-6 text-center text-stone-500">{t('research.paper_not_found')}</div>
       </div>
     )
   }
@@ -93,7 +94,7 @@ export default function PaperDetail() {
         &larr; {t('research.back_to_research')}
       </Link>
 
-      <article className="mt-6 rounded-xl border border-gray-200 bg-white p-6">
+      <article className="mt-6 rounded-xl border border-stone-200 bg-white p-6">
         <div className="rounded-2xl bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-600">
           {i18n.language.startsWith('de')
             ? 'Diese Detailseite ist öffentlich. Es werden nur die für den Forschungsbereich erforderlichen Daten geladen.'
@@ -101,7 +102,7 @@ export default function PaperDetail() {
         </div>
 
         <div className="mt-5 flex items-start justify-between gap-4">
-          <h1 className="text-2xl font-bold text-gray-900">{paper.title}</h1>
+          <h1 className="text-2xl font-bold text-stone-900">{paper.title}</h1>
           <span
             className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
               paper.source === 'pubmed'
@@ -113,19 +114,19 @@ export default function PaperDetail() {
           </span>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-500">
+        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-stone-500">
           {paper.authors.length > 0 && (
             <div>
-              <span className="font-medium text-gray-700">{t('research.authors')}:</span>{' '}
+              <span className="font-medium text-stone-700">{t('research.authors')}:</span>{' '}
               {paper.authors.join(', ')}
             </div>
           )}
           <div>
-            <span className="font-medium text-gray-700">{t('research.published')}:</span>{' '}
+            <span className="font-medium text-stone-700">{t('research.published')}:</span>{' '}
             {formatDate(paper)}
           </div>
           <div>
-            <span className="font-medium text-gray-700">{t('research.source')}:</span>{' '}
+            <span className="font-medium text-stone-700">{t('research.source')}:</span>{' '}
             {sourceLabel(paper.source)}
           </div>
         </div>
@@ -145,18 +146,18 @@ export default function PaperDetail() {
 
         {paper.summary && (
           <section className="mt-8">
-            <h2 className="text-lg font-semibold text-gray-900">{t('research.summary')}</h2>
-            <p className="mt-2 whitespace-pre-line text-gray-700">{stripAiPromptPrefix(decodeHtml(paper.summary))}</p>
+            <h2 className="text-lg font-semibold text-stone-900">{t('research.summary')}</h2>
+            <p className="mt-2 whitespace-pre-line text-stone-700">{stripAiPromptPrefix(decodeHtml(paper.summary))}</p>
           </section>
         )}
 
         <section className="mt-8">
-          <h2 className="text-lg font-semibold text-gray-900">{t('research.abstract')}</h2>
-          <p className="mt-2 whitespace-pre-line text-gray-700">{decodeHtml(paper.abstract)}</p>
+          <h2 className="text-lg font-semibold text-stone-900">{t('research.abstract')}</h2>
+          <p className="mt-2 whitespace-pre-line text-stone-700">{decodeHtml(paper.abstract)}</p>
         </section>
 
         {paper.url && (
-          <div className="mt-8 border-t border-gray-100 pt-6">
+          <div className="mt-8 border-t border-stone-100 pt-6">
             <a
               href={paper.url}
               target="_blank"

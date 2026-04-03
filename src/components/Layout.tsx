@@ -1,8 +1,16 @@
-import type { ReactNode } from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { useEffect, type ReactNode } from 'react'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import Navbar from './Navbar'
 import { PUBLIC_LEGAL_NAV, localize } from '../lib/legal'
+
+function ScrollToTop() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [pathname])
+  return null
+}
 
 export default function Layout() {
   const { i18n, t } = useTranslation()
@@ -30,6 +38,7 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen flex-col bg-stone-50">
+      <ScrollToTop />
       <Navbar />
       <main className="flex-1">
         <Outlet />

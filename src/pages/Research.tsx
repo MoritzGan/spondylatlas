@@ -6,6 +6,8 @@ import { db } from '../lib/firebase'
 import type { Paper } from '../lib/types'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { decodeHtml, stripAiPromptPrefix } from '../lib/textUtils'
+import { CardListSkeleton } from '../components/Skeleton'
+import EmptyState from '../components/EmptyState'
 
 export default function Research() {
   const { t, i18n } = useTranslation()
@@ -69,8 +71,8 @@ export default function Research() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="text-3xl font-bold text-gray-900">{t('research.title')}</h1>
-      <p className="mt-2 text-gray-600">{t('research.subtitle')}</p>
+      <h1 className="text-3xl font-bold text-stone-900">{t('research.title')}</h1>
+      <p className="mt-2 text-stone-600">{t('research.subtitle')}</p>
 
       <div className="mt-4 rounded-2xl border border-stone-200 bg-stone-50 p-4 text-sm leading-6 text-stone-700">
         {i18n.language.startsWith('de')
@@ -84,12 +86,12 @@ export default function Research() {
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder={t('research.search_placeholder')}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 placeholder-gray-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          className="w-full rounded-lg border border-stone-300 px-4 py-2.5 text-stone-900 placeholder-stone-400 transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
         />
       </div>
 
       {loading && (
-        <div className="mt-12 text-center text-gray-500">{t('common.loading')}</div>
+        <div className="mt-8"><CardListSkeleton count={4} /></div>
       )}
 
       {error && (
@@ -99,14 +101,17 @@ export default function Research() {
       )}
 
       {!loading && !error && filtered.length === 0 && (
-        <div className="mt-12 text-center text-gray-500">
-          {search.trim() ? t('research.no_results') : t('research.no_papers')}
+        <div className="mt-8">
+          <EmptyState
+            icon=""
+            title={search.trim() ? t('research.no_results') : t('research.no_papers')}
+          />
         </div>
       )}
 
       {!loading && !error && filtered.length > 0 && (
         <>
-          <p className="mt-4 text-sm text-gray-500">
+          <p className="mt-4 text-sm text-stone-500">
             {t('research.paper_count', { count: filtered.length })}
           </p>
 
@@ -115,10 +120,10 @@ export default function Research() {
               <Link
                 key={paper.id}
                 to={`/research/${paper.id}`}
-                className="block rounded-xl border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md"
+                className="block rounded-xl border border-stone-200 bg-white p-6 transition-shadow hover:shadow-md"
               >
                 <div className="flex items-start justify-between gap-4">
-                  <h2 className="text-lg font-semibold text-gray-900">{paper.title}</h2>
+                  <h2 className="text-lg font-semibold text-stone-900">{paper.title}</h2>
                   <span
                     className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${
                       paper.source === 'pubmed'
@@ -131,13 +136,13 @@ export default function Research() {
                 </div>
 
                 {paper.authors.length > 0 && (
-                  <p className="mt-1 text-sm text-gray-500">
+                  <p className="mt-1 text-sm text-stone-500">
                     {paper.authors.slice(0, 3).join(', ')}
                     {paper.authors.length > 3 && ' et al.'}
                   </p>
                 )}
 
-                <p className="mt-2 line-clamp-3 text-gray-600">
+                <p className="mt-2 line-clamp-3 text-stone-600">
                   {stripAiPromptPrefix(decodeHtml(paper.summary || paper.abstract || ""))}
                 </p>
 
@@ -150,7 +155,7 @@ export default function Research() {
                       {tag}
                     </span>
                   ))}
-                  <span className="ml-auto text-xs text-gray-400">{formatDate(paper)}</span>
+                  <span className="ml-auto text-xs text-stone-400">{formatDate(paper)}</span>
                 </div>
               </Link>
             ))}
