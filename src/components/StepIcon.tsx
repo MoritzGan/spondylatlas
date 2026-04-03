@@ -1,5 +1,6 @@
+import React from "react";
 export function StepIcon({ step }: { step: 1 | 2 | 3 | 4 }) {
-  const paths: Record<number, JSX.Element> = {
+  const paths: Record<number, React.ReactElement> = {
     1: (
       <path
         strokeLinecap="round"
