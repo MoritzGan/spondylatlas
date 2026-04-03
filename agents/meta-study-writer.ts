@@ -306,9 +306,15 @@ Antworte NUR mit diesem JSON (kein Markdown):
   try {
     return JSON.parse(text) as MetaStudyDraft;
   } catch {
-    const match = text.match(/\{[\s\S]*\}/);
-    if (match) return JSON.parse(match[0]) as MetaStudyDraft;
-    throw new Error(`Failed to parse revised meta-study: ${text.slice(0, 200)}`);
+    try {
+      return JSON.parse(jsonrepair(text)) as MetaStudyDraft;
+    } catch {
+      const match = text.match(/\{[\s\S]*\}/);
+      if (match) {
+        try { return JSON.parse(jsonrepair(match[0])) as MetaStudyDraft; } catch { /* fall through */ }
+      }
+      throw new Error(`Failed to parse revised meta-study: ${text.slice(0, 200)}`);
+    }
   }
 }
 
