@@ -6,19 +6,23 @@ on:
 jobs:
   run:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm, cache-dependency-path: agents/package-lock.json }
-      - run: npm install
+      - run: npm ci
         working-directory: agents
-      - name: Write service account key
-        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/sa-key.json
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_AGENT_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+          export_environment_variables: true
       - name: Run agent
         run: npx tsx hypothesis-generator.ts
         working-directory: agents
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GOOGLE_APPLICATION_CREDENTIALS: /tmp/sa-key.json
-      - if: always()
-        run: rm -f /tmp/sa-key.json

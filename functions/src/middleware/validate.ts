@@ -76,3 +76,26 @@ export const hypothesisListSchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
   offset: z.coerce.number().int().min(0).default(0),
 });
+
+export const hypothesisPublicListSchema = z.object({
+  status: z.enum(["open", "challenged"]).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  offset: z.coerce.number().int().min(0).default(0),
+});
+
+export const forumCommentSchema = z.object({
+  postId: z.string().min(1).max(200),
+  content: z.string().trim().min(1).max(3000),
+});
+
+export const hypothesisCommentSchema = z.object({
+  content: z.string().trim().min(1).max(3000),
+});
+
+export const contentReportSchema = z.object({
+  contentUrl: z.string().trim().min(1).max(500),
+  contentType: z.enum(["forum_post", "forum_reply", "profile", "other"]),
+  reason: z.enum(["illegal_content", "medical_misinformation", "harassment", "privacy_violation", "other"]),
+  details: z.string().trim().min(1).max(4000),
+  reporterEmail: z.string().email().max(320).optional().or(z.literal("")),
+});

@@ -13,6 +13,15 @@ let _runId: string;
 let _agent: AgentName;
 let _db: ReturnType<typeof getFirestore>;
 
+function sanitizeText(value: string | undefined, maxLength: number) {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.replace(/\s+/g, " ").trim().slice(0, maxLength);
+  return normalized || null;
+}
+
 export function initLogger(agent: AgentName, runId?: string) {
   _agent = agent;
   _runId = runId ?? `${agent}-${Date.now()}`;
@@ -31,8 +40,8 @@ export async function logEvent(
       agent: _agent,
       runId: _runId,
       type,
-      message,
-      detail: detail ?? null,
+      message: sanitizeText(message, 160) ?? "Agent event",
+      detail: sanitizeText(detail, 220),
       meta: meta ?? null,
       timestamp: Timestamp.now(),
     });
@@ -49,7 +58,7 @@ export async function logStart(detail?: string) {
     startedAt: Timestamp.now(),
     completedAt: null,
     itemsProcessed: 0,
-    summary: detail ?? "Gestartet",
+    summary: sanitizeText(detail, 160) ?? "Gestartet",
   });
   await logEvent("start", `${_agent} gestartet`, detail);
 }
@@ -59,7 +68,7 @@ export async function logComplete(summary: string, itemsProcessed = 0) {
     status: "complete",
     completedAt: Timestamp.now(),
     itemsProcessed,
-    summary,
+    summary: sanitizeText(summary, 160) ?? "Agent run completed",
   });
   await logEvent("complete", summary, `${itemsProcessed} Element(e) verarbeitet`);
 }
@@ -68,9 +77,10 @@ export async function logError(error: string) {
   await _db.collection("agent_runs").doc(_runId).update({
     status: "error",
     completedAt: Timestamp.now(),
-    summary: error,
+    summary: "Agent run failed; inspect private runtime logs",
   });
-  await logEvent("error", `Fehler: ${error}`);
+  void error;
+  await logEvent("error", "Agent run failed");
 }
 
 export function getRunId() {

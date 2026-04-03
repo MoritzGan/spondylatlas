@@ -17,13 +17,13 @@ Automated agent that searches PubMed and Europe PMC for new axial spondyloarthri
 - Node.js 20+
 - Firebase project with Firestore enabled
 - Anthropic API key
-- Firebase service account JSON key
+- Google Cloud service account credentials available through ADC or OIDC
 
 ### Install
 
 ```bash
 cd agents
-npm install
+npm ci
 ```
 
 ### Environment variables
@@ -50,7 +50,8 @@ The workflow at `.github/workflows/paper-search-agent.yml` runs daily at 06:00 U
 Required GitHub secrets:
 - `ANTHROPIC_API_KEY`
 - `FIREBASE_PROJECT_ID`
-- `FIREBASE_SERVICE_ACCOUNT_KEY` — the full JSON content of your Firebase service account key
+- `GCP_WORKLOAD_IDENTITY_PROVIDER`
+- `GCP_AGENT_SERVICE_ACCOUNT`
 
 ## Cost estimate
 

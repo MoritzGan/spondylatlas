@@ -54,7 +54,7 @@ SpondylAtlas is structured as a static single-page application backed by Firebas
 | i18n | i18next (DE, EN) |
 | Hosting | Firebase Hosting |
 
-The frontend is a pure SPA with client-side routing. All data is fetched directly from Firestore via the Firebase JS SDK. There is no custom backend server — security is enforced entirely through Firestore Rules.
+The frontend is a pure SPA with client-side routing. Public research data is served through Firestore or backend API routes as appropriate, while trusted writes and sensitive reads use Firebase Cloud Functions. Security is enforced through a combination of Firestore Rules, Firebase Auth token claims, and backend authorization checks.
 
 ---
 

@@ -52,9 +52,24 @@ export interface AuthenticatedRequest extends Request {
   agent: AgentInfo;
 }
 
+export interface FirebaseUserInfo {
+  uid: string;
+  email: string | null;
+  emailVerified: boolean;
+  name: string | null;
+}
+
+export interface AuthenticatedFirebaseUserRequest extends Request {
+  firebaseUser: FirebaseUserInfo;
+}
+
 /** Helper: extract agent from request (set by auth middleware) */
 export function getAgent(req: Request): AgentInfo {
   return (req as AuthenticatedRequest).agent;
+}
+
+export function getFirebaseUser(req: Request): FirebaseUserInfo {
+  return (req as AuthenticatedFirebaseUserRequest).firebaseUser;
 }
 
 /** Helper: extract single string param */

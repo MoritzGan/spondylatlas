@@ -1,87 +1,83 @@
 # Firestore Security Rules
 
-Rules are defined in `/firestore.rules` and deployed automatically on every push to `main`.
+Rules are defined in `/firestore.rules` and should be treated as the source of truth for browser access.
 
 ---
 
 ## Design Principles
 
-1. **Default deny** — a catch-all rule at the bottom blocks everything not explicitly allowed.
-2. **Agents bypass rules** — AI agents use the Firebase Admin SDK with a service account, which bypasses all client-side rules. Rule enforcement applies to browser clients only.
-3. **Roles are stored in Firestore** — the `users/{uid}.role` field controls moderator and admin access. Role checks require a Firestore read on each request (handled by Firebase's rule evaluation).
+1. **Default deny** — the catch-all rule at the bottom blocks everything not explicitly allowed.
+2. **Agents bypass rules** — internal agents use the Firebase Admin SDK and therefore bypass Firestore Rules.
+3. **Community access is policy-backed** — forum reads and writes require authentication, verified email, and an active health-data consent.
+4. **Trusted writes moved server-side** — browser clients no longer write directly to `content_reports`, `forum_comments`, or `hypothesis_comments`.
+5. **Operational collections are private** — `agent_events`, `agent_runs`, `research_tasks`, and `hypotheses` are not directly browser-readable.
 
 ---
 
-## Helper Functions
-
-```javascript
-isSignedIn()       // request.auth != null
-isOwner(userId)    // signed in AND uid matches
-isAdmin()          // role == "admin"
-isModerator()      // role in ["admin", "moderator"]
-notChanging(field) // field not in request or value unchanged
-```
-
----
-
-## Rules by Collection
-
-### `/papers` and `/trials`
-```
-read:  anyone (public, no auth required)
-write: admin only (via browser client)
-       agents: unrestricted via Admin SDK
-```
-Research content is intentionally public. The platform's goal is accessibility.
+## Browser-Facing Collections
 
 ### `/users/{userId}`
-```
-read:  any signed-in user
-create: own document only
-update: own document OR admin
+```text
+read:   own document or admin
+create: own document only, with tightly constrained fields
+update: own profile fields only (`displayName`, `lang`, `updatedAt`) or admin
 delete: admin only
 ```
 
+Security-sensitive fields such as `role`, `email`, `ageConfirmed`, and `legalVersion` are immutable for self-updates.
+
 ### `/forum_posts/{postId}`
-```
-read:   published posts → anyone
-        own draft/flagged posts → owner
-        all posts → moderators and admins
-create: signed-in users only
-        authorId must equal request.auth.uid
-        status must be "pending_moderation" (not self-published)
-        title ≤ 300 chars, content ≤ 10,000 chars
-update: owner can edit content/title (status unchanged)
-        moderators can change status
+```text
+read:   community members only
+create: community members only
+update: owner may edit title/content only; moderators may moderate
 delete: owner or admin
 ```
+
+Community member means:
+- signed in
+- `request.auth.token.email_verified == true`
+- active `health_data_consents/{uid}.granted == true`
 
 ### `/forum_comments/{commentId}`
-```
-read:   anyone
-create: signed-in, authorId must match uid, content ≤ 3,000 chars
-update: owner only, cannot change authorId or postId
-delete: owner or admin
+```text
+read:   community members only, and only when the parent post is readable
+write:  denied from browser clients
 ```
 
-### `/reports/{reportId}`
+Comment creation now goes through the trusted `/api/community/forum/comments` backend path.
+
+### `/content_reports/{reportId}`
+```text
+read:   moderators, or the original signed-in reporter
+write:  denied from browser clients
 ```
-read:   moderators and admins only
-create: signed-in users, reporterId must match uid
-update/delete: admin only
+
+Content reports are created via the trusted `/api/public/reports` endpoint.
+
+### `/health_data_consents/{userId}`
+```text
+read:   own document or admin
+write:  own document only, constrained to valid consent fields
+delete: denied
 ```
+
+### `/hypotheses/{hypoId}` and `/hypothesis_comments/{commentId}`
+```text
+read:   denied from browser clients
+write:  denied from browser clients (except admin writes to `/hypotheses`)
+```
+
+Public hypothesis reads now flow through `/api/public/hypotheses`, and user comments through `/api/community/hypotheses/:id/comments`.
 
 ---
 
-## Deploying Rules
+## Operational Collections
 
-Rules are deployed automatically by CI. To deploy manually:
-
-```bash
-npx firebase-tools deploy --only firestore:rules
+### `/agent_events/{eventId}`, `/agent_runs/{runId}`, `/research_tasks/{taskId}`
+```text
+read:  denied from browser clients
+write: admin only (agents use Admin SDK)
 ```
 
-To test rules locally:
-```bash
-npx firebase-tools emulators:start --only firestore
-```
+If a public transparency view is needed, it must be published through a filtered backend response instead of raw collection access.
