@@ -21,6 +21,30 @@ function toIsoString(value: unknown) {
   return null;
 }
 
+/**
+ * Batch-fetch paper titles for a set of IDs.
+ * Returns a map of paperId → title.
+ */
+async function fetchPaperTitles(paperIds: string[]): Promise<Record<string, string>> {
+  const unique = [...new Set(paperIds)].filter(Boolean);
+  if (unique.length === 0) return {};
+
+  const titles: Record<string, string> = {};
+  for (let i = 0; i < unique.length; i += 30) {
+    const batch = unique.slice(i, i + 30);
+    const snap = await db()
+      .collection("papers")
+      .where("__name__", "in", batch)
+      .select("title")
+      .get();
+    for (const doc of snap.docs) {
+      titles[doc.id] = doc.data().title ?? "";
+    }
+  }
+  return titles;
+}
+
+
 function serializeHypothesis(doc: FirebaseFirestore.QueryDocumentSnapshot | FirebaseFirestore.DocumentSnapshot) {
   const data = doc.data();
   if (!data) {
@@ -117,8 +141,14 @@ router.get("/hypotheses", async (req, res, next) => {
       .orderBy("generatedAt", "desc");
 
     const snap = await query.limit(params.limit + params.offset).get();
-    const docs = snap.docs.slice(params.offset, params.offset + params.limit).map(serializeHypothesis);
-    res.json({ data: docs.filter(Boolean), total: snap.size, limit: params.limit, offset: params.offset });
+    const docs = snap.docs.slice(params.offset, params.offset + params.limit).map(serializeHypothesis).filter(Boolean);
+
+    // Enrich hypotheses with paper titles for critic references
+    const allCriticPaperIds = docs.flatMap((d: any) => d.criticPaperIds ?? []);
+    const paperTitles = await fetchPaperTitles(allCriticPaperIds);
+    const enriched = docs.map((d: any) => ({ ...d, criticPaperTitles: paperTitles }));
+
+    res.json({ data: enriched, total: snap.size, limit: params.limit, offset: params.offset });
   } catch (err) {
     next(err);
   }
@@ -143,8 +173,12 @@ router.get("/hypotheses/:id", async (req, res, next) => {
       .orderBy("createdAt", "asc")
       .get();
 
+    // Enrich with paper titles for critic references
+    const paperTitles = await fetchPaperTitles(hypothesis.criticPaperIds ?? []);
+
     res.json({
       ...hypothesis,
+      criticPaperTitles: paperTitles,
       comments: commentsSnap.docs.map(serializeHypothesisComment),
     });
   } catch (err) {
