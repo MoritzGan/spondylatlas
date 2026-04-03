@@ -77,7 +77,7 @@ Bewerte streng nach diesen Kategorien:
 - **open**: Keine Widerlegung möglich, aber auch keine volle Bestätigung. Hypothese bleibt offen.
 
 WICHTIG für das "argument"-Feld:
-- Nenne Papers immer beim vollen Titel (z.B. 'Die Studie "Sex differences in clinical characteristics..." zeigt...')
+- Nenne Papers immer beim vollen Titel (z.B. 'Die Studie »Sex differences in clinical characteristics...« zeigt...')
 - Schreibe für Endnutzer verständlich — KEINE technischen IDs, KEINE Nummern wie "[1]" im Fließtext
 
 WICHTIG für das "paperNumbers"-Feld:
@@ -94,7 +94,7 @@ Antworte NUR mit diesem JSON (kein Markdown):
 
   const response = await anthropic.messages.create({
     model: "claude-opus-4-5",
-    max_tokens: 800,
+    max_tokens: 1200,
     messages: [{ role: "user", content: prompt }],
   });
 
@@ -129,7 +129,33 @@ Antworte NUR mit diesem JSON (kein Markdown):
           );
           parsed = JSON.parse(sanitized);
         } catch {
-          // fallthrough to safe default
+          // Attempt 4: field-by-field extraction for structural JSON issues
+          // Handles unescaped double-quotes inside argument/researchQuery string values,
+          // which confuse the Attempt 3 regex and cause "Expected ',' or '}'" errors.
+          try {
+            const rawBlock = match[0];
+            const verdictM = rawBlock.match(/"verdict"\s*:\s*"(challenged|open|needs_research)"/);
+            const argumentM = rawBlock.match(
+              /"argument"\s*:\s*"([\s\S]*?)"(?=\s*,?\s*"(?:researchQuery|paperNumbers)"|})/
+            );
+            const researchM = rawBlock.match(
+              /"researchQuery"\s*:\s*"([\s\S]*?)"(?=\s*,?\s*"(?:paperNumbers)"|})/
+            );
+            const paperNumM = rawBlock.match(/"paperNumbers"\s*:\s*\[([^\]]*)\]/);
+
+            if (verdictM) {
+              parsed = {
+                verdict: verdictM[1] as CriticVerdict,
+                argument: argumentM ? argumentM[1].replace(/\\n/g, " ").trim() : "Argument nicht extrahierbar",
+                researchQuery: researchM ? researchM[1].trim() : undefined,
+                paperNumbers: paperNumM
+                  ? paperNumM[1].split(",").map((s: string) => parseInt(s.trim(), 10)).filter((n: number) => !isNaN(n))
+                  : [],
+              };
+            }
+          } catch {
+            // fallthrough to safe default
+          }
         }
       }
     }
