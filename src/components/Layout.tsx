@@ -12,6 +12,8 @@ export default function Layout() {
     { to: '/', label: t('nav.home') },
     { to: '/research', label: t('nav.research') },
     { to: '/forum', label: t('nav.forum') },
+    { to: '/hypotheses', label: t('nav.hypotheses') },
+    { to: '/arena', label: t('nav.arena') },
   ]
 
   const communityLinks = [
