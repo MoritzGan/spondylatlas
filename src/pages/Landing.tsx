@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePageMeta } from '../hooks/usePageMeta'
+import { HowItWorks } from '../components/HowItWorks'
 
 export default function Landing() {
   const { t, i18n } = useTranslation()
@@ -91,61 +92,7 @@ export default function Landing() {
         </div>
       </section>
 
-      <section className="border-y border-stone-200 bg-stone-100 px-4 py-10">
-        <div className="mx-auto max-w-5xl rounded-3xl border border-stone-200 bg-white p-8 shadow-sm">
-          <p className="text-sm font-medium uppercase tracking-[0.24em] text-primary-700">
-            {isGerman ? 'Compliance by design' : 'Compliance by design'}
-          </p>
-          <h2 className="mt-3 text-2xl font-semibold text-stone-900">
-            {isGerman
-              ? 'Öffentliche Forschung, geschützte Community'
-              : 'Public research, protected community'}
-          </h2>
-          <div className="mt-4 grid gap-4 text-sm leading-6 text-stone-700 md:grid-cols-3">
-            <div className="rounded-2xl bg-stone-50 p-4">
-              {isGerman
-                ? 'Die Forschung ist öffentlich erreichbar. Community-Inhalte bleiben hinter Login, E-Mail-Bestätigung und dokumentierter Einwilligung.'
-                : 'Research remains publicly accessible. Community content stays behind login, email verification, and documented consent.'}
-            </div>
-            <div className="rounded-2xl bg-stone-50 p-4">
-              {isGerman
-                ? 'Zum Start werden keine Analyse- oder Marketing-Cookies eingesetzt. Nur technisch erforderliche Speicherungen bleiben aktiv.'
-                : 'At launch, no analytics or marketing cookies are used. Only technically necessary storage remains active.'}
-            </div>
-            <div className="rounded-2xl bg-stone-50 p-4">
-              {isGerman
-                ? 'Rechtsdokumente, Meldeweg und Datenschutzkontakt sind dauerhaft im Footer erreichbar.'
-                : 'Legal documents, reporting flow, and privacy contact are permanently available in the footer.'}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="px-4 py-16 md:py-24">
-        <div className="mx-auto max-w-5xl">
-          <div className="mb-4 flex justify-center">
-            <span className="inline-flex items-center gap-2 rounded-full bg-primary-100 px-4 py-1.5 text-sm font-medium text-primary-800">
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
-              </svg>
-              {t('landing.how_badge')}
-            </span>
-          </div>
-          <h2 className="text-center font-serif text-3xl font-semibold text-stone-800 md:text-4xl">
-            {t('landing.how_title')}
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-center text-lg leading-relaxed text-stone-600">
-            {t('landing.how_intro')}
-          </p>
-
-          <div className="mt-12 grid gap-6 md:grid-cols-2">
-            <HowStep number="01" title={t('landing.how_step1_title')} text={t('landing.how_step1_text')} />
-            <HowStep number="02" title={t('landing.how_step2_title')} text={t('landing.how_step2_text')} />
-            <HowStep number="03" title={t('landing.how_step3_title')} text={t('landing.how_step3_text')} />
-            <HowStep number="04" title={t('landing.how_step4_title')} text={t('landing.how_step4_text')} accent />
-          </div>
-        </div>
-      </section>
+      <HowItWorks />
 
       <div className="mx-auto max-w-5xl border-t border-stone-200" />
 
@@ -206,26 +153,6 @@ export default function Landing() {
           {t('landing.cta_join')}
         </Link>
       </section>
-    </div>
-  )
-}
-
-function HowStep({
-  number,
-  title,
-  text,
-  accent = false,
-}: {
-  number: string
-  title: string
-  text: string
-  accent?: boolean
-}) {
-  return (
-    <div className={`rounded-2xl p-7 ${accent ? 'border border-primary-200 bg-primary-50' : 'border border-stone-100 bg-stone-50'} shadow-sm`}>
-      <span className={`text-sm font-semibold tracking-widest ${accent ? 'text-primary-600' : 'text-stone-400'}`}>{number}</span>
-      <h3 className="mt-2 font-serif text-xl font-semibold text-stone-800">{title}</h3>
-      <p className="mt-2 leading-relaxed text-stone-600">{text}</p>
     </div>
   )
 }
