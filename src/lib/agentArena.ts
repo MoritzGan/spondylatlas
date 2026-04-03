@@ -62,26 +62,46 @@ export function subscribeToArena(
   onError: (err: Error) => void,
 ) {
   let cancelled = false
+  let consecutiveErrors = 0
+  let interval: ReturnType<typeof setInterval> | null = null
+
+  const stopPolling = () => {
+    if (interval !== null) {
+      window.clearInterval(interval)
+      interval = null
+    }
+  }
 
   const load = async () => {
     try {
       const data = await loadArena()
       if (!cancelled) {
+        consecutiveErrors = 0
         onData(data)
       }
     } catch (err) {
       if (!cancelled) {
-        onError(err instanceof Error ? err : new Error(String(err)))
+        consecutiveErrors++
+        const message = err instanceof Error ? err.message : String(err)
+        // Stop polling on auth errors — repeated 401s are pointless
+        if (message.includes('401') || message.includes('Unauthorized')) {
+          stopPolling()
+        }
+        // Also stop after 5 consecutive errors of any kind
+        if (consecutiveErrors >= 5) {
+          stopPolling()
+        }
+        onError(err instanceof Error ? err : new Error(message))
       }
     }
   }
 
   void load()
-  const interval = window.setInterval(() => void load(), 30000)
+  interval = window.setInterval(() => void load(), 30000)
 
   return () => {
     cancelled = true
-    window.clearInterval(interval)
+    stopPolling()
   }
 }
 
