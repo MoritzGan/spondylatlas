@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
-  subscribeToEvents,
-  subscribeToRuns,
+  subscribeToArena,
   formatRelative,
   durationSec,
   AGENT_META,
@@ -164,24 +163,32 @@ export default function AgentArena() {
 
   const [events, setEvents] = useState<AgentEvent[]>([])
   const [runs, setRuns] = useState<AgentRun[]>([])
+  const [error, setError] = useState<Error | null>(null)
   const [newIds, setNewIds] = useState<Set<string>>(new Set())
   const [autoScroll, setAutoScroll] = useState(true)
   const feedRef = useRef<HTMLDivElement>(null)
   const prevIds = useRef<Set<string>>(new Set())
 
   useEffect(() => {
-    const unsub1 = subscribeToEvents((ev) => {
-      const incoming = new Set(ev.map((e) => e.id))
-      const fresh = ev.filter((e) => !prevIds.current.has(e.id)).map((e) => e.id)
-      if (fresh.length) {
-        setNewIds(new Set(fresh))
-        setTimeout(() => setNewIds(new Set()), 2000)
-      }
-      prevIds.current = incoming
-      setEvents(ev)
-    })
-    const unsub2 = subscribeToRuns(setRuns)
-    return () => { unsub1(); unsub2() }
+    const unsub = subscribeToArena(
+      ({ events: ev, runs: r }) => {
+        setError(null)
+
+        const incoming = new Set(ev.map((e) => e.id))
+        const fresh = ev.filter((e) => !prevIds.current.has(e.id)).map((e) => e.id)
+        if (fresh.length) {
+          setNewIds(new Set(fresh))
+          setTimeout(() => setNewIds(new Set()), 2000)
+        }
+        prevIds.current = incoming
+        setEvents(ev)
+        setRuns(r)
+      },
+      (err) => {
+        setError(err)
+      },
+    )
+    return unsub
   }, [])
 
   useEffect(() => {
@@ -198,6 +205,19 @@ export default function AgentArena() {
 
   const totalItems = runs.filter(r => r.status === 'complete').reduce((s, r) => s + r.itemsProcessed, 0)
   const activeAgents = Object.values(runsByAgent).filter(rs => rs[0]?.status === 'running').length
+
+  if (error) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        <h1 className="text-3xl font-bold text-stone-900">⚙️ {t('arena.title')}</h1>
+        <p className="mt-1 text-stone-500 text-sm">{t('arena.subtitle')}</p>
+        <div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-6 text-sm text-amber-800">
+          <p className="font-semibold">{t('arena.error_title')}</p>
+          <p className="mt-1 text-amber-600">{t('arena.error_text')}</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">

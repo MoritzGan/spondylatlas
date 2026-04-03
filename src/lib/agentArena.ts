@@ -57,16 +57,22 @@ async function loadArena() {
   return apiFetch<ArenaPayload>('/public/arena')
 }
 
-export function subscribeToEvents(
-  cb: (events: AgentEvent[]) => void,
-  _maxItems = 100, // eslint-disable-line @typescript-eslint/no-unused-vars
+export function subscribeToArena(
+  onData: (payload: { events: AgentEvent[]; runs: AgentRun[] }) => void,
+  onError: (err: Error) => void,
 ) {
   let cancelled = false
 
   const load = async () => {
-    const { events } = await loadArena()
-    if (!cancelled) {
-      cb(events)
+    try {
+      const data = await loadArena()
+      if (!cancelled) {
+        onData(data)
+      }
+    } catch (err) {
+      if (!cancelled) {
+        onError(err instanceof Error ? err : new Error(String(err)))
+      }
     }
   }
 
@@ -79,24 +85,18 @@ export function subscribeToEvents(
   }
 }
 
+/** @deprecated Use subscribeToArena instead */
+export function subscribeToEvents(
+  cb: (events: AgentEvent[]) => void,
+  _maxItems = 100, // eslint-disable-line @typescript-eslint/no-unused-vars
+) {
+  return subscribeToArena(({ events }) => cb(events), () => {})
+}
+
+/** @deprecated Use subscribeToArena instead */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function subscribeToRuns(cb: (runs: AgentRun[]) => void, _maxItems = 50) {
-  let cancelled = false
-
-  const load = async () => {
-    const { runs } = await loadArena()
-    if (!cancelled) {
-      cb(runs)
-    }
-  }
-
-  void load()
-  const interval = window.setInterval(() => void load(), 30000)
-
-  return () => {
-    cancelled = true
-    window.clearInterval(interval)
-  }
+  return subscribeToArena(({ runs }) => cb(runs), () => {})
 }
 
 export function formatRelative(ts: string | { toDate(): Date } | null): string {
