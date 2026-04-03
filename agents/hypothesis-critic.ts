@@ -98,18 +98,34 @@ Antworte NUR mit diesem JSON (kein Markdown):
     messages: [{ role: "user", content: prompt }],
   });
 
-  const text = response.content[0].type === "text" ? response.content[0].text.trim() : "{}";
+  const rawText = response.content[0].type === "text" ? response.content[0].text.trim() : "{}";
 
-  let parsed: { verdict: CriticVerdict; argument: string; researchQuery?: string; paperNumbers?: number[] };
+  // Strip markdown code fences the model may emit despite instructions
+  const text = rawText
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```\s*$/, "")
+    .trim();
+
+  let parsed: { verdict: CriticVerdict; argument: string; researchQuery?: string; paperNumbers?: number[] } | null = null;
+
+  // Attempt 1: direct parse
   try {
     parsed = JSON.parse(text);
   } catch {
+    // Attempt 2: extract first {...} block (handles leading/trailing prose)
     const match = text.match(/\{[\s\S]*\}/);
     if (match) {
-      parsed = JSON.parse(match[0]);
-    } else {
-      return { verdict: "open", argument: "Parse-Fehler — manuelle Prüfung", paperIds: [] };
+      try {
+        parsed = JSON.parse(match[0]);
+      } catch {
+        // fallthrough to safe default
+      }
     }
+  }
+
+  if (!parsed) {
+    console.warn(`JSON parse failed for hypothesis "${hypothesis.title.slice(0, 50)}". Response: ${rawText.slice(0, 300)}`);
+    return { verdict: "open", argument: "Parse-Fehler — manuelle Prüfung nötig", paperIds: [] };
   }
 
   // Map 1-based paper numbers back to real Firestore IDs
@@ -155,7 +171,16 @@ async function main() {
     const h = { id: doc.id, ...doc.data() } as any;
     console.log(`\nCritiquing: "${h.title.slice(0, 70)}"`);
 
-    const result = await critiqueHypothesis(h, papers);
+    let result: CriticResult;
+    try {
+      result = await critiqueHypothesis(h, papers);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`  ✗ critiqueHypothesis threw: ${msg}`);
+      await logEvent("step" as any, `[FEHLER] ${h.title.slice(0, 70)}`, msg.slice(0, 120));
+      open++;
+      continue;
+    }
     console.log(`  → Verdict: ${result.verdict}`);
     console.log(`  → ${result.argument.slice(0, 100)}`);
 
