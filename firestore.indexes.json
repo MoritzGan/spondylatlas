@@ -143,8 +143,7 @@
           "order": "ASCENDING"
         }
       ]
-    }
-    ,
+    },
     {
       "collectionGroup": "agent_submissions",
       "queryScope": "COLLECTION",
@@ -174,6 +173,20 @@
         {
           "fieldPath": "createdAt",
           "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "content_reports",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "processingStatus",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "ASCENDING"
         }
       ]
     }
