@@ -53,7 +53,7 @@ const PUBMED_QUERY =
 const EUROPEPMC_QUERY =
   '"ankylosing spondylitis" OR "axial spondyloarthritis"';
 
-const MAX_NEW_PAPERS = 50;
+const MAX_NEW_PAPERS = 150;
 
 // ---------------------------------------------------------------------------
 // Firebase init
@@ -82,14 +82,14 @@ function initFirebase() {
 
 async function searchPubMed(): Promise<string[]> {
   const now = new Date();
-  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-  const minDate = formatPubMedDate(thirtyDaysAgo);
+  const cutoff = new Date(now.getTime() - 360 * 24 * 60 * 60 * 1000);
+  const minDate = formatPubMedDate(cutoff);
   const maxDate = formatPubMedDate(now);
 
   const params = new URLSearchParams({
     db: "pubmed",
     term: PUBMED_QUERY,
-    retmax: "50",
+    retmax: "200",
     retmode: "json",
     datetype: "pdat",
     mindate: minDate,
@@ -236,10 +236,15 @@ function cleanXmlText(text: string): string {
 // ---------------------------------------------------------------------------
 
 async function searchEuropePmc(): Promise<RawPaper[]> {
+  const now = new Date();
+  const cutoff = new Date(now.getTime() - 360 * 24 * 60 * 60 * 1000);
+  const fromDate = cutoff.toISOString().slice(0, 10);
+
   const params = new URLSearchParams({
-    query: EUROPEPMC_QUERY,
+    query: `${EUROPEPMC_QUERY}`,
+    fromSearchDate: fromDate,
     format: "json",
-    pageSize: "25",
+    pageSize: "100",
     sort: "date desc",
     resultType: "core",
   });
@@ -317,7 +322,7 @@ async function generateSummary(
   }
 
   const message = await client.messages.create({
-    model: "claude-3-5-haiku-latest",
+    model: "claude-haiku-4-5",
     max_tokens: 300,
     messages: [
       {

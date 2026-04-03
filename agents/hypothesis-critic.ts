@@ -3,6 +3,7 @@ import { readFileSync } from "fs";
 import { initializeApp, cert, type ServiceAccount } from "firebase-admin/app";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import Anthropic from "@anthropic-ai/sdk";
+import { jsonrepair } from "jsonrepair";
 import { initLogger, logStart, logComplete, logError, logEvent } from "./lib/logger.js";
 
 const serviceAccount = JSON.parse(
@@ -112,39 +113,27 @@ Antworte NUR mit diesem JSON (kein Markdown):
   try {
     parsed = JSON.parse(text);
   } catch {
-    // Attempt 2: extract first {...} block (handles leading/trailing prose)
-    const match = text.match(/\{[\s\S]*\}/);
-    if (match) {
-      try {
-        parsed = JSON.parse(match[0]);
-      } catch {
-        // Attempt 3: sanitize literal control chars inside JSON string values and retry
-        try {
-          const sanitized = match[0].replace(
-            /"((?:[^"\\]|\\.)*)"/gs,
-            (_m: string, inner: string) =>
-              `"${inner.replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t")}"`
-          );
-          parsed = JSON.parse(sanitized);
-        } catch {
-          // Attempt 4: regex-based field extraction as last resort
-          // Handles unescaped quotes inside string values which break all JSON.parse attempts
-          const verdictMatch = match[0].match(/"verdict"\s*:\s*"(challenged|open|needs_research)"/);
-          const argumentMatch = match[0].match(/"argument"\s*:\s*"([\s\S]*?)"\s*(?:,\s*"(?:researchQuery|paperNumbers)|\})/);
-          const researchMatch = match[0].match(/"researchQuery"\s*:\s*"([\s\S]*?)"\s*(?:,\s*"|\})/);
-          if (verdictMatch && argumentMatch) {
-            parsed = {
-              verdict: verdictMatch[1] as CriticVerdict,
-              argument: argumentMatch[1].replace(/\\n/g, "\n"),
-              researchQuery: researchMatch?.[1],
-              paperNumbers: [],
-            };
-          }
-        }
+    // Attempt 2: jsonrepair — handles structural errors (missing commas/braces),
+    // unescaped quotes, control characters and other malformed LLM output.
+    // This is the primary fix for the recurring "Expected ',' or '}'" regression (#30, #33, #34).
+    const block = text.match(/\{[\s\S]*\}/)?.[0] ?? text;
+    try {
+      parsed = JSON.parse(jsonrepair(block));
+    } catch {
+      // Attempt 3: regex-based field extraction as absolute last resort
+      const verdictMatch = block.match(/"verdict"\s*:\s*"(challenged|open|needs_research)"/);
+      const argumentMatch = block.match(/"argument"\s*:\s*"([\s\S]*?)"\s*(?:,\s*"(?:researchQuery|paperNumbers)|\})/);
+      const researchMatch = block.match(/"researchQuery"\s*:\s*"([\s\S]*?)"\s*(?:,\s*"|\})/);
+      if (verdictMatch && argumentMatch) {
+        parsed = {
+          verdict: verdictMatch[1] as CriticVerdict,
+          argument: argumentMatch[1].replace(/\\n/g, "\n"),
+          researchQuery: researchMatch?.[1],
+          paperNumbers: [],
+        };
       }
     }
   }
-
   if (!parsed) {
     console.warn(`JSON parse failed for hypothesis "${hypothesis.title.slice(0, 50)}". Response: ${rawText.slice(0, 300)}`);
     return { verdict: "open", argument: "Parse-Fehler — manuelle Prüfung nötig", paperIds: [] };
@@ -155,9 +144,25 @@ Antworte NUR mit diesem JSON (kein Markdown):
     .filter((n) => typeof n === "number" && n >= 1 && n <= slicedPapers.length)
     .map((n) => slicedPapers[n - 1].id);
 
-  // Sicherheitsnetz: Firestore-IDs (genau 20 alphanumerische Zeichen) aus dem
-  // argument-Text entfernen, falls das Modell sie trotz Prompt-Anweisung ausgibt.
-  const safeArgument = (parsed.argument ?? "").replace(/\b[A-Za-z0-9]{20}\b/g, "[Studie]");
+  // Sicherheitsnetz: Rohe Firestore-IDs und Nummern-Referenzen aus dem argument-Text
+  // entfernen und durch echte Studientitel ersetzen.
+  const idToTitle = new Map(slicedPapers.map((p) => [p.id, p.title]));
+
+  // 1. Ersetze rohe Firestore-IDs (20 alphanumerische Zeichen) durch Studientitel
+  let safeArgument = (parsed.argument ?? "").replace(/\b([A-Za-z0-9]{20})\b/g, (_match: string, id: string) => {
+    const title = idToTitle.get(id);
+    return title ? `„${title}"` : "[unbekannte Studie]";
+  });
+
+  // 2. Ersetze verbleibende Platzhalter wie [Studie], [1], [2] etc. durch echte Titel
+  safeArgument = safeArgument.replace(/\[Studie(?:\s+\d+)?\]/g, "[unbekannte Studie]");
+  safeArgument = safeArgument.replace(/\[([0-9]+)\]/g, (_match: string, numStr: string) => {
+    const n = parseInt(numStr, 10);
+    if (n >= 1 && n <= slicedPapers.length) {
+      return `„${slicedPapers[n - 1].title}"`;
+    }
+    return "[unbekannte Studie]";
+  });
 
   return {
     verdict: parsed.verdict,
