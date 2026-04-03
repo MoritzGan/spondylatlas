@@ -91,3 +91,16 @@ export function formatTs(ts: Timestamp | null | undefined): string {
     hour: '2-digit', minute: '2-digit',
   })
 }
+
+/**
+ * Bereinigt Critic-Texte, die noch rohe Firestore-Dokument-IDs enthalten.
+ * Firestore-IDs sind genau 20 alphanumerische Zeichen — ein leicht erkennbares Muster.
+ * Betrifft Einträge, die vor oder trotz dem Agent-Fix (#18) mit IDs gespeichert wurden.
+ *
+ * Beispiel: "Paper rtfu3ZjLMHc4VqMR6rLI zeigt..." → "Paper [Studie] zeigt..."
+ */
+export function sanitizeCriticText(text: string): string {
+  // Firestore Auto-IDs: genau 20 Zeichen aus [A-Za-z0-9]
+  // Wortgrenzen (\b) schützen vor False Positives in normalen Wörtern
+  return text.replace(/\b[A-Za-z0-9]{20}\b/g, '[Studie]')
+}
