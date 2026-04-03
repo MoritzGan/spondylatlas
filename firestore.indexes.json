@@ -190,6 +190,35 @@
         }
       ]
     }
+    ,
+    {
+      "collectionGroup": "meta_studies",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "publishedAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "meta_studies",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "hypothesisId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        }
+      ]
+    }
   ],
   "fieldOverrides": []
 }

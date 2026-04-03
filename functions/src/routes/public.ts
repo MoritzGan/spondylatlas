@@ -2,7 +2,7 @@ import { Router } from "express";
 import type { Request } from "express";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import { ApiError } from "../lib/errors.js";
-import { contentReportSchema, hypothesisPublicListSchema } from "../middleware/validate.js";
+import { contentReportSchema, hypothesisPublicListSchema, metaStudyPublicListSchema } from "../middleware/validate.js";
 import { publicWriteRateLimitMiddleware } from "../middleware/rateLimit.js";
 import { verifyOptionalFirebaseUser } from "../middleware/firebaseUserAuth.js";
 import { param } from "../types/index.js";
@@ -163,6 +163,79 @@ router.get("/arena", async (_req, res, next) => {
       runs: runsSnap.docs.map(sanitizeRun),
       events: eventsSnap.docs.map(sanitizeEvent),
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+function serializeMetaStudy(doc: FirebaseFirestore.QueryDocumentSnapshot | FirebaseFirestore.DocumentSnapshot) {
+  const data = doc.data();
+  if (!data) return null;
+
+  return {
+    id: doc.id,
+    hypothesisId: data.hypothesisId ?? null,
+    title: data.title ?? "",
+    status: data.status,
+    currentRound: typeof data.currentRound === "number" ? data.currentRound : 1,
+    sections: data.sections ?? {},
+    references: Array.isArray(data.references) ? data.references : [],
+    paperIds: Array.isArray(data.paperIds) ? data.paperIds : [],
+    searchStrategy: data.searchStrategy ?? null,
+    inclusionCriteria: Array.isArray(data.inclusionCriteria) ? data.inclusionCriteria : [],
+    exclusionCriteria: Array.isArray(data.exclusionCriteria) ? data.exclusionCriteria : [],
+    reviews: Array.isArray(data.reviews) ? data.reviews : [],
+    wordCount: typeof data.wordCount === "number" ? data.wordCount : 0,
+    createdAt: toIsoString(data.createdAt),
+    updatedAt: toIsoString(data.updatedAt),
+    publishedAt: toIsoString(data.publishedAt),
+  };
+}
+
+router.get("/meta-studies", async (req, res, next) => {
+  try {
+    const params = metaStudyPublicListSchema.parse(req.query);
+    const snap = await db()
+      .collection("meta_studies")
+      .where("status", "==", "published")
+      .orderBy("publishedAt", "desc")
+      .limit(params.limit + params.offset)
+      .get();
+
+    const docs = snap.docs
+      .slice(params.offset, params.offset + params.limit)
+      .map(serializeMetaStudy)
+      .filter(Boolean);
+
+    res.json({ data: docs, total: snap.size, limit: params.limit, offset: params.offset });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get("/meta-studies/:id", async (req, res, next) => {
+  try {
+    const studyId = param(req, "id");
+    const studyDoc = await db().collection("meta_studies").doc(studyId).get();
+    if (!studyDoc.exists) {
+      throw ApiError.notFound("Meta-study not found");
+    }
+
+    const study = serializeMetaStudy(studyDoc);
+    if (!study || study.status !== "published") {
+      throw ApiError.notFound("Meta-study not found");
+    }
+
+    // Fetch linked hypothesis title
+    let hypothesisTitle: string | null = null;
+    if (study.hypothesisId) {
+      const hypoDoc = await db().collection("hypotheses").doc(study.hypothesisId).get();
+      if (hypoDoc.exists) {
+        hypothesisTitle = (hypoDoc.data()?.title as string) ?? null;
+      }
+    }
+
+    res.json({ ...study, hypothesisTitle });
   } catch (err) {
     next(err);
   }

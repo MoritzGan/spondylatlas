@@ -245,6 +245,11 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    match /meta_studies/{studyId} {
+      allow read: if resource.data.status == "published";
+      allow write: if isAdmin();
+    }
+
     match /agent_submissions/{submissionId} {
       allow read: if isAdmin();
       allow write: if false;

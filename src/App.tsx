@@ -16,6 +16,8 @@ const Login = lazy(() => import('./pages/Login'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const Register = lazy(() => import('./pages/Register'))
 const Profile = lazy(() => import('./pages/Profile'))
+const MetaStudies = lazy(() => import('./pages/MetaStudies'))
+const MetaStudyDetail = lazy(() => import('./pages/MetaStudyDetail'))
 const Hypotheses = lazy(() => import('./pages/Hypotheses'))
 const HypothesisDetail = lazy(() => import('./pages/HypothesisDetail'))
 const Trials = lazy(() => import('./pages/Trials'))
@@ -104,6 +106,8 @@ export default function App() {
                     />
                     <Route path="trials" element={<Trials />} />
                     <Route path="trials/:nctId" element={<TrialDetail />} />
+                    <Route path="meta-studien" element={<MetaStudies />} />
+                    <Route path="meta-studien/:id" element={<MetaStudyDetail />} />
                     <Route path="hypotheses" element={<Hypotheses />} />
                     <Route path="hypotheses/:id" element={<HypothesisDetail />} />
                     <Route path="arena" element={<AgentArena />} />
