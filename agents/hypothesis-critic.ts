@@ -145,9 +145,25 @@ Antworte NUR mit diesem JSON (kein Markdown):
     .filter((n) => typeof n === "number" && n >= 1 && n <= slicedPapers.length)
     .map((n) => slicedPapers[n - 1].id);
 
-  // Sicherheitsnetz: Firestore-IDs (genau 20 alphanumerische Zeichen) aus dem
-  // argument-Text entfernen, falls das Modell sie trotz Prompt-Anweisung ausgibt.
-  const safeArgument = (parsed.argument ?? "").replace(/\b[A-Za-z0-9]{20}\b/g, "[Studie]");
+  // Sicherheitsnetz: Rohe Firestore-IDs und Nummern-Referenzen aus dem argument-Text
+  // entfernen und durch echte Studientitel ersetzen.
+  const idToTitle = new Map(slicedPapers.map((p) => [p.id, p.title]));
+
+  // 1. Ersetze rohe Firestore-IDs (20 alphanumerische Zeichen) durch Studientitel
+  let safeArgument = (parsed.argument ?? "").replace(/\b([A-Za-z0-9]{20})\b/g, (_match: string, id: string) => {
+    const title = idToTitle.get(id);
+    return title ? `„${title}"` : "[unbekannte Studie]";
+  });
+
+  // 2. Ersetze verbleibende Platzhalter wie [Studie], [1], [2] etc. durch echte Titel
+  safeArgument = safeArgument.replace(/\[Studie(?:\s+\d+)?\]/g, "[unbekannte Studie]");
+  safeArgument = safeArgument.replace(/\[([0-9]+)\]/g, (_match: string, numStr: string) => {
+    const n = parseInt(numStr, 10);
+    if (n >= 1 && n <= slicedPapers.length) {
+      return `„${slicedPapers[n - 1].title}"`;
+    }
+    return "[unbekannte Studie]";
+  });
 
   return {
     verdict: parsed.verdict,
