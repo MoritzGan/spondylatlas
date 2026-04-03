@@ -5,7 +5,7 @@ import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import type { Paper } from '../lib/types'
 import { usePageMeta } from '../hooks/usePageMeta'
-import { decodeHtml, stripAiPromptPrefix } from '../lib/textUtils'
+import { decodeHtml, stripAiPromptPrefix, stripMarkdown } from '../lib/textUtils'
 import { CardListSkeleton } from '../components/Skeleton'
 import EmptyState from '../components/EmptyState'
 
@@ -143,7 +143,7 @@ export default function Research() {
                 )}
 
                 <p className="mt-2 line-clamp-3 text-stone-600">
-                  {stripAiPromptPrefix(decodeHtml(paper.summary || paper.abstract || ""))}
+                  {stripMarkdown(stripAiPromptPrefix(decodeHtml(paper.summary || paper.abstract || "")))}
                 </p>
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
