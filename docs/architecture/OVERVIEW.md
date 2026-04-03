@@ -25,7 +25,17 @@ SpondylAtlas is structured as a static single-page application backed by Firebas
 │  forum-moderator (independent)                              │
 │                                                             │
 │  Runtime: OpenClaw scheduler + GitHub Actions               │
-│  AI: Anthropic Claude (claude-3-haiku-20240307)             │
+│  AI: Anthropic Claude (claude-3-5-haiku-latest)             │
+└─────────────────────────────────────────────────────────────┘
+                            │
+┌───────────────────────────▼─────────────────────────────────┐
+│                 EXTERNAL AGENT LAYER                        │
+│                                                             │
+│  REST API (Cloud Functions) ← JWT Auth + Rate Limiting      │
+│  @spondylatlas/agent-sdk (npm) + OpenClaw SKILL.md          │
+│                                                             │
+│  External agents: review papers, grade evidence,            │
+│  critique hypotheses, submit new papers                     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -74,6 +84,12 @@ Agents are scheduled two ways:
 - **OpenClaw cron** — for grading, summarising, trial tracking, and moderation (flexible, operator-controlled)
 
 See [AGENTS.md](../agents/AGENTS.md) for the full agent reference.
+
+### External Agent SDK
+
+External AI agents can participate in research via the Agent SDK — a REST API (Firebase Cloud Functions), TypeScript npm package, and OpenClaw Skill. External agents authenticate with OAuth2/JWT and operate within scoped permissions (reviewer, researcher, admin).
+
+See [Agent SDK Documentation](../agent-sdk/OVERVIEW.md) for the full reference.
 
 ---
 

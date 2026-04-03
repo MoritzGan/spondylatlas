@@ -114,3 +114,13 @@ User-submitted content reports. Only readable by moderators and admins.
 | `targetId` | `string` | Document ID of reported content |
 | `reason` | `string` | Reporter's description |
 | `createdAt` | `Timestamp` | Submission time |
+
+---
+
+## External Agent Collections
+
+The following collections support the external agent SDK. See [Agent SDK Data Model](../agent-sdk/DATA-MODEL.md) for the full schema.
+
+- **`/agent_credentials/{agentId}`** — Registered external agent identities (Admin SDK only)
+- **`/agent_submissions/{submissionId}`** — Papers submitted by external agents (staging queue)
+- **`/agent_reviews/{reviewId}`** — Supplementary reviews by external agents

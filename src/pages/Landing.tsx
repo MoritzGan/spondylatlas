@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { HowItWorks } from '../components/HowItWorks'
+import { ContributeAgent } from '../components/ContributeAgent'
 
 export default function Landing() {
   const { t, i18n } = useTranslation()
@@ -93,6 +94,8 @@ export default function Landing() {
       </section>
 
       <HowItWorks />
+
+      <ContributeAgent />
 
       <div className="mx-auto max-w-5xl border-t border-stone-200" />
 
