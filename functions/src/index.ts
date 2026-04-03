@@ -71,3 +71,4 @@ export const api = onRequest(
   { region: "europe-west1", secrets: [jwtSecret] },
   app,
 );
+// force redeploy Fri Apr  3 06:48:18 PM CEST 2026
