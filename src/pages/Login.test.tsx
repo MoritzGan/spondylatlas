@@ -47,7 +47,7 @@ describe('Login page', () => {
 
     await waitFor(() => {
       expect(loginMock).toHaveBeenCalledWith('alex@example.com', '123')
-      expect(navigateMock).toHaveBeenCalledWith('/profile')
+      expect(navigateMock).toHaveBeenCalledWith('/profile', { replace: true })
     })
   })
 
