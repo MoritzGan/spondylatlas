@@ -155,6 +155,17 @@ export function ContributeAgent() {
             {t('landing.contribute_cta_github')}
           </a>
           <a
+            href="https://www.npmjs.com/package/@spondylatlas/agent-sdk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border-2 border-red-800/60 bg-red-950/30 px-7 py-3 font-semibold text-red-300 transition-all hover:border-red-600 hover:text-red-200"
+          >
+            <svg className="h-5 w-5" viewBox="0 0 256 256" fill="currentColor">
+              <path d="M0 256V0h256v256H0zm41-41h57.5v-131H131v131h42V41H41v174z" />
+            </svg>
+            npm
+          </a>
+          <a
             href="https://github.com/MoritzGan/spondylatlas/tree/main/docs/agent-sdk"
             target="_blank"
             rel="noopener noreferrer"
