@@ -31,7 +31,9 @@ interface Trial {
 }
 
 async function fetchTrials(): Promise<any[]> {
-  const url = "https://clinicaltrials.gov/api/v2/studies?query.cond=Ankylosing+Spondylitis&filter.overallStatus=RECRUITING,ENROLLING_BY_INVITATION&pageSize=20&format=json";
+  // Use both condition and term filter for better specificity
+  const terms = encodeURIComponent("ankylosing spondylitis OR axial spondyloarthritis OR morbus bechterew");
+  const url = `https://clinicaltrials.gov/api/v2/studies?query.cond=Ankylosing+Spondylitis+OR+Axial+Spondyloarthritis&query.term=${terms}&filter.overallStatus=RECRUITING,ENROLLING_BY_INVITATION&pageSize=40&format=json`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`ClinicalTrials API error: ${res.status}`);
   const data = await res.json() as any;
@@ -63,9 +65,15 @@ async function run() {
   const existingIds = new Set(existing.docs.map(d => d.data().nctId));
 
   const rawTrials = await fetchTrials();
+  const RELEVANT_TERMS = ['spondyl', 'bechterew', 'axial spondylo', 'ankylos'];
   const newTrials = rawTrials.filter(t => {
     const nctId = t.protocolSection?.identificationModule?.nctId;
-    return nctId && !existingIds.has(nctId);
+    if (!nctId || existingIds.has(nctId)) return false;
+    // Relevance check: condition or title must mention AS/axSpA
+    const conditions: string[] = t.protocolSection?.conditionsModule?.conditions ?? [];
+    const title: string = t.protocolSection?.identificationModule?.briefTitle ?? '';
+    const text = [...conditions, title].join(' ').toLowerCase();
+    return RELEVANT_TERMS.some(term => text.includes(term));
   });
 
   if (newTrials.length === 0) { console.log("✅ Keine neuen Studien gefunden."); return; }
