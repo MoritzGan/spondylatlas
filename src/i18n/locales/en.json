@@ -184,7 +184,9 @@
     "login_to_comment": "Sign in",
     "login_to_comment_suffix": "to comment.",
     "status_open_desc": "Not refutable — the hypothesis stands.",
-    "status_challenged_desc": "The critic agent has found counter-arguments."
+    "status_challenged_desc": "The critic agent has found counter-arguments.",
+    "error_title": "Could not load hypotheses",
+    "error_text": "There was an error fetching the data. Please try again later."
   },
   "trials": {
     "title": "Clinical Trials",

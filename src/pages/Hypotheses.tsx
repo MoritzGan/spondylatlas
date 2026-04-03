@@ -48,12 +48,19 @@ export default function Hypotheses() {
   const { t } = useTranslation()
   const [hypotheses, setHypotheses] = useState<Hypothesis[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
 
   useEffect(() => {
-    const unsub = subscribeHypotheses(h => {
-      setHypotheses(h)
-      setLoading(false)
-    })
+    const unsub = subscribeHypotheses(
+      h => {
+        setHypotheses(h)
+        setLoading(false)
+      },
+      err => {
+        setError(err)
+        setLoading(false)
+      },
+    )
     return unsub
   }, [])
 
@@ -80,7 +87,15 @@ export default function Hypotheses() {
 
       {loading && <div className="mt-8"><CardListSkeleton count={3} /></div>}
 
-      {!loading && hypotheses.length === 0 && (
+      {!loading && error && (
+        <div className="mt-8 rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
+          <p className="font-semibold"> {t('hypotheses.error_title')}</p>
+          <p className="mt-1 text-red-600">{t('hypotheses.error_text')}</p>
+          <p className="mt-2 font-mono text-xs text-red-400">{error.message}</p>
+        </div>
+      )}
+
+      {!loading && !error && hypotheses.length === 0 && (
         <div className="mt-8">
           <EmptyState
             icon=""

@@ -43,17 +43,22 @@ export async function getHypothesis(id: string): Promise<HypothesisDetail | null
   }
 }
 
-export function subscribeHypotheses(cb: (h: Hypothesis[]) => void) {
+export function subscribeHypotheses(
+  cb: (h: Hypothesis[]) => void,
+  onError?: (err: Error | null) => void,
+) {
   let cancelled = false
 
   const load = async () => {
     try {
       const hypotheses = await getPublishedHypotheses()
       if (!cancelled) {
+        onError?.(null)
         cb(hypotheses)
       }
-    } catch {
+    } catch (err) {
       if (!cancelled) {
+        onError?.(err instanceof Error ? err : new Error(String(err)))
         cb([])
       }
     }
