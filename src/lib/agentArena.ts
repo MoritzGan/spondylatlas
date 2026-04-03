@@ -106,7 +106,7 @@ export function formatRelative(ts: string | { toDate(): Date } | null): string {
   if (diff < 60000) return 'gerade eben'
   if (diff < 3600000) return `vor ${Math.floor(diff / 60000)} Min`
   if (diff < 86400000) return `vor ${Math.floor(diff / 3600000)} Std`
-  return new Date(ts).toLocaleDateString('de-DE')
+  return date.toLocaleDateString('de-DE')
 }
 
 export function durationSec(start: string | null, end: string | null): string {
