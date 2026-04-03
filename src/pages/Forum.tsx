@@ -35,23 +35,23 @@ export default function Forum() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
-      <h1 className="text-3xl font-bold text-gray-900">{t('forum.title')}</h1>
-      <p className="mt-2 text-gray-600">{t('forum.subtitle')}</p>
+      <h1 className="text-3xl font-bold text-stone-900">{t('forum.title')}</h1>
+      <p className="mt-2 text-stone-600">{t('forum.subtitle')}</p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {CATEGORIES.map((category) => (
           <Link
             key={category}
             to={`/forum/${category}`}
-            className="group rounded-xl border border-gray-200 bg-white p-6 transition-shadow hover:shadow-md"
+            className="group rounded-xl border border-stone-200 bg-white p-6 transition-shadow hover:shadow-md"
           >
             <div className="flex items-center gap-3">
               <span className="text-2xl">{CATEGORY_ICONS[category]}</span>
-              <h2 className="text-lg font-semibold text-gray-900 group-hover:text-primary-700">
+              <h2 className="text-lg font-semibold text-stone-900 group-hover:text-primary-700">
                 {t(`forum.categories.${category}`)}
               </h2>
             </div>
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-stone-500">
               {loading
                 ? '…'
                 : t('forum.thread_count', { count: counts[category] ?? 0 })}

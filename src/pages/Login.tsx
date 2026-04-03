@@ -41,7 +41,7 @@ export default function Login() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="text-center text-2xl font-bold text-gray-900">{t('auth.login_title')}</h1>
+      <h1 className="text-center text-2xl font-bold text-stone-900">{t('auth.login_title')}</h1>
       <p className="mt-3 text-center text-sm leading-6 text-stone-600">
         {isGerman
           ? 'Die Community ist nur für volljährige Nutzer vorgesehen. Für den Zugang zum geschützten Bereich ist eine bestätigte E-Mail-Adresse erforderlich.'
@@ -54,7 +54,7 @@ export default function Login() {
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="block text-sm font-medium text-stone-700">
             {t('auth.email')}
           </label>
           <input
@@ -63,11 +63,11 @@ export default function Login() {
             required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+            className="mt-1 w-full rounded-lg border border-stone-300 px-4 py-2.5 text-stone-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
           />
         </div>
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="password" className="block text-sm font-medium text-stone-700">
             {t('auth.password')}
           </label>
           <input
@@ -76,7 +76,7 @@ export default function Login() {
             required
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+            className="mt-1 w-full rounded-lg border border-stone-300 px-4 py-2.5 text-stone-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
           />
         </div>
         <div className="text-right">
@@ -93,7 +93,7 @@ export default function Login() {
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-stone-600">
         {t('auth.no_account')}{' '}
         <Link to="/register" className="font-medium text-primary-600 hover:underline">
           {t('nav.register')}
