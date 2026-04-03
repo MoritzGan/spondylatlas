@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { getHypothesis, getComments, addComment, formatTs, type Hypothesis, type HypothesisComment } from '../lib/hypotheses'
+import { getHypothesis, getComments, addComment, formatTs, sanitizeCriticText, type Hypothesis, type HypothesisComment } from '../lib/hypotheses'
 
 const STATUS_LABEL: Record<string, { label: string; color: string; icon: string; desc: string }> = {
   open:       { label: 'Offen',       icon: '', color: 'amber', desc: 'Nicht widerlegbar — Hypothese steht im Raum.' },
@@ -84,7 +84,7 @@ export default function HypothesisDetail() {
           <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">
              Critic-Agent — {cfg?.desc}
           </p>
-          <p className="text-sm text-gray-700 leading-relaxed">{hypo.criticArgument}</p>
+          <p className="text-sm text-gray-700 leading-relaxed">{sanitizeCriticText(hypo.criticArgument)}</p>
           {hypo.reviewedAt && (
             <p className="mt-2 text-xs text-gray-400">Geprüft am {formatTs(hypo.reviewedAt)}</p>
           )}

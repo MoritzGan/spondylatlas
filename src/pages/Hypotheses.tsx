@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { subscribeHypotheses, formatTs, type Hypothesis } from '../lib/hypotheses'
+import { subscribeHypotheses, formatTs, sanitizeCriticText, type Hypothesis } from '../lib/hypotheses'
 
 const STATUS_CONFIG = {
   open:       { label: 'Offen',      color: 'bg-amber-100 text-amber-800',  icon: '' },
@@ -26,7 +26,7 @@ function HypothesisCard({ h }: { h: Hypothesis }) {
       {h.status === 'challenged' && h.criticArgument && (
         <div className="mt-3 rounded-lg bg-red-50 border border-red-100 px-3 py-2 text-xs text-red-700">
           <span className="font-medium"> Kritik: </span>
-          {h.criticArgument.slice(0, 120)}…
+          {sanitizeCriticText(h.criticArgument).slice(0, 120)}…
         </div>
       )}
       <div className="mt-4 flex items-center gap-4 text-xs text-gray-400">

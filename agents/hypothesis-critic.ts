@@ -133,9 +133,13 @@ Antworte NUR mit diesem JSON (kein Markdown):
     .filter((n) => typeof n === "number" && n >= 1 && n <= slicedPapers.length)
     .map((n) => slicedPapers[n - 1].id);
 
+  // Sicherheitsnetz: Firestore-IDs (genau 20 alphanumerische Zeichen) aus dem
+  // argument-Text entfernen, falls das Modell sie trotz Prompt-Anweisung ausgibt.
+  const safeArgument = (parsed.argument ?? "").replace(/\b[A-Za-z0-9]{20}\b/g, "[Studie]");
+
   return {
     verdict: parsed.verdict,
-    argument: parsed.argument,
+    argument: safeArgument,
     researchQuery: parsed.researchQuery,
     paperIds,
   };
