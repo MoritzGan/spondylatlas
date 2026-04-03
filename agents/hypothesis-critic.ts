@@ -118,7 +118,19 @@ Antworte NUR mit diesem JSON (kein Markdown):
       try {
         parsed = JSON.parse(match[0]);
       } catch {
-        // fallthrough to safe default
+        // Attempt 3: sanitize literal control chars inside JSON string values and retry
+        // Root cause of "Expected ',' or '}' at position N": LLM writes multi-sentence
+        // text with bare newlines inside a JSON string value, which is invalid per spec.
+        try {
+          const sanitized = match[0].replace(
+            /"((?:[^"\\]|\\.)*)"/gs,
+            (_m: string, inner: string) =>
+              `"${inner.replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t")}"`
+          );
+          parsed = JSON.parse(sanitized);
+        } catch {
+          // fallthrough to safe default
+        }
       }
     }
   }
