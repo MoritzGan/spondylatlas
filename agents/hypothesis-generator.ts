@@ -3,6 +3,7 @@ import { readFileSync } from "fs";
 import { initializeApp, cert, type ServiceAccount } from "firebase-admin/app";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import Anthropic from "@anthropic-ai/sdk";
+import { jsonrepair } from "jsonrepair";
 import { initLogger, logStart, logComplete, logError, logEvent } from "./lib/logger.js";
 
 const serviceAccount = JSON.parse(
@@ -100,16 +101,31 @@ Antworte NUR mit diesem JSON-Array (kein Markdown):
     messages: [{ role: "user", content: prompt }],
   });
 
-  const text = response.content[0].type === "text" ? response.content[0].text.trim() : "[]";
+  const rawText = response.content[0].type === "text" ? response.content[0].text.trim() : "[]";
 
+  // Strip markdown code fences the model may emit despite instructions
+  const text = rawText
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```\s*$/, "")
+    .trim();
+
+  // Attempt 1: direct parse
   try {
     return JSON.parse(text);
   } catch {
-    // Try to extract JSON array
-    const match = text.match(/\[[\s\S]*\]/);
-    if (match) return JSON.parse(match[0]);
-    console.error("Failed to parse hypotheses:", text.slice(0, 200));
-    return [];
+    // Attempt 2: extract array block + jsonrepair
+    const block = text.match(/\[[\s\S]*\]/)?.[0] ?? text;
+    try {
+      return JSON.parse(jsonrepair(block));
+    } catch {
+      // Attempt 3: jsonrepair on full text
+      try {
+        return JSON.parse(jsonrepair(text));
+      } catch {
+        console.error("Failed to parse hypotheses after repair:", rawText.slice(0, 300));
+        return [];
+      }
+    }
   }
 }
 
