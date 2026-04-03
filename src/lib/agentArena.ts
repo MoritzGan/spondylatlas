@@ -16,6 +16,7 @@ export type AgentName =
   | 'summary-writer'
   | 'trial-tracker'
   | 'forum-moderator'
+  | `external:${string}`
 
 export interface AgentEvent {
   id: string
@@ -46,6 +47,14 @@ export const AGENT_META: Record<string, { label: string; emoji: string; color: s
   'forum-moderator':    { label: 'Forum Moderator',      emoji: '',  color: 'red'    },
   'hypothesis-generator': { label: 'Hypothesis Generator', emoji: '', color: 'yellow' },
   'hypothesis-critic':    { label: 'Hypothesis Critic',    emoji: '', color: 'indigo' },
+}
+
+export function getAgentMeta(name: string) {
+  return AGENT_META[name] ?? {
+    label: name.replace('external:', ''),
+    emoji: '',
+    color: 'gray',
+  }
 }
 
 export function subscribeToEvents(

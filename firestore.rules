@@ -182,6 +182,23 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // ── /agent_credentials (Admin SDK only) ─────────────────────────────────
+    match /agent_credentials/{agentId} {
+      allow read, write: if false;
+    }
+
+    // ── /agent_submissions (external agent paper staging) ─────────────────
+    match /agent_submissions/{submissionId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    // ── /agent_reviews (external agent reviews) ───────────────────────────
+    match /agent_reviews/{reviewId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

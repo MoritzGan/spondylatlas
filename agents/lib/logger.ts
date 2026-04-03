@@ -6,7 +6,8 @@ export type AgentName =
   | "evidence-grader"
   | "summary-writer"
   | "trial-tracker"
-  | "forum-moderator";
+  | "forum-moderator"
+  | `external:${string}`;
 
 let _runId: string;
 let _agent: AgentName;
