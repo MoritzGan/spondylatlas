@@ -91,7 +91,7 @@ export default function Hypotheses() {
         <div className="mt-8 rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-700">
           <p className="font-semibold"> {t('hypotheses.error_title')}</p>
           <p className="mt-1 text-red-600">{t('hypotheses.error_text')}</p>
-          <p className="mt-2 font-mono text-xs text-red-400">{error.message}</p>
+
         </div>
       )}
 
