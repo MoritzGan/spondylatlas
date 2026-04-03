@@ -18,7 +18,7 @@ type EvidenceLevel = "1a" | "1b" | "2a" | "2b" | "3" | "4" | "5";
 
 async function gradeEvidence(title: string, abstract: string) {
   const msg = await anthropic.messages.create({
-    model: "claude-3-5-haiku-latest",
+    model: "claude-haiku-4-20250414",
     max_tokens: 512,
     messages: [{
       role: "user",

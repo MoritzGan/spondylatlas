@@ -52,7 +52,7 @@ export function selectPapersToGrade(docs: PaperSnapshot[], maxItems = 20) {
 
 export async function gradeEvidence(client: Anthropic, title: string, abstract: string) {
   const message = await client.messages.create({
-    model: "claude-3-5-haiku-latest",
+    model: "claude-haiku-4-20250414",
     max_tokens: 512,
     messages: [{
       role: "user",
