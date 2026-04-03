@@ -78,15 +78,6 @@ export const LEGAL_DOCUMENTS: Record<LegalDocumentKey, LegalDocument> = {
           },
         ],
       },
-      {
-        title: { de: 'Hinweis vor Produktionsstart', en: 'Required Before Production' },
-        paragraphs: [
-          {
-            de: 'Die markierten Platzhalter müssen vor dem Go-Live mit den realen Betreiberangaben ersetzt werden.',
-            en: 'The placeholders on this page must be replaced with the real operator details before go-live.',
-          },
-        ],
-      },
     ],
   },
   privacy: {
