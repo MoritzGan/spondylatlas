@@ -230,7 +230,9 @@
     "table_status": "Status",
     "table_result": "Result",
     "table_items": "Items",
-    "table_time": "Time"
+    "table_time": "Time",
+    "error_title": "Could not load data",
+    "error_text": "Arena data is currently unavailable. Please try again later."
   },
   "common": {
     "loading": "Just a moment...",
