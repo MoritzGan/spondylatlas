@@ -4,6 +4,7 @@ import { initializeApp, cert, type ServiceAccount } from "firebase-admin/app";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import Anthropic from "@anthropic-ai/sdk";
 import { initLogger, logStart, logComplete, logError, logEvent } from "./lib/logger.js";
+import { jsonrepair } from "jsonrepair";
 
 const serviceAccount = JSON.parse(
   process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON ??
@@ -223,9 +224,15 @@ Antworte NUR mit diesem JSON (kein Markdown):
   try {
     return JSON.parse(text) as MetaStudyDraft;
   } catch {
-    const match = text.match(/\{[\s\S]*\}/);
-    if (match) return JSON.parse(match[0]) as MetaStudyDraft;
-    throw new Error(`Failed to parse meta-study draft: ${text.slice(0, 200)}`);
+    try {
+      return JSON.parse(jsonrepair(text)) as MetaStudyDraft;
+    } catch {
+      const match = text.match(/\{[\s\S]*\}/);
+      if (match) {
+        try { return JSON.parse(jsonrepair(match[0])) as MetaStudyDraft; } catch { /* fall through */ }
+      }
+      throw new Error(`Failed to parse meta-study draft: ${text.slice(0, 200)}`);
+    }
   }
 }
 
