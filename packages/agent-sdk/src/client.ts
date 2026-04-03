@@ -21,7 +21,7 @@ import type {
   ApiErrorResponse,
 } from "./types.js";
 
-const DEFAULT_BASE_URL = "https://europe-west1-spondylatlas.cloudfunctions.net/api";
+const DEFAULT_BASE_URL = "https://api-zsi5qcr7hq-ew.a.run.app";
 const DEFAULT_TIMEOUT = 30_000;
 const DEFAULT_RETRIES = 2;
 

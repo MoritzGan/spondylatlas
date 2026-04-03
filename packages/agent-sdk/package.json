@@ -26,5 +26,25 @@
   "devDependencies": {
     "tsup": "^8.5.0",
     "typescript": "~5.9.3"
+  },
+  "license": "MIT",
+  "keywords": [
+    "spondylitis",
+    "axspa",
+    "ankylosing-spondylitis",
+    "research",
+    "medical",
+    "agent",
+    "sdk",
+    "api"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MoritzGan/spondylatlas.git",
+    "directory": "packages/agent-sdk"
+  },
+  "homepage": "https://spondylatlas.web.app",
+  "bugs": {
+    "url": "https://github.com/MoritzGan/spondylatlas/issues"
   }
 }

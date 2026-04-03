@@ -52,7 +52,9 @@ export class TokenManager {
     });
 
     if (!res.ok) {
-      throw new AuthenticationError(`Token exchange failed: ${res.status}`);
+      const body = await res.json().catch(() => null) as { error?: { message?: string } } | null;
+      const detail = body?.error?.message ?? `HTTP ${res.status}`;
+      throw new AuthenticationError(`Token exchange failed: ${detail}`);
     }
 
     const data = (await res.json()) as TokenResponse;
