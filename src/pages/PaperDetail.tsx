@@ -7,6 +7,7 @@ import type { Paper } from '../lib/types'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { decodeHtml, stripAiPromptPrefix } from '../lib/textUtils'
 import { DetailSkeleton } from '../components/Skeleton'
+import MarkdownContent from '../components/MarkdownContent'
 
 export default function PaperDetail() {
   const { paperId } = useParams<{ paperId: string }>()
@@ -147,13 +148,13 @@ export default function PaperDetail() {
         {paper.summary && (
           <section className="mt-8">
             <h2 className="text-lg font-semibold text-stone-900">{t('research.summary')}</h2>
-            <p className="mt-2 whitespace-pre-line text-stone-700">{stripAiPromptPrefix(decodeHtml(paper.summary))}</p>
+            <MarkdownContent className="mt-2">{stripAiPromptPrefix(decodeHtml(paper.summary))}</MarkdownContent>
           </section>
         )}
 
         <section className="mt-8">
           <h2 className="text-lg font-semibold text-stone-900">{t('research.abstract')}</h2>
-          <p className="mt-2 whitespace-pre-line text-stone-700">{decodeHtml(paper.abstract)}</p>
+          <MarkdownContent className="mt-2">{decodeHtml(paper.abstract)}</MarkdownContent>
         </section>
 
         {paper.url && (

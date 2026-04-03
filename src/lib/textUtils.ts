@@ -36,3 +36,19 @@ export function stripAiPromptPrefix(text: string): string {
   } while (result !== prev && result.length > 0)
   return result
 }
+
+/**
+ * Entfernt grundlegende Markdown-Syntax für reine Textvorschauen.
+ * Beispiel: "# Zusammenfassung\n\nText" → "Zusammenfassung Text"
+ */
+export function stripMarkdown(text: string): string {
+  return text
+    .replace(/^#{1,6}\s+/gm, '')   // Überschriften (#, ##, ...)
+    .replace(/\*\*(.+?)\*\*/g, '$1') // Fett (**text**)
+    .replace(/\*(.+?)\*/g, '$1')     // Kursiv (*text*)
+    .replace(/`(.+?)`/g, '$1')       // Code (`code`)
+    .replace(/!\[.*?\]\(.*?\)/g, '') // Bilder
+    .replace(/\[(.+?)\]\(.*?\)/g, '$1') // Links
+    .replace(/\n+/g, ' ')            // Zeilenumbrüche → Leerzeichen
+    .trim()
+}
