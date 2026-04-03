@@ -86,3 +86,9 @@ export async function logError(error: string) {
 export function getRunId() {
   return _runId;
 }
+
+// Alias for test compatibility (tests branch API)
+export const createLogger = (agent: AgentName, _db?: unknown, runId?: string) => {
+  initLogger(agent, runId);
+  return { runId: getRunId(), logEvent, logStart, logComplete, logError };
+};
