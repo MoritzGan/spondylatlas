@@ -12,6 +12,7 @@ export interface Hypothesis {
   generatedAt: string | null
   criticArgument?: string | null
   criticPaperIds?: string[]
+  criticPaperTitles?: Record<string, string>
   reviewedAt?: string | null
   commentCount?: number
 }
@@ -106,6 +107,10 @@ export function formatTs(ts: string | null | undefined): string {
  *
  * Beispiel: "Paper rtfu3ZjLMHc4VqMR6rLI zeigt..." → "Paper [Studie] zeigt..."
  */
-export function sanitizeCriticText(text: string): string {
-  return text.replace(/\b[A-Za-z0-9]{20}\b/g, '[Studie]')
+export function sanitizeCriticText(text: string, paperTitles?: Record<string, string>): string {
+  const titles = paperTitles ?? {}
+  return text.replace(/\b[A-Za-z0-9]{20}\b/g, (match) => {
+    const title = titles[match]
+    return title ? `„${title}"` : ''
+  })
 }

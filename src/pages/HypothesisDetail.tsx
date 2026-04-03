@@ -87,7 +87,7 @@ export default function HypothesisDetail() {
           <p className="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-2">
              {t('hypotheses.critic_agent')} — {cfg ? t(cfg.descKey) : ''}
           </p>
-          <p className="text-sm text-stone-700 leading-relaxed">{sanitizeCriticText(hypo.criticArgument)}</p>
+          <p className="text-sm text-stone-700 leading-relaxed">{sanitizeCriticText(hypo.criticArgument, hypo.criticPaperTitles)}</p>
           {hypo.reviewedAt && (
             <p className="mt-2 text-xs text-stone-400">{t('hypotheses.reviewed_at', { date: formatTs(hypo.reviewedAt) })}</p>
           )}
