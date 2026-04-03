@@ -27,6 +27,7 @@ router.get("/agents", scopeGuard("admin:agents"), async (_req, res, next) => {
   try {
     const agents = await listAgents();
     // Strip sensitive fields
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const data = agents.map(({ clientSecretHash: _, ...rest }) => rest);
     res.json({ data });
   } catch (err) {

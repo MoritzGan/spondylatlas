@@ -43,7 +43,7 @@ export function errorHandler(
   err: Error,
   _req: Request,
   res: Response,
-  _next: NextFunction,
+  _next: NextFunction, // eslint-disable-line @typescript-eslint/no-unused-vars
 ) {
   if (err instanceof ApiError) {
     res.status(err.status).json({

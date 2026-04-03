@@ -111,7 +111,7 @@ async function getOptionalReporter(req: Request) {
 router.get("/hypotheses", async (req, res, next) => {
   try {
     const params = hypothesisPublicListSchema.parse(req.query);
-    let query: FirebaseFirestore.Query = db()
+    const query: FirebaseFirestore.Query = db()
       .collection("hypotheses")
       .where("status", "in", params.status ? [params.status] : ["open", "challenged"])
       .orderBy("generatedAt", "desc");

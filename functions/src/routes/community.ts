@@ -1,11 +1,10 @@
 import { Router } from "express";
-import { FieldValue, getFirestore, Timestamp } from "firebase-admin/firestore";
+import { FieldValue, getFirestore } from "firebase-admin/firestore";
 import { ApiError } from "../lib/errors.js";
 import { validate, forumCommentSchema, hypothesisCommentSchema } from "../middleware/validate.js";
 import { getFirebaseUser, param } from "../types/index.js";
 
 const router = Router();
-const COMMUNITY_HEALTH_SCOPE = "community_forum";
 const FORUM_POSTS = "forum_posts";
 const FORUM_COMMENTS = "forum_comments";
 const HYPOTHESES = "hypotheses";
