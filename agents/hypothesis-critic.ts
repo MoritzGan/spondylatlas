@@ -49,7 +49,7 @@ async function critiqueHypothesis(
 ): Promise<CriticResult> {
   const paperContext = papers
     .slice(0, 25)
-    .map((p) => `ID:${p.id} [${p.evidenceLevel ?? "?"}]\n${p.title}\n${(p.summary || p.abstract).slice(0, 350)}`)
+    .map((p) => `ID:${p.id} [${p.evidenceLevel ?? "?"}]\nTitel: ${p.title}\n${(p.summary || p.abstract).slice(0, 350)}`)
     .join("\n\n---\n\n");
 
   const prompt = `Du bist ein kritischer Wissenschaftler für axiale Spondyloarthritis (Morbus Bechterew).
@@ -66,14 +66,19 @@ ${paperContext}
 
 Bewerte streng nach diesen Kategorien:
 
-- **challenged**: Du hast konkrete Gegenbeweise in den Papers gefunden. Nenne Paper-IDs und Argumente.
+- **challenged**: Du hast konkrete Gegenbeweise in den Papers gefunden. Nenne Paper-Titel (nicht IDs) und Argumente.
 - **needs_research**: Die vorhandenen Papers sind unvollständig. Definiere einen konkreten Rechercheauftrag.
 - **open**: Keine Widerlegung möglich, aber auch keine volle Bestätigung. Hypothese bleibt offen.
+
+WICHTIG für das "argument"-Feld:
+- Nenne Papers immer beim vollen Titel (z.B. 'Die Studie „Sex differences in clinical characteristics..." zeigt...')
+- Verwende KEINE rohen IDs oder Nummern wie "Paper rtfu3Z..." oder "Paper 1"
+- Schreibe für Endnutzer verständlich
 
 Antworte NUR mit diesem JSON (kein Markdown):
 {
   "verdict": "challenged|open|needs_research",
-  "argument": "Deine Begründung auf Deutsch (3-5 Sätze)",
+  "argument": "Deine Begründung auf Deutsch (3-5 Sätze), Paper-Referenzen nur per Titel",
   "researchQuery": "Nur bei needs_research: Konkreter Suchauftrag für weitere Papers (1-2 Sätze)",
   "paperIds": ["ids der relevanten Gegenbeweise, leer wenn keine"]
 }`;

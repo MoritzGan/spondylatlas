@@ -79,7 +79,7 @@ Anforderungen:
 - Hypothesen müssen NEU und noch NICHT explizit in den Papers bewiesen sein
 - Sie sollen testbare Zusammenhänge zwischen Faktoren beschreiben
 - Formuliere auf Deutsch, klar und präzise
-- Beziehe dich konkret auf die Paper-IDs als Basis
+- Beziehe dich konkret auf Paper-Titel als Basis (keine rohen IDs verwenden)
 
 Studien:
 ${paperSummaries}
@@ -89,7 +89,7 @@ Antworte NUR mit diesem JSON-Array (kein Markdown):
   {
     "title": "Kurzer Hypothesentitel (max 80 Zeichen)",
     "description": "Vollständige Hypothese in 2-3 Sätzen",
-    "rationale": "Warum legen die Paper das nahe? Welche Paper-IDs stützen das?",
+    "rationale": "Warum legen die Paper das nahe? Nenne die relevanten Paper beim Titel (keine IDs oder Nummern wie 'Paper 1')",
     "paperIds": ["id1", "id2"]
   }
 ]`;
