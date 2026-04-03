@@ -5,25 +5,7 @@ import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import type { Paper } from '../lib/types'
 import { usePageMeta } from '../hooks/usePageMeta'
-
-// Decode HTML entities from PubMed raw text
-function decodeHtml(raw: string): string {
-  return raw
-    .replace(/&#x([0-9a-fA-F]+);/g, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
-    .replace(/&#([0-9]+);/g, (_, dec) => String.fromCodePoint(Number(dec)))
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/&nbsp;/g, ' ')
-}
-
-/** Entfernt KI-Prompt-Präfixe aus generierten Zusammenfassungen. */
-function stripAiPromptPrefix(text: string): string {
-  return text.replace(/^[A-Za-z\u00C0-\u024F][^:.]{0,120}:\s+/u, '')
-}
-
+import { decodeHtml, stripAiPromptPrefix } from '../lib/textUtils'
 
 export default function PaperDetail() {
   const { paperId } = useParams<{ paperId: string }>()
