@@ -119,8 +119,6 @@ Antworte NUR mit diesem JSON (kein Markdown):
         parsed = JSON.parse(match[0]);
       } catch {
         // Attempt 3: sanitize literal control chars inside JSON string values and retry
-        // Root cause of "Expected ',' or '}' at position N": LLM writes multi-sentence
-        // text with bare newlines inside a JSON string value, which is invalid per spec.
         try {
           const sanitized = match[0].replace(
             /"((?:[^"\\]|\\.)*)"/gs,
@@ -129,7 +127,19 @@ Antworte NUR mit diesem JSON (kein Markdown):
           );
           parsed = JSON.parse(sanitized);
         } catch {
-          // fallthrough to safe default
+          // Attempt 4: regex-based field extraction as last resort
+          // Handles unescaped quotes inside string values which break all JSON.parse attempts
+          const verdictMatch = match[0].match(/"verdict"\s*:\s*"(challenged|open|needs_research)"/);
+          const argumentMatch = match[0].match(/"argument"\s*:\s*"([\s\S]*?)"\s*(?:,\s*"(?:researchQuery|paperNumbers)|\})/);
+          const researchMatch = match[0].match(/"researchQuery"\s*:\s*"([\s\S]*?)"\s*(?:,\s*"|\})/);
+          if (verdictMatch && argumentMatch) {
+            parsed = {
+              verdict: verdictMatch[1] as CriticVerdict,
+              argument: argumentMatch[1].replace(/\\n/g, "\n"),
+              researchQuery: researchMatch?.[1],
+              paperNumbers: [],
+            };
+          }
         }
       }
     }
