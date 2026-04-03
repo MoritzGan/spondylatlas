@@ -43,7 +43,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="mx-auto max-w-md px-4 py-16">
-      <h1 className="text-center text-2xl font-bold text-gray-900">
+      <h1 className="text-center text-2xl font-bold text-stone-900">
         {t('auth.forgot_password_title')}
       </h1>
       <p className="mt-3 text-center text-sm leading-6 text-stone-600">
@@ -66,7 +66,7 @@ export default function ForgotPassword() {
       ) : (
         <form onSubmit={handleSubmit} className="mt-8 space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-sm font-medium text-stone-700">
               {t('auth.email')}
             </label>
             <input
@@ -75,7 +75,7 @@ export default function ForgotPassword() {
               required
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="mt-1 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+              className="mt-1 w-full rounded-lg border border-stone-300 px-4 py-2.5 text-stone-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             />
           </div>
           <button
@@ -89,7 +89,7 @@ export default function ForgotPassword() {
       )}
 
       {!success && (
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-stone-600">
           <Link to="/login" className="font-medium text-primary-600 hover:underline">
             {t('auth.back_to_login')}
           </Link>

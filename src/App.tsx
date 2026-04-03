@@ -1,29 +1,40 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import Layout from './components/Layout'
 import ProtectedRoute from './components/ProtectedRoute'
 import Landing from './pages/Landing'
-import Forum from './pages/Forum'
-import ForumCategory from './pages/ForumCategory'
-import ForumThread from './pages/ForumThread'
-import NewPost from './pages/NewPost'
-import Research from './pages/Research'
-import PaperDetail from './pages/PaperDetail'
-import Login from './pages/Login'
-import ForgotPassword from './pages/ForgotPassword'
-import Register from './pages/Register'
-import Profile from './pages/Profile'
-import Hypotheses from './pages/Hypotheses'
-import HypothesisDetail from './pages/HypothesisDetail'
-import AgentArena from './pages/AgentArena'
-import NotFound from './pages/NotFound'
-import Imprint from './pages/Imprint'
-import PrivacyPolicy from './pages/PrivacyPolicy'
-import TermsOfUse from './pages/TermsOfUse'
-import CommunityRules from './pages/CommunityRules'
-import StorageNotice from './pages/StorageNotice'
-import ReportContent from './pages/ReportContent'
-import PrivacyContact from './pages/PrivacyContact'
+
+// ── Lazy-loaded pages ────────────────────────────────────────────────────────
+const Forum = lazy(() => import('./pages/Forum'))
+const ForumCategory = lazy(() => import('./pages/ForumCategory'))
+const ForumThread = lazy(() => import('./pages/ForumThread'))
+const NewPost = lazy(() => import('./pages/NewPost'))
+const Research = lazy(() => import('./pages/Research'))
+const PaperDetail = lazy(() => import('./pages/PaperDetail'))
+const Login = lazy(() => import('./pages/Login'))
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
+const Register = lazy(() => import('./pages/Register'))
+const Profile = lazy(() => import('./pages/Profile'))
+const Hypotheses = lazy(() => import('./pages/Hypotheses'))
+const HypothesisDetail = lazy(() => import('./pages/HypothesisDetail'))
+const AgentArena = lazy(() => import('./pages/AgentArena'))
+const NotFound = lazy(() => import('./pages/NotFound'))
+const Imprint = lazy(() => import('./pages/Imprint'))
+const PrivacyPolicy = lazy(() => import('./pages/PrivacyPolicy'))
+const TermsOfUse = lazy(() => import('./pages/TermsOfUse'))
+const CommunityRules = lazy(() => import('./pages/CommunityRules'))
+const StorageNotice = lazy(() => import('./pages/StorageNotice'))
+const ReportContent = lazy(() => import('./pages/ReportContent'))
+const PrivacyContact = lazy(() => import('./pages/PrivacyContact'))
+
+function PageLoader() {
+  return (
+    <div className="flex min-h-[40vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-600 border-t-transparent" />
+    </div>
+  )
+}
 
 export default function App() {
   return (
@@ -32,41 +43,50 @@ export default function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<Landing />} />
-            <Route path="forum" element={<Forum />} />
-            <Route path="forum/:category" element={<ForumCategory />} />
             <Route
-              path="forum/:category/new"
+              path="*"
               element={
-                <ProtectedRoute>
-                  <NewPost />
-                </ProtectedRoute>
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    <Route path="forum" element={<Forum />} />
+                    <Route path="forum/:category" element={<ForumCategory />} />
+                    <Route
+                      path="forum/:category/new"
+                      element={
+                        <ProtectedRoute>
+                          <NewPost />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route path="forum/:category/:postId" element={<ForumThread />} />
+                    <Route path="research" element={<Research />} />
+                    <Route path="research/:paperId" element={<PaperDetail />} />
+                    <Route path="login" element={<Login />} />
+                    <Route path="passwort-vergessen" element={<ForgotPassword />} />
+                    <Route path="register" element={<Register />} />
+                    <Route path="impressum" element={<Imprint />} />
+                    <Route path="datenschutz" element={<PrivacyPolicy />} />
+                    <Route path="nutzungsbedingungen" element={<TermsOfUse />} />
+                    <Route path="community-regeln" element={<CommunityRules />} />
+                    <Route path="cookies-und-speicherungen" element={<StorageNotice />} />
+                    <Route path="meldung" element={<ReportContent />} />
+                    <Route path="kontakt-datenschutz" element={<PrivacyContact />} />
+                    <Route
+                      path="profile"
+                      element={
+                        <ProtectedRoute>
+                          <Profile />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route path="hypotheses" element={<Hypotheses />} />
+                    <Route path="hypotheses/:id" element={<HypothesisDetail />} />
+                    <Route path="arena" element={<AgentArena />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </Suspense>
               }
             />
-            <Route path="forum/:category/:postId" element={<ForumThread />} />
-            <Route path="research" element={<Research />} />
-            <Route path="research/:paperId" element={<PaperDetail />} />
-            <Route path="login" element={<Login />} />
-            <Route path="passwort-vergessen" element={<ForgotPassword />} />
-            <Route path="register" element={<Register />} />
-            <Route path="impressum" element={<Imprint />} />
-            <Route path="datenschutz" element={<PrivacyPolicy />} />
-            <Route path="nutzungsbedingungen" element={<TermsOfUse />} />
-            <Route path="community-regeln" element={<CommunityRules />} />
-            <Route path="cookies-und-speicherungen" element={<StorageNotice />} />
-            <Route path="meldung" element={<ReportContent />} />
-            <Route path="kontakt-datenschutz" element={<PrivacyContact />} />
-            <Route
-              path="profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="hypotheses" element={<Hypotheses />} />
-            <Route path="hypotheses/:id" element={<HypothesisDetail />} />
-            <Route path="arena" element={<AgentArena />} />
-            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
       </AuthProvider>
