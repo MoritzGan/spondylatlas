@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase-admin/app";
 import { onRequest } from "firebase-functions/v2/https";
+import { defineSecret } from "firebase-functions/params";
 import express from "express";
 import cors from "cors";
 import { authMiddleware } from "./middleware/auth.js";
@@ -11,6 +12,8 @@ import papersRouter from "./routes/papers.js";
 import hypothesesRouter from "./routes/hypotheses.js";
 import adminRouter from "./routes/admin.js";
 import type { AuthenticatedRequest } from "./types/index.js";
+
+const jwtSecret = defineSecret("JWT_SIGNING_SECRET");
 
 initializeApp();
 
@@ -43,4 +46,7 @@ app.use((req, _res, next) => {
 
 app.use(errorHandler as express.ErrorRequestHandler);
 
-export const api = onRequest({ region: "europe-west1" }, app);
+export const api = onRequest(
+  { region: "europe-west1", secrets: [jwtSecret] },
+  app,
+);
