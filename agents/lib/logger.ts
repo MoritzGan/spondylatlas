@@ -6,20 +6,65 @@ export type AgentName =
   | "evidence-grader"
   | "summary-writer"
   | "trial-tracker"
-  | "forum-moderator"
-  | `external:${string}`;
+  | "forum-moderator";
 
 let _runId: string;
 let _agent: AgentName;
 let _db: ReturnType<typeof getFirestore>;
 
-function sanitizeText(value: string | undefined, maxLength: number) {
-  if (!value) {
-    return null;
-  }
-
-  const normalized = value.replace(/\s+/g, " ").trim().slice(0, maxLength);
-  return normalized || null;
+export function createLogger(
+  agent: AgentName,
+  db: Pick<ReturnType<typeof getFirestore>, "collection">,
+  runId = `${agent}-${Date.now()}`
+) {
+  return {
+    runId,
+    async logEvent(
+      type: EventType,
+      message: string,
+      detail?: string,
+      meta?: Record<string, unknown>
+    ) {
+      await db.collection("agent_events").add({
+        agent,
+        runId,
+        type,
+        message,
+        detail: detail ?? null,
+        meta: meta ?? null,
+        timestamp: Timestamp.now(),
+      });
+    },
+    async logStart(detail?: string) {
+      await db.collection("agent_runs").doc(runId).set({
+        agent,
+        runId,
+        status: "running",
+        startedAt: Timestamp.now(),
+        completedAt: null,
+        itemsProcessed: 0,
+        summary: detail ?? "Gestartet",
+      });
+      await this.logEvent("start", `${agent} gestartet`, detail);
+    },
+    async logComplete(summary: string, itemsProcessed = 0) {
+      await db.collection("agent_runs").doc(runId).update({
+        status: "complete",
+        completedAt: Timestamp.now(),
+        itemsProcessed,
+        summary,
+      });
+      await this.logEvent("complete", summary, `${itemsProcessed} Element(e) verarbeitet`);
+    },
+    async logError(error: string) {
+      await db.collection("agent_runs").doc(runId).update({
+        status: "error",
+        completedAt: Timestamp.now(),
+        summary: error,
+      });
+      await this.logEvent("error", `Fehler: ${error}`);
+    },
+  };
 }
 
 export function initLogger(agent: AgentName, runId?: string) {
@@ -36,59 +81,24 @@ export async function logEvent(
   meta?: Record<string, unknown>
 ) {
   try {
-    await _db.collection("agent_events").add({
-      agent: _agent,
-      runId: _runId,
-      type,
-      message: sanitizeText(message, 160) ?? "Agent event",
-      detail: sanitizeText(detail, 220),
-      meta: meta ?? null,
-      timestamp: Timestamp.now(),
-    });
+    await createLogger(_agent, _db, _runId).logEvent(type, message, detail, meta);
   } catch (e) {
     console.warn("Logger write failed:", e);
   }
 }
 
 export async function logStart(detail?: string) {
-  await _db.collection("agent_runs").doc(_runId).set({
-    agent: _agent,
-    runId: _runId,
-    status: "running",
-    startedAt: Timestamp.now(),
-    completedAt: null,
-    itemsProcessed: 0,
-    summary: sanitizeText(detail, 160) ?? "Gestartet",
-  });
-  await logEvent("start", `${_agent} gestartet`, detail);
+  await createLogger(_agent, _db, _runId).logStart(detail);
 }
 
 export async function logComplete(summary: string, itemsProcessed = 0) {
-  await _db.collection("agent_runs").doc(_runId).update({
-    status: "complete",
-    completedAt: Timestamp.now(),
-    itemsProcessed,
-    summary: sanitizeText(summary, 160) ?? "Agent run completed",
-  });
-  await logEvent("complete", summary, `${itemsProcessed} Element(e) verarbeitet`);
+  await createLogger(_agent, _db, _runId).logComplete(summary, itemsProcessed);
 }
 
 export async function logError(error: string) {
-  await _db.collection("agent_runs").doc(_runId).update({
-    status: "error",
-    completedAt: Timestamp.now(),
-    summary: "Agent run failed; inspect private runtime logs",
-  });
-  void error;
-  await logEvent("error", "Agent run failed");
+  await createLogger(_agent, _db, _runId).logError(error);
 }
 
 export function getRunId() {
   return _runId;
 }
-
-// Alias for test compatibility (tests branch API)
-export const createLogger = (agent: AgentName, _db?: unknown, runId?: string) => {
-  initLogger(agent, runId);
-  return { runId: getRunId(), logEvent, logStart, logComplete, logError };
-};

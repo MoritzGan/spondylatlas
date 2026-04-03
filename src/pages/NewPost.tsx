@@ -56,10 +56,11 @@ export default function NewPost() {
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-stone-700">
+          <label htmlFor="post-title" className="block text-sm font-medium text-stone-700">
             {t('forum.post_title')}
           </label>
           <input
+            id="post-title"
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}

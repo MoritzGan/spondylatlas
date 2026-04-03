@@ -58,7 +58,7 @@ describe('ProtectedRoute', () => {
       </ProtectedRoute>,
     )
 
-    expect(getByText('E-Mail-Bestaetigung erforderlich')).toBeInTheDocument()
+    expect(getByText('E-Mail-Bestätigung erforderlich')).toBeInTheDocument()
   })
 
   it('blocks community access without health consent', async () => {
@@ -75,6 +75,6 @@ describe('ProtectedRoute', () => {
       </ProtectedRoute>,
     )
 
-    expect(await findByText('Community-Zugang gesperrt')).toBeInTheDocument()
+    expect(await findByText('Gesundheitsdaten-Einwilligung erforderlich')).toBeInTheDocument()
   })
 })

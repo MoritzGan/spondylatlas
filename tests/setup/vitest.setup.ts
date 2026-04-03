@@ -64,5 +64,9 @@ vi.mock('firebase/firestore', () => ({
   limit: vi.fn(),
   onSnapshot: vi.fn(() => () => {}),
   serverTimestamp: vi.fn(() => new Date()),
-  Timestamp: { now: vi.fn(() => ({ toDate: () => new Date() })), fromDate: vi.fn() },
+  Timestamp: { 
+    now: vi.fn(() => ({ toDate: () => new Date(), seconds: 0, nanoseconds: 0 })), 
+    fromDate: vi.fn((d: Date) => ({ toDate: () => d, seconds: Math.floor(d.getTime()/1000), nanoseconds: 0 })),
+    fromMillis: vi.fn((ms: number) => ({ toDate: () => new Date(ms), seconds: Math.floor(ms/1000), nanoseconds: 0 })),
+  },
 }))
