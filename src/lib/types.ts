@@ -32,7 +32,7 @@ export interface ForumPost {
   body: string
   authorId: string
   createdAt: Timestamp
-  moderation_status: 'pending' | 'approved' | 'rejected'
+  moderation_status: 'pending_moderation' | 'published' | 'flagged' | 'removed'
 }
 
 export interface AppUser {

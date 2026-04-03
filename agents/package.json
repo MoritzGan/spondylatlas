@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "paper-search": "tsx paper-search-agent.ts"
+    "paper-search": "tsx paper-search-agent.ts",
+    "test": "vitest",
+    "test:unit": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0",
@@ -13,7 +16,9 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "@vitest/coverage-v8": "^4.1.2",
     "tsx": "^4.19.0",
-    "typescript": "^5.9.0"
+    "typescript": "^5.9.0",
+    "vitest": "^4.1.2"
   }
 }

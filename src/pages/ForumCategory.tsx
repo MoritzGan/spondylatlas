@@ -10,7 +10,7 @@ export default function ForumCategory() {
   const { category } = useParams<{ category: string }>()
   const { t } = useTranslation()
   const location = useLocation()
-  const pendingModeration = (location.state as any)?.pendingModeration
+  const pendingModeration = (location.state as { pendingModeration?: boolean } | null)?.pendingModeration
   const [posts, setPosts] = useState<ForumPost[]>([])
   const [loading, setLoading] = useState(true)
 
