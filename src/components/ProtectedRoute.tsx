@@ -20,6 +20,7 @@ export default function ProtectedRoute({
   const [consentLoading, setConsentLoading] = useState(requireHealthConsent)
   const [hasHealthConsent, setHasHealthConsent] = useState(false)
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!requireHealthConsent || !user) {
       setConsentLoading(false)

@@ -76,8 +76,8 @@ export async function getCategoryStats(): Promise<Record<string, number>> {
 export async function addComment(
   postId: string,
   content: string,
-  _authorId: string,
-  _authorName: string,
+  _authorId: string, // eslint-disable-line @typescript-eslint/no-unused-vars
+  _authorName: string, // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<string> {
   const response = await apiFetch<{ id: string }>('/community/forum/comments', {
     method: 'POST',

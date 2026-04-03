@@ -133,7 +133,7 @@ function CardContent({
   number,
   title,
   text,
-  step: _step,
+  step: _step, // eslint-disable-line @typescript-eslint/no-unused-vars
   accent,
   alignRight,
 }: {

@@ -59,7 +59,7 @@ async function loadArena() {
 
 export function subscribeToEvents(
   cb: (events: AgentEvent[]) => void,
-  _maxItems = 100,
+  _maxItems = 100, // eslint-disable-line @typescript-eslint/no-unused-vars
 ) {
   let cancelled = false
 
@@ -79,6 +79,7 @@ export function subscribeToEvents(
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function subscribeToRuns(cb: (runs: AgentRun[]) => void, _maxItems = 50) {
   let cancelled = false
 

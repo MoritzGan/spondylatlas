@@ -76,8 +76,8 @@ export async function getComments(hypothesisId: string): Promise<HypothesisComme
 export async function addComment(
   hypothesisId: string,
   content: string,
-  _authorId: string,
-  _authorName: string,
+  _authorId: string, // eslint-disable-line @typescript-eslint/no-unused-vars
+  _authorName: string, // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<void> {
   await apiFetch<{ id: string }>(`/community/hypotheses/${hypothesisId}/comments`, {
     method: 'POST',
