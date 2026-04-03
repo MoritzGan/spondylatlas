@@ -109,8 +109,10 @@ export function formatRelative(ts: string | { toDate(): Date } | null): string {
   return date.toLocaleDateString('de-DE')
 }
 
-export function durationSec(start: string | null, end: string | null): string {
+export function durationSec(start: string | { toDate(): Date } | null, end: string | { toDate(): Date } | null): string {
   if (!start || !end) return '…'
-  const s = Math.round((new Date(end).getTime() - new Date(start).getTime()) / 1000)
+  const startMs = typeof start === 'string' ? new Date(start).getTime() : start.toDate().getTime()
+  const endMs = typeof end === 'string' ? new Date(end).getTime() : end.toDate().getTime()
+  const s = Math.round((endMs - startMs) / 1000)
   return s < 60 ? `${s}s` : `${Math.floor(s / 60)}m ${s % 60}s`
 }
