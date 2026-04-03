@@ -477,19 +477,27 @@ async function main() {
   }
   console.log(`[Dedup] ${uniquePapers.length} unique papers after cross-source dedup`);
 
-  // 4. Deduplicate against Firestore
+  // 4. Relevance filter — title/abstract must clearly focus on AS/axSpA
+  const AS_TERMS = ['ankylosing spondylitis', 'axial spondyloarthritis', 'spondylarthritis', 'morbus bechterew', 'nr-axspa', 'sacroiliitis', 'basdai', 'asdas', 'hla-b27'];
+  const relevantPapers = uniquePapers.filter(p => {
+    const text = `${p.title} ${p.abstract}`.toLowerCase();
+    return AS_TERMS.some(term => text.includes(term));
+  });
+  console.log(`[Relevance] ${relevantPapers.length} of ${uniquePapers.length} papers passed AS relevance filter`);
+
+  // 5. Deduplicate against Firestore
   const existing = await getExistingIdentifiers(db);
-  const newPapers = uniquePapers.filter((p) => !isDuplicate(p, existing));
+  const newPapers = relevantPapers.filter((p) => !isDuplicate(p, existing));
   console.log(`[Dedup] ${newPapers.length} new papers after Firestore dedup`);
   await logEvent("step", `${newPapers.length} neue Papers nach Duplikat-Prüfung`);
 
-  // 5. Limit to MAX_NEW_PAPERS for cost control
+  // 6. Limit to MAX_NEW_PAPERS for cost control
   const toProcess = newPapers.slice(0, MAX_NEW_PAPERS);
   if (newPapers.length > MAX_NEW_PAPERS) {
     console.log(`[Limit] Processing ${MAX_NEW_PAPERS} of ${newPapers.length} new papers (cost control)`);
   }
 
-  // 6. Generate summaries and store
+  // 7. Generate summaries and store
   let added = 0;
   let errors = 0;
 
