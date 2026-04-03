@@ -19,6 +19,11 @@ function decodeHtml(raw: string): string {
     .replace(/&nbsp;/g, ' ')
 }
 
+/** Entfernt KI-Prompt-Präfixe aus generierten Zusammenfassungen. */
+function stripAiPromptPrefix(text: string): string {
+  return text.replace(/^[A-Za-z\u00C0-\u024F][^:.]{0,120}:\s+/u, '')
+}
+
 
 export default function PaperDetail() {
   const { paperId } = useParams<{ paperId: string }>()
@@ -159,7 +164,7 @@ export default function PaperDetail() {
         {paper.summary && (
           <section className="mt-8">
             <h2 className="text-lg font-semibold text-gray-900">{t('research.summary')}</h2>
-            <p className="mt-2 whitespace-pre-line text-gray-700">{decodeHtml(paper.summary)}</p>
+            <p className="mt-2 whitespace-pre-line text-gray-700">{stripAiPromptPrefix(decodeHtml(paper.summary))}</p>
           </section>
         )}
 

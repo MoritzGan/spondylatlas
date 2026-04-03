@@ -15,6 +15,14 @@ function decodeHtml(raw: string): string {
 }
 
 
+/** Entfernt KI-Prompt-Präfixe aus generierten Zusammenfassungen.
+ *  Bsp.: "Zusammenfassung der wissenschaftlichen Studie in 3-4 Sätzen: Die Studie ..."
+ *  → "Die Studie ..."
+ */
+function stripAiPromptPrefix(text: string): string {
+  return text.replace(/^[A-Za-z\u00C0-\u024F][^:.]{0,120}:\s+/u, '')
+}
+
 export default function Research() {
   const { t, i18n } = useTranslation()
   const [papers, setPapers] = useState<Paper[]>([])
@@ -146,7 +154,7 @@ export default function Research() {
                 )}
 
                 <p className="mt-2 line-clamp-3 text-gray-600">
-                  {decodeHtml(paper.summary || paper.abstract || "")}
+                  {stripAiPromptPrefix(decodeHtml(paper.summary || paper.abstract || ""))}
                 </p>
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">
