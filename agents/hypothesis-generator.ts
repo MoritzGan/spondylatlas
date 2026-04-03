@@ -66,8 +66,8 @@ async function generateHypotheses(papers: Paper[]): Promise<
   const paperSummaries = papers
     .slice(0, 20)
     .map(
-      (p, i) =>
-        `[${i + 1}] ID:${p.id}\nTitel: ${p.title}\nEvidenz: ${p.evidenceLevel ?? "?"}\nZusammenfassung: ${(p.summary || p.abstract).slice(0, 400)}`
+      (p) =>
+        `ID:${p.id}\nTitel: ${p.title}\nEvidenz: ${p.evidenceLevel ?? "?"}\nZusammenfassung: ${(p.summary || p.abstract).slice(0, 400)}`
     )
     .join("\n\n---\n\n");
 
@@ -89,7 +89,7 @@ Antworte NUR mit diesem JSON-Array (kein Markdown):
   {
     "title": "Kurzer Hypothesentitel (max 80 Zeichen)",
     "description": "Vollständige Hypothese in 2-3 Sätzen",
-    "rationale": "Warum legen die Paper das nahe? Nenne die relevanten Paper beim Titel (keine IDs oder Nummern wie 'Paper 1')",
+    "rationale": "Warum legen die Paper das nahe? Zitiere ausschließlich den vollen Studientitel (z.B. 'Die Studie „Titel..." zeigt...') — NIEMALS Nummern wie [1], [6], 'Paper 1' oder rohe IDs",
     "paperIds": ["id1", "id2"]
   }
 ]`;
