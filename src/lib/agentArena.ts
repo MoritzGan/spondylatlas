@@ -99,9 +99,10 @@ export function subscribeToRuns(cb: (runs: AgentRun[]) => void, _maxItems = 50) 
   }
 }
 
-export function formatRelative(ts: string | null): string {
+export function formatRelative(ts: string | { toDate(): Date } | null): string {
   if (!ts) return '–'
-  const diff = Date.now() - new Date(ts).getTime()
+  const date = typeof ts === 'string' ? new Date(ts) : ts.toDate()
+  const diff = Date.now() - date.getTime()
   if (diff < 60000) return 'gerade eben'
   if (diff < 3600000) return `vor ${Math.floor(diff / 60000)} Min`
   if (diff < 86400000) return `vor ${Math.floor(diff / 3600000)} Std`

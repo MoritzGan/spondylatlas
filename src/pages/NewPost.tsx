@@ -72,10 +72,11 @@ export default function NewPost() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-stone-700">
+          <label htmlFor="post-content" className="block text-sm font-medium text-stone-700">
             {t('forum.post_content')}
           </label>
           <textarea
+            id="post-content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={8}
