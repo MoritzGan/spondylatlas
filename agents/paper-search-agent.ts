@@ -241,7 +241,8 @@ async function searchEuropePmc(): Promise<RawPaper[]> {
   const fromDate = cutoff.toISOString().slice(0, 10);
 
   const params = new URLSearchParams({
-    query: `(${EUROPEPMC_QUERY}) AND FIRST_PDATE:[${fromDate} TO ${now.toISOString().slice(0, 10)}]`,
+    query: `${EUROPEPMC_QUERY}`,
+    fromSearchDate: fromDate,
     format: "json",
     pageSize: "100",
     sort: "date desc",
@@ -321,7 +322,7 @@ async function generateSummary(
   }
 
   const message = await client.messages.create({
-    model: "claude-3-5-haiku-latest",
+    model: "claude-haiku-4-5",
     max_tokens: 300,
     messages: [
       {
