@@ -10,24 +10,28 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    function isVerifiedUser() {
-      return isSignedIn() && request.auth.token.email_verified == true;
-    }
-
     function matchesAuthOrNull(userId) {
       return userId == null || (isSignedIn() && request.auth.uid == userId);
     }
 
+    function userDocPath() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function consentDocPath() {
+      return /databases/$(database)/documents/health_data_consents/$(request.auth.uid);
+    }
+
     function isAdmin() {
       return isSignedIn() &&
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+        exists(userDocPath()) &&
+        get(userDocPath()).data.role == "admin";
     }
 
     function isModerator() {
       return isSignedIn() &&
-        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ["admin", "moderator"];
+        exists(userDocPath()) &&
+        get(userDocPath()).data.role in ["admin", "moderator"];
     }
 
     function notChanging(field) {
@@ -35,20 +39,66 @@ service cloud.firestore {
              request.resource.data[field] == resource.data[field];
     }
 
-    function hasActiveHealthConsent() {
-      return isSignedIn() &&
-        exists(/databases/$(database)/documents/health_data_consents/$(request.auth.uid)) &&
-        get(/databases/$(database)/documents/health_data_consents/$(request.auth.uid)).data.granted == true;
+    function changedKeysAreOnly(keys) {
+      return request.resource.data.diff(resource.data).changedKeys().hasOnly(keys);
     }
 
-    function canAccessCommunity() {
-      return isModerator() || (isVerifiedUser() && hasActiveHealthConsent());
+    function hasVerifiedEmail() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function hasActiveHealthConsent() {
+      return isSignedIn() &&
+        exists(consentDocPath()) &&
+        get(consentDocPath()).data.granted == true;
+    }
+
+    function isCommunityMember() {
+      return hasVerifiedEmail() && hasActiveHealthConsent();
+    }
+
+    function forumPostPath(postId) {
+      return /databases/$(database)/documents/forum_posts/$(postId);
+    }
+
+    function forumPostExists(postId) {
+      return exists(forumPostPath(postId));
+    }
+
+    function canReadForumPost(postId) {
+      return forumPostExists(postId) &&
+        (
+          get(forumPostPath(postId)).data.status == "published" ||
+          get(forumPostPath(postId)).data.authorId == request.auth.uid ||
+          isModerator()
+        );
     }
 
     match /users/{userId} {
       allow read: if isOwner(userId) || isAdmin();
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) &&
+        request.resource.data.keys().hasOnly([
+          "displayName", "email", "lang", "role", "ageConfirmed", "legalVersion", "createdAt", "updatedAt"
+        ]) &&
+        request.resource.data.displayName is string &&
+        request.resource.data.displayName.size() <= 200 &&
+        request.resource.data.email == request.auth.token.email &&
+        request.resource.data.lang in ["de", "en"] &&
+        request.resource.data.role == "user" &&
+        request.resource.data.ageConfirmed == true &&
+        request.resource.data.legalVersion is string;
+      allow update: if isAdmin() || (
+        isOwner(userId) &&
+        changedKeysAreOnly(["displayName", "lang", "updatedAt"]) &&
+        request.resource.data.displayName is string &&
+        request.resource.data.displayName.size() <= 200 &&
+        request.resource.data.lang in ["de", "en"] &&
+        notChanging("role") &&
+        notChanging("email") &&
+        notChanging("ageConfirmed") &&
+        notChanging("legalVersion") &&
+        notChanging("createdAt")
+      );
       allow delete: if isAdmin();
     }
 
@@ -70,7 +120,11 @@ service cloud.firestore {
       allow create, update: if isOwner(userId) &&
         request.resource.data.userId == request.auth.uid &&
         request.resource.data.version is string &&
-        request.resource.data.granted is bool;
+        request.resource.data.granted is bool &&
+        (
+          !("scope" in request.resource.data) ||
+          request.resource.data.scope == "community_forum"
+        );
       allow delete: if false;
     }
 
@@ -96,15 +150,7 @@ service cloud.firestore {
     match /content_reports/{reportId} {
       allow read: if isModerator() ||
         (isSignedIn() && resource.data.reporterUserId == request.auth.uid);
-      allow create: if matchesAuthOrNull(request.resource.data.reporterUserId) &&
-        request.resource.data.contentUrl is string &&
-        request.resource.data.contentUrl.size() <= 500 &&
-        request.resource.data.contentType is string &&
-        request.resource.data.contentType.size() <= 100 &&
-        request.resource.data.reason is string &&
-        request.resource.data.reason.size() <= 100 &&
-        request.resource.data.details is string &&
-        request.resource.data.details.size() <= 4000;
+      allow create: if false;
       allow update, delete: if isModerator();
     }
 
@@ -119,84 +165,94 @@ service cloud.firestore {
     }
 
     match /forum_posts/{postId} {
-      allow read: if canAccessCommunity() &&
-        (resource.data.status == "published" ||
-         isOwner(resource.data.authorId) ||
-         isModerator());
+      allow read: if isCommunityMember() &&
+        (
+          resource.data.status == "published" ||
+          isOwner(resource.data.authorId) ||
+          isModerator()
+        );
 
-      allow create: if canAccessCommunity() &&
+      allow create: if isCommunityMember() &&
         request.resource.data.authorId == request.auth.uid &&
+        request.resource.data.authorName is string &&
+        request.resource.data.authorName.size() <= 200 &&
+        request.resource.data.category in [
+          "general",
+          "symptoms",
+          "treatment",
+          "exercise",
+          "mental_health",
+          "research_discussion"
+        ] &&
         request.resource.data.status == "pending_moderation" &&
+        request.resource.data.content is string &&
         request.resource.data.content.size() <= 10000 &&
+        request.resource.data.title is string &&
         request.resource.data.title.size() <= 300;
 
       allow update: if (
-          canAccessCommunity() &&
+          isCommunityMember() &&
           isOwner(resource.data.authorId) &&
+          changedKeysAreOnly(["title", "content", "updatedAt"]) &&
           notChanging("status") &&
-          notChanging("authorId")
-        ) || (isModerator() &&
-          request.resource.data.status in ["pending_moderation", "published", "flagged", "removed"]);
+          notChanging("authorId") &&
+          notChanging("authorName") &&
+          notChanging("category") &&
+          notChanging("createdAt") &&
+          notChanging("replyCount") &&
+          notChanging("lastReplyAt")
+        ) || isModerator();
 
-      allow delete: if isAdmin() || (canAccessCommunity() && isOwner(resource.data.authorId));
-    }
-
-    match /forum_comments/{commentId} {
-      allow read: if canAccessCommunity();
-      allow create: if canAccessCommunity() &&
-        request.resource.data.authorId == request.auth.uid &&
-        request.resource.data.content.size() <= 3000;
-      allow update: if canAccessCommunity() &&
-        isOwner(resource.data.authorId) &&
-        notChanging("authorId") &&
-        notChanging("postId");
-      allow delete: if isAdmin() || (canAccessCommunity() && isOwner(resource.data.authorId));
-    }
-
-    match /reports/{reportId} {
-      allow read: if isModerator();
-      allow create: if isSignedIn() &&
-        request.resource.data.reporterId == request.auth.uid;
-      allow update, delete: if isAdmin();
-    }
-
-
-
-    // ── /hypotheses ───────────────────────────────────────────────────────────
-    match /hypotheses/{hypoId} {
-      allow read: if true;
-      allow write: if isAdmin();
-      allow update: if isAdmin();  // agents use SA
-    }
-
-    // ── /hypothesis_comments ──────────────────────────────────────────────────
-    match /hypothesis_comments/{commentId} {
-      allow read: if true;
-      allow create: if isSignedIn() &&
-                       request.resource.data.authorId == request.auth.uid &&
-                       request.resource.data.content.size() <= 3000;
-      allow update: if isOwner(resource.data.authorId) &&
-                       notChanging("authorId") &&
-                       notChanging("hypothesisId");
       allow delete: if isAdmin() || isOwner(resource.data.authorId);
     }
 
-    // ── /research_tasks ───────────────────────────────────────────────────────
+    match /forum_comments/{commentId} {
+      allow read: if isCommunityMember() &&
+        canReadForumPost(resource.data.postId);
+      allow create, update, delete: if false;
+    }
+
+    match /reports/{reportId} {
+      allow read, write: if false;
+    }
+
+    match /hypotheses/{hypoId} {
+      allow read: if false;
+      allow write: if isAdmin();
+      allow update: if isAdmin();
+    }
+
+    match /hypothesis_comments/{commentId} {
+      allow read, write: if false;
+    }
+
     match /research_tasks/{taskId} {
-      allow read: if true;
+      allow read: if false;
       allow write: if isAdmin();
     }
 
-    // ── /agent_events ─────────────────────────────────────────────────────────
     match /agent_events/{eventId} {
-      allow read: if true;
+      allow read: if false;
       allow write: if isAdmin();
     }
 
-    // ── /agent_runs ───────────────────────────────────────────────────────────
     match /agent_runs/{runId} {
-      allow read: if true;
+      allow read: if false;
       allow write: if isAdmin();
+    }
+
+    match /agent_credentials/{agentId} {
+      allow read, write: if false;
+    }
+
+    match /agent_submissions/{submissionId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
+    match /agent_reviews/{reviewId} {
+      allow read: if true;
+      allow write: if false;
     }
 
     match /{document=**} {

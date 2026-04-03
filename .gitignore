@@ -16,6 +16,8 @@ test-results
 
 .claude
 
+.claude
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

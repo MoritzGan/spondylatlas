@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
-import { getHealthDataConsent, submitAccountRequest, withdrawHealthDataConsent } from '../lib/compliance'
+import {
+  getHealthDataConsent,
+  grantHealthDataConsent,
+  submitAccountRequest,
+  withdrawHealthDataConsent,
+} from '../lib/compliance'
 import { LEGAL_VERSION } from '../lib/legal'
 import { usePageMeta } from '../hooks/usePageMeta'
 
@@ -53,6 +58,13 @@ export default function Profile() {
 
     await withdrawHealthDataConsent(user)
     setHasHealthConsent(false)
+  }
+
+  async function handleGrantConsent() {
+    if (!user) return
+
+    await grantHealthDataConsent(user)
+    setHasHealthConsent(true)
   }
 
   return (
@@ -125,6 +137,15 @@ export default function Profile() {
         </div>
 
         <div className="mt-5 flex flex-wrap gap-3">
+          {!hasHealthConsent && (
+            <button
+              type="button"
+              onClick={() => void handleGrantConsent()}
+              className="rounded-xl bg-primary-600 px-4 py-2 font-medium text-white transition-colors hover:bg-primary-700"
+            >
+              {isGerman ? 'Gesundheitsdaten-Einwilligung erteilen' : 'Grant health-data consent'}
+            </button>
+          )}
           {hasHealthConsent && (
             <button
               type="button"

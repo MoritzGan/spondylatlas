@@ -56,11 +56,10 @@ export default function NewPost() {
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         <div>
-          <label htmlFor="post-title" className="block text-sm font-medium text-stone-700">
+          <label className="block text-sm font-medium text-stone-700">
             {t('forum.post_title')}
           </label>
           <input
-            id="post-title"
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -72,11 +71,10 @@ export default function NewPost() {
         </div>
 
         <div>
-          <label htmlFor="post-content" className="block text-sm font-medium text-stone-700">
+          <label className="block text-sm font-medium text-stone-700">
             {t('forum.post_content')}
           </label>
           <textarea
-            id="post-content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={8}

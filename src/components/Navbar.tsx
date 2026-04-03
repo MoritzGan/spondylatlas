@@ -44,6 +44,7 @@ export default function Navbar() {
   const primaryLinks = [
     { to: '/', label: t('nav.home'), end: true },
     { to: '/research', label: t('nav.research') },
+    { to: '/trials', label: t('nav.trials') },
     { to: '/forum', label: t('nav.forum') },
     { to: '/hypotheses', label: t('nav.hypotheses') },
     { to: '/arena', label: t('nav.arena') },

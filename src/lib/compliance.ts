@@ -10,12 +10,12 @@ import {
 } from 'firebase/firestore'
 import type { User } from 'firebase/auth'
 import { db } from './firebase'
+import { apiFetch } from './api'
 import { LEGAL_VERSION } from './legal'
 
 const USER_LEGAL_ACCEPTANCES = 'user_legal_acceptances'
 const HEALTH_DATA_CONSENTS = 'health_data_consents'
 const ACCOUNT_REQUESTS = 'account_requests'
-const CONTENT_REPORTS = 'content_reports'
 const AUDIT_EVENTS = 'audit_events'
 const USERS = 'users'
 
@@ -146,13 +146,15 @@ export type ContentReportPayload = {
 }
 
 export async function submitContentReport(payload: ContentReportPayload) {
-  await addDoc(collection(db, CONTENT_REPORTS), {
-    ...payload,
-    reporterUserId: payload.reporterUserId ?? null,
-    reporterEmail: payload.reporterEmail?.trim() || null,
-    status: 'new',
-    version: LEGAL_VERSION,
-    statementConfirmed: true,
-    createdAt: serverTimestamp(),
+  await apiFetch<{ id: string }>('/public/reports', {
+    method: 'POST',
+    optionalAuth: true,
+    body: {
+      contentUrl: payload.contentUrl,
+      contentType: payload.contentType,
+      reason: payload.reason,
+      details: payload.details,
+      reporterEmail: payload.reporterEmail?.trim() || '',
+    },
   })
 }

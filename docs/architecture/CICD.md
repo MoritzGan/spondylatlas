@@ -13,7 +13,8 @@ Triggered on every push to `main` and on pull requests targeting `main`.
 **On push to `main`:**
 1. Install dependencies (`npm ci`)
 2. Build the React app (`npm run build`) — injects `VITE_FIREBASE_*` secrets
-3. Deploy to Firebase Hosting (production / `live` channel)
+3. Authenticate to Google Cloud via GitHub OIDC workload identity
+4. Deploy to Firebase Hosting (production / `live` channel)
 4. Deploy Firestore Rules and Indexes (`firestore:rules`, `firestore:indexes`)
 
 **On pull request:**
@@ -26,8 +27,8 @@ Runs daily at **06:00 UTC** and can be triggered manually via `workflow_dispatch
 
 1. Checks out the repo
 2. Sets up Node 20
-3. Installs agent dependencies (`agents/package.json`)
-4. Writes the Firebase service account key from `FIREBASE_SERVICE_ACCOUNT_KEY` secret
+3. Installs agent dependencies with `npm ci`
+4. Authenticates to Google Cloud via GitHub OIDC workload identity
 5. Runs `npx tsx paper-search-agent.ts`
 
 ---
@@ -42,22 +43,12 @@ Runs daily at **06:00 UTC** and can be triggered manually via `workflow_dispatch
 | `VITE_FIREBASE_STORAGE_BUCKET` | deploy.yml | Firebase Storage bucket |
 | `VITE_FIREBASE_MESSAGING_SENDER_ID` | deploy.yml | FCM sender ID |
 | `VITE_FIREBASE_APP_ID` | deploy.yml | Firebase App ID |
-| `FIREBASE_SERVICE_ACCOUNT` | deploy.yml | Service account JSON for Hosting deploy action |
-| `FIREBASE_TOKEN` | deploy.yml | CI token for `firebase deploy` (Firestore rules) |
-| `FIREBASE_SERVICE_ACCOUNT_KEY` | paper-search.yml | Service account JSON for Admin SDK |
+| `GCP_WORKLOAD_IDENTITY_PROVIDER` | deploy.yml + agent workflows | Google Cloud workload identity provider resource |
+| `GCP_DEPLOY_SERVICE_ACCOUNT` | deploy.yml + firebase-hosting.yml | Service account email used for hosting/rules deploys |
+| `GCP_AGENT_SERVICE_ACCOUNT` | agent workflows | Service account email used by scheduled agents |
 | `ANTHROPIC_API_KEY` | paper-search.yml | Anthropic API key for Claude |
 
 ---
-
-## Generating `FIREBASE_TOKEN`
-
-```bash
-npx firebase-tools login:ci
-```
-
-Copy the printed token and set it as the `FIREBASE_TOKEN` secret in your repository settings.
-
-> Note: Firebase CI tokens are deprecated in favour of service account keys. This will be migrated in a future update.
 
 ---
 

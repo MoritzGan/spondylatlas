@@ -1,31 +1,87 @@
+import { initLogger, logStart, logComplete, logError, logEvent } from "./lib/logger.js";
 import "dotenv/config";
+import { initializeApp, cert, type ServiceAccount } from "firebase-admin/app";
+import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import Anthropic from "@anthropic-ai/sdk";
-import { createLogger } from "./lib/logger.js";
-import { runEvidenceGrader } from "./lib/evidence-grader.js";
-import { initAdminFirestore, sleep } from "./lib/runtime.js";
+import * as fs from "fs";
 
-export function createAnthropicClient() {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    throw new Error("ANTHROPIC_API_KEY is required");
-  }
-  return new Anthropic({ apiKey });
-}
+const serviceAccount = JSON.parse(
+  process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+    ?? fs.readFileSync(process.env.GOOGLE_APPLICATION_CREDENTIALS ?? "./firebase-service-account.json", "utf-8")
+) as ServiceAccount;
 
-export async function main() {
-  const db = initAdminFirestore();
-  const logger = createLogger("evidence-grader", db);
-  return runEvidenceGrader({
-    db,
-    anthropic: createAnthropicClient(),
-    logger,
-    sleep,
+initializeApp({ credential: cert(serviceAccount) });
+const db = getFirestore();
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+type EvidenceLevel = "1a" | "1b" | "2a" | "2b" | "3" | "4" | "5";
+
+async function gradeEvidence(title: string, abstract: string) {
+  const msg = await anthropic.messages.create({
+    model: "claude-3-5-haiku-latest",
+    max_tokens: 512,
+    messages: [{
+      role: "user",
+      content: `Bewerte diese Studie zu Morbus Bechterew nach Oxford CEBM Evidence Levels:
+1a=Sys.Review RCTs, 1b=Einzel-RCT, 2a=Sys.Review Kohorten, 2b=Kohortenstudie, 3=Fall-Kontroll, 4=Fallserie, 5=Expertenmeinung
+
+Titel: ${title}
+Abstract: ${abstract.substring(0, 600)}
+
+Antworte NUR mit JSON:
+{"level":"1b","studyType":"RCT","confidence":"high","rationale":"Kurz auf Deutsch max 80 Zeichen","tags":["biologics"]}`
+    }]
   });
+
+  const raw = (msg.content[0] as any).text.trim();
+  // Strip optional markdown code fences (```json ... ``` or ``` ... ```)
+  const text = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`JSON parse failed. Raw response: ${raw.substring(0, 200)}`);
+  }
 }
 
-main().catch(async (error) => {
-  const logger = createLogger("evidence-grader", initAdminFirestore());
-  await logger.logError(error instanceof Error ? error.message : String(error));
-  console.error(error);
-  process.exit(1);
-});
+async function run() {
+  initLogger("evidence-grader");
+  await logStart("Bewerte Evidenzqualität neuer Papers");
+
+  const snapshot = await db.collection("papers").orderBy("createdAt", "desc").limit(100).get();
+  const toGrade = snapshot.docs.filter(d => !d.data().evidenceLevel).slice(0, 20);
+
+  if (toGrade.length === 0) {
+    await logComplete("Alle Papers bereits bewertet", 0);
+    console.log("✅ Alle Papers bewertet."); return;
+  }
+  console.log(`📊 Bewerte ${toGrade.length} Papers...`);
+  await logEvent("step", `${toGrade.length} Papers zu bewerten`);
+
+  let graded = 0;
+  for (const doc of toGrade) {
+    const data = doc.data();
+    try {
+      const result = await gradeEvidence(data.title, data.abstract || "");
+      await doc.ref.update({
+        evidenceLevel: result.level,
+        studyType: result.studyType,
+        evidenceConfidence: result.confidence,
+        evidenceRationale: result.rationale,
+        gradedAt: Timestamp.now(),
+        tags: [...new Set([...(data.tags || []), ...result.tags])],
+      });
+      graded++;
+      await logEvent("step", `[${result.level}] ${data.title.substring(0, 80)}`, result.rationale);
+      console.log(`  ✓ [${result.level}] ${data.title.substring(0, 60)}`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`  ✗ ${data.title.substring(0, 40)}`, msg);
+      await logEvent("step", `✗ ${data.title.substring(0, 60)}`, msg.substring(0, 120));
+    }
+    await new Promise(r => setTimeout(r, 400));
+  }
+  await logComplete(`${graded}/${toGrade.length} Papers bewertet`, graded);
+  console.log(`\n✅ ${graded}/${toGrade.length} bewertet.`);
+}
+
+run().catch(async (err) => { try { await logError(err.message); } catch {} console.error(err); });

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
-import { getHypothesis, getComments, addComment, formatTs, type Hypothesis, type HypothesisComment } from '../lib/hypotheses'
+import { getHypothesis, getComments, addComment, formatTs, sanitizeCriticText, type Hypothesis, type HypothesisComment } from '../lib/hypotheses'
 import { DetailSkeleton } from '../components/Skeleton'
 
 const STATUS_CONFIG: Record<string, { labelKey: string; badge: string; icon: string; descKey: string }> = {
@@ -87,7 +87,7 @@ export default function HypothesisDetail() {
           <p className="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-2">
              {t('hypotheses.critic_agent')} — {cfg ? t(cfg.descKey) : ''}
           </p>
-          <p className="text-sm text-stone-700 leading-relaxed">{hypo.criticArgument}</p>
+          <p className="text-sm text-stone-700 leading-relaxed">{sanitizeCriticText(hypo.criticArgument)}</p>
           {hypo.reviewedAt && (
             <p className="mt-2 text-xs text-stone-400">{t('hypotheses.reviewed_at', { date: formatTs(hypo.reviewedAt) })}</p>
           )}

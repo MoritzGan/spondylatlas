@@ -2,7 +2,6 @@ import {
   collection,
   doc,
   addDoc,
-  updateDoc,
   getDocs,
   getDoc,
   query,
@@ -10,10 +9,10 @@ import {
   orderBy,
   limit,
   serverTimestamp,
-  increment,
   Timestamp,
 } from 'firebase/firestore'
 import { db } from './firebase'
+import { apiFetch } from './api'
 import type { ForumPost, ForumComment, ForumCategory } from '../types/forum'
 
 const POSTS = 'forum_posts'
@@ -77,23 +76,15 @@ export async function getCategoryStats(): Promise<Record<string, number>> {
 export async function addComment(
   postId: string,
   content: string,
-  authorId: string,
-  authorName: string,
+  _authorId: string,
+  _authorName: string,
 ): Promise<string> {
-  const ref = await addDoc(collection(db, COMMENTS), {
-    postId,
-    content,
-    authorId,
-    authorName,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
+  const response = await apiFetch<{ id: string }>('/community/forum/comments', {
+    method: 'POST',
+    requireAuth: true,
+    body: { postId, content },
   })
-  // increment reply counter on the post
-  await updateDoc(doc(db, POSTS, postId), {
-    replyCount: increment(1),
-    lastReplyAt: serverTimestamp(),
-  })
-  return ref.id
+  return response.id
 }
 
 export async function getComments(postId: string): Promise<ForumComment[]> {

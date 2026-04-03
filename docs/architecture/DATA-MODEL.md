@@ -64,7 +64,7 @@ User profiles. Document ID equals Firebase Auth UID.
 | `displayName` | `string` | User's display name |
 | `email` | `string` | Email address |
 | `role` | `"user"\|"moderator"\|"admin"` | Access level |
-| `language` | `"de"\|"en"` | Preferred language |
+| `lang` | `"de"\|"en"` | Preferred language |
 | `createdAt` | `Timestamp` | Account creation date |
 
 ---
@@ -103,14 +103,27 @@ Replies to forum posts.
 
 ---
 
-## `/reports/{reportId}`
+## `/content_reports/{reportId}`
 
-User-submitted content reports. Only readable by moderators and admins.
+User-submitted content reports. Browser creation happens through the trusted backend path, not via direct Firestore writes.
 
 | Field | Type | Description |
 |---|---|---|
-| `reporterId` | `string` | UID of reporting user |
-| `targetType` | `"post"\|"comment"` | What was reported |
-| `targetId` | `string` | Document ID of reported content |
-| `reason` | `string` | Reporter's description |
+| `reporterUserId` | `string?` | UID of reporting user when authenticated |
+| `reporterEmail` | `string?` | Optional contact email |
+| `targetType` | `"forum_post"\|"forum_reply"\|"profile"\|"other"` | What was reported |
+| `targetId` | `string?` | Normalized document/content identifier when derivable |
+| `reason` | `string` | Structured report reason |
+| `details` | `string` | Free-text description |
+| `processingStatus` | `"pending_review"\|"closed"\|"needs_human_review"` | Moderation workflow state |
 | `createdAt` | `Timestamp` | Submission time |
+
+---
+
+## External Agent Collections
+
+The following collections support the external agent SDK. See [Agent SDK Data Model](../agent-sdk/DATA-MODEL.md) for the full schema.
+
+- **`/agent_credentials/{agentId}`** — Registered external agent identities (Admin SDK only)
+- **`/agent_submissions/{submissionId}`** — Papers submitted by external agents (staging queue)
+- **`/agent_reviews/{reviewId}`** — Supplementary reviews by external agents

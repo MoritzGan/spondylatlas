@@ -1,9 +1,4 @@
-import {
-  collection, doc, addDoc, getDoc, getDocs,
-  query, where, orderBy, limit, onSnapshot,
-  serverTimestamp, increment, updateDoc, Timestamp,
-} from 'firebase/firestore'
-import { db } from './firebase'
+import { apiFetch } from './api'
 
 export type HypothesisStatus = 'pending_review' | 'open' | 'challenged' | 'needs_research'
 
@@ -14,10 +9,10 @@ export interface Hypothesis {
   rationale: string
   paperIds: string[]
   status: HypothesisStatus
-  generatedAt: Timestamp
-  criticArgument?: string
+  generatedAt: string | null
+  criticArgument?: string | null
   criticPaperIds?: string[]
-  reviewedAt?: Timestamp
+  reviewedAt?: string | null
   commentCount?: number
 }
 
@@ -27,67 +22,85 @@ export interface HypothesisComment {
   content: string
   authorId: string
   authorName: string
-  createdAt: Timestamp
+  createdAt: string | null
+  updatedAt?: string | null
 }
 
-const HYPO = 'hypotheses'
-const COMMENTS = 'hypothesis_comments'
+export interface HypothesisDetail extends Hypothesis {
+  comments: HypothesisComment[]
+}
 
 export async function getPublishedHypotheses(): Promise<Hypothesis[]> {
-  const q = query(
-    collection(db, HYPO),
-    where('status', 'in', ['open', 'challenged']),
-    orderBy('generatedAt', 'desc'),
-    limit(50)
-  )
-  const snap = await getDocs(q)
-  return snap.docs.map(d => ({ id: d.id, ...d.data() } as Hypothesis))
+  const response = await apiFetch<{ data: Hypothesis[] }>('/public/hypotheses')
+  return response.data
 }
 
-export async function getHypothesis(id: string): Promise<Hypothesis | null> {
-  const snap = await getDoc(doc(db, HYPO, id))
-  if (!snap.exists()) return null
-  return { id: snap.id, ...snap.data() } as Hypothesis
+export async function getHypothesis(id: string): Promise<HypothesisDetail | null> {
+  try {
+    return await apiFetch<HypothesisDetail>(`/public/hypotheses/${id}`)
+  } catch {
+    return null
+  }
 }
 
 export function subscribeHypotheses(cb: (h: Hypothesis[]) => void) {
-  const q = query(
-    collection(db, HYPO),
-    where('status', 'in', ['open', 'challenged']),
-    orderBy('generatedAt', 'desc'),
-    limit(50)
-  )
-  return onSnapshot(q, snap =>
-    cb(snap.docs.map(d => ({ id: d.id, ...d.data() } as Hypothesis)))
-  )
+  let cancelled = false
+
+  const load = async () => {
+    try {
+      const hypotheses = await getPublishedHypotheses()
+      if (!cancelled) {
+        cb(hypotheses)
+      }
+    } catch {
+      if (!cancelled) {
+        cb([])
+      }
+    }
+  }
+
+  void load()
+  const interval = window.setInterval(() => void load(), 30000)
+
+  return () => {
+    cancelled = true
+    window.clearInterval(interval)
+  }
 }
 
 export async function getComments(hypothesisId: string): Promise<HypothesisComment[]> {
-  const q = query(
-    collection(db, COMMENTS),
-    where('hypothesisId', '==', hypothesisId),
-    orderBy('createdAt', 'asc')
-  )
-  const snap = await getDocs(q)
-  return snap.docs.map(d => ({ id: d.id, ...d.data() } as HypothesisComment))
+  const detail = await apiFetch<HypothesisDetail>(`/public/hypotheses/${hypothesisId}`)
+  return detail.comments
 }
 
 export async function addComment(
-  hypothesisId: string, content: string, authorId: string, authorName: string
+  hypothesisId: string,
+  content: string,
+  _authorId: string,
+  _authorName: string,
 ): Promise<void> {
-  await addDoc(collection(db, COMMENTS), {
-    hypothesisId, content, authorId, authorName,
-    createdAt: serverTimestamp(),
-  })
-  await updateDoc(doc(db, HYPO, hypothesisId), {
-    commentCount: increment(1),
+  await apiFetch<{ id: string }>(`/community/hypotheses/${hypothesisId}/comments`, {
+    method: 'POST',
+    requireAuth: true,
+    body: { content },
   })
 }
 
-export function formatTs(ts: Timestamp | null | undefined): string {
+export function formatTs(ts: string | null | undefined): string {
   if (!ts) return ''
-  return ts.toDate().toLocaleDateString('de-DE', {
+  return new Date(ts).toLocaleDateString('de-DE', {
     day: '2-digit', month: '2-digit', year: 'numeric',
     hour: '2-digit', minute: '2-digit',
   })
+}
+
+/**
+ * Bereinigt Critic-Texte, die noch rohe Firestore-Dokument-IDs enthalten.
+ * Firestore-IDs sind genau 20 alphanumerische Zeichen — ein leicht erkennbares Muster.
+ * Betrifft Einträge, die vor oder trotz dem Agent-Fix (#18) mit IDs gespeichert wurden.
+ *
+ * Beispiel: "Paper rtfu3ZjLMHc4VqMR6rLI zeigt..." → "Paper [Studie] zeigt..."
+ */
+export function sanitizeCriticText(text: string): string {
+  return text.replace(/\b[A-Za-z0-9]{20}\b/g, '[Studie]')
 }

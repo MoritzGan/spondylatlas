@@ -3,6 +3,7 @@ import { readFileSync } from "fs";
 import { initializeApp, cert, type ServiceAccount } from "firebase-admin/app";
 import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import Anthropic from "@anthropic-ai/sdk";
+import { jsonrepair } from "jsonrepair";
 import { initLogger, logStart, logComplete, logError, logEvent } from "./lib/logger.js";
 
 const serviceAccount = JSON.parse(
@@ -47,9 +48,15 @@ async function critiqueHypothesis(
   hypothesis: { id: string; title: string; description: string; rationale: string; paperIds: string[] },
   papers: { id: string; title: string; abstract: string; summary: string; evidenceLevel?: string }[]
 ): Promise<CriticResult> {
-  const paperContext = papers
-    .slice(0, 25)
-    .map((p) => `ID:${p.id} [${p.evidenceLevel ?? "?"}]\nTitel: ${p.title}\n${(p.summary || p.abstract).slice(0, 350)}`)
+  const slicedPapers = papers.slice(0, 25);
+
+  // Build numbered context — IDs are NOT exposed to the LLM to prevent raw-ID leakage in argument text.
+  // After parsing, we map 1-based paper numbers back to real Firestore IDs.
+  const paperContext = slicedPapers
+    .map(
+      (p, i) =>
+        `[${i + 1}] Evidenz: ${p.evidenceLevel ?? "?"}\nTitel: ${p.title}\n${(p.summary || p.abstract).slice(0, 350)}`
+    )
     .join("\n\n---\n\n");
 
   const prompt = `Du bist ein kritischer Wissenschaftler für axiale Spondyloarthritis (Morbus Bechterew).
@@ -61,26 +68,29 @@ Titel: "${hypothesis.title}"
 Beschreibung: ${hypothesis.description}
 Begründung: ${hypothesis.rationale}
 
-VERFÜGBARE STUDIEN:
+VERFÜGBARE STUDIEN (nummeriert [1]–[${slicedPapers.length}]):
 ${paperContext}
 
 Bewerte streng nach diesen Kategorien:
 
-- **challenged**: Du hast konkrete Gegenbeweise in den Papers gefunden. Nenne Paper-Titel (nicht IDs) und Argumente.
+- **challenged**: Du hast konkrete Gegenbeweise in den Papers gefunden.
 - **needs_research**: Die vorhandenen Papers sind unvollständig. Definiere einen konkreten Rechercheauftrag.
 - **open**: Keine Widerlegung möglich, aber auch keine volle Bestätigung. Hypothese bleibt offen.
 
 WICHTIG für das "argument"-Feld:
-- Nenne Papers immer beim vollen Titel (z.B. 'Die Studie „Sex differences in clinical characteristics..." zeigt...')
-- Verwende KEINE rohen IDs oder Nummern wie "Paper rtfu3Z..." oder "Paper 1"
-- Schreibe für Endnutzer verständlich
+- Nenne Papers immer beim vollen Titel (z.B. 'Die Studie "Sex differences in clinical characteristics..." zeigt...')
+- Schreibe für Endnutzer verständlich — KEINE technischen IDs, KEINE Nummern wie "[1]" im Fließtext
+
+WICHTIG für das "paperNumbers"-Feld:
+- Gib die Nummern (1-basiert) der relevanten Papers als Integer-Array an (z.B. [2, 5])
+- Leer-Array wenn keine Papers direkt relevant sind
 
 Antworte NUR mit diesem JSON (kein Markdown):
 {
   "verdict": "challenged|open|needs_research",
-  "argument": "Deine Begründung auf Deutsch (3-5 Sätze), Paper-Referenzen nur per Titel",
+  "argument": "Deine Begründung auf Deutsch (3-5 Sätze), Paper-Referenzen nur per vollem Titel",
   "researchQuery": "Nur bei needs_research: Konkreter Suchauftrag für weitere Papers (1-2 Sätze)",
-  "paperIds": ["ids der relevanten Gegenbeweise, leer wenn keine"]
+  "paperNumbers": [1, 2]
 }`;
 
   const response = await anthropic.messages.create({
@@ -89,15 +99,77 @@ Antworte NUR mit diesem JSON (kein Markdown):
     messages: [{ role: "user", content: prompt }],
   });
 
-  const text = response.content[0].type === "text" ? response.content[0].text.trim() : "{}";
+  const rawText = response.content[0].type === "text" ? response.content[0].text.trim() : "{}";
 
+  // Strip markdown code fences the model may emit despite instructions
+  const text = rawText
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```\s*$/, "")
+    .trim();
+
+  let parsed: { verdict: CriticVerdict; argument: string; researchQuery?: string; paperNumbers?: number[] } | null = null;
+
+  // Attempt 1: direct parse
   try {
-    return JSON.parse(text) as CriticResult;
+    parsed = JSON.parse(text);
   } catch {
-    const match = text.match(/\{[\s\S]*\}/);
-    if (match) return JSON.parse(match[0]) as CriticResult;
-    return { verdict: "open", argument: "Parse-Fehler — manuelle Prüfung", paperIds: [] };
+    // Attempt 2: jsonrepair — handles structural errors (missing commas/braces),
+    // unescaped quotes, control characters and other malformed LLM output.
+    // This is the primary fix for the recurring "Expected ',' or '}'" regression (#30, #33, #34).
+    const block = text.match(/\{[\s\S]*\}/)?.[0] ?? text;
+    try {
+      parsed = JSON.parse(jsonrepair(block));
+    } catch {
+      // Attempt 3: regex-based field extraction as absolute last resort
+      const verdictMatch = block.match(/"verdict"\s*:\s*"(challenged|open|needs_research)"/);
+      const argumentMatch = block.match(/"argument"\s*:\s*"([\s\S]*?)"\s*(?:,\s*"(?:researchQuery|paperNumbers)|\})/);
+      const researchMatch = block.match(/"researchQuery"\s*:\s*"([\s\S]*?)"\s*(?:,\s*"|\})/);
+      if (verdictMatch && argumentMatch) {
+        parsed = {
+          verdict: verdictMatch[1] as CriticVerdict,
+          argument: argumentMatch[1].replace(/\\n/g, "\n"),
+          researchQuery: researchMatch?.[1],
+          paperNumbers: [],
+        };
+      }
+    }
   }
+  if (!parsed) {
+    console.warn(`JSON parse failed for hypothesis "${hypothesis.title.slice(0, 50)}". Response: ${rawText.slice(0, 300)}`);
+    return { verdict: "open", argument: "Parse-Fehler — manuelle Prüfung nötig", paperIds: [] };
+  }
+
+  // Map 1-based paper numbers back to real Firestore IDs
+  const paperIds = (parsed.paperNumbers ?? [])
+    .filter((n) => typeof n === "number" && n >= 1 && n <= slicedPapers.length)
+    .map((n) => slicedPapers[n - 1].id);
+
+  // Sicherheitsnetz: Rohe Firestore-IDs und Nummern-Referenzen aus dem argument-Text
+  // entfernen und durch echte Studientitel ersetzen.
+  const idToTitle = new Map(slicedPapers.map((p) => [p.id, p.title]));
+
+  // 1. Ersetze rohe Firestore-IDs (20 alphanumerische Zeichen) durch Studientitel
+  let safeArgument = (parsed.argument ?? "").replace(/\b([A-Za-z0-9]{20})\b/g, (_match: string, id: string) => {
+    const title = idToTitle.get(id);
+    return title ? `„${title}"` : "[unbekannte Studie]";
+  });
+
+  // 2. Ersetze verbleibende Platzhalter wie [Studie], [1], [2] etc. durch echte Titel
+  safeArgument = safeArgument.replace(/\[Studie(?:\s+\d+)?\]/g, "[unbekannte Studie]");
+  safeArgument = safeArgument.replace(/\[([0-9]+)\]/g, (_match: string, numStr: string) => {
+    const n = parseInt(numStr, 10);
+    if (n >= 1 && n <= slicedPapers.length) {
+      return `„${slicedPapers[n - 1].title}"`;
+    }
+    return "[unbekannte Studie]";
+  });
+
+  return {
+    verdict: parsed.verdict,
+    argument: safeArgument,
+    researchQuery: parsed.researchQuery,
+    paperIds,
+  };
 }
 
 async function main() {
@@ -130,7 +202,16 @@ async function main() {
     const h = { id: doc.id, ...doc.data() } as any;
     console.log(`\nCritiquing: "${h.title.slice(0, 70)}"`);
 
-    const result = await critiqueHypothesis(h, papers);
+    let result: CriticResult;
+    try {
+      result = await critiqueHypothesis(h, papers);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`  ✗ critiqueHypothesis threw: ${msg}`);
+      await logEvent("step" as any, `[FEHLER] ${h.title.slice(0, 70)}`, msg.slice(0, 120));
+      open++;
+      continue;
+    }
     console.log(`  → Verdict: ${result.verdict}`);
     console.log(`  → ${result.argument.slice(0, 100)}`);
 

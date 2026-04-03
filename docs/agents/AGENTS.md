@@ -88,7 +88,7 @@ cd agents && npx tsx forum-moderator.ts
 cd agents
 cp .env.example .env
 # Fill in ANTHROPIC_API_KEY and GOOGLE_APPLICATION_CREDENTIALS
-npm install
+npm ci
 ```
 
 The `.env` file needs:
@@ -97,4 +97,4 @@ ANTHROPIC_API_KEY=sk-ant-...
 GOOGLE_APPLICATION_CREDENTIALS=./firebase-service-account.json
 ```
 
-The service account JSON (`firebase-service-account.json`) is not committed to the repository. Download it from the Firebase console under **Project Settings → Service accounts**.
+For local runs, `GOOGLE_APPLICATION_CREDENTIALS` may point to a short-lived ADC credentials file or, if no better option exists, a local service-account JSON that is kept out of the repository.

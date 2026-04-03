@@ -18,6 +18,8 @@ const Register = lazy(() => import('./pages/Register'))
 const Profile = lazy(() => import('./pages/Profile'))
 const Hypotheses = lazy(() => import('./pages/Hypotheses'))
 const HypothesisDetail = lazy(() => import('./pages/HypothesisDetail'))
+const Trials = lazy(() => import('./pages/Trials'))
+const TrialDetail = lazy(() => import('./pages/TrialDetail'))
 const AgentArena = lazy(() => import('./pages/AgentArena'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 const Imprint = lazy(() => import('./pages/Imprint'))
@@ -100,6 +102,8 @@ export default function App() {
                         </ProtectedRoute>
                       }
                     />
+                    <Route path="trials" element={<Trials />} />
+                    <Route path="trials/:nctId" element={<TrialDetail />} />
                     <Route path="hypotheses" element={<Hypotheses />} />
                     <Route path="hypotheses/:id" element={<HypothesisDetail />} />
                     <Route path="arena" element={<AgentArena />} />

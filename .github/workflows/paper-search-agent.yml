@@ -8,6 +8,9 @@ on:
 jobs:
   paper-search:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
       - name: Checkout repository
@@ -22,19 +25,18 @@ jobs:
 
       - name: Install dependencies
         working-directory: agents
-        run: npm install
+        run: npm ci
 
-      - name: Write Firebase service account key
-        run: echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' > /tmp/sa-key.json
+      - uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_AGENT_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+          export_environment_variables: true
 
       - name: Run paper search agent
         working-directory: agents
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-          GOOGLE_APPLICATION_CREDENTIALS: /tmp/sa-key.json
         run: npx tsx paper-search-agent.ts
-
-      - name: Cleanup credentials
-        if: always()
-        run: rm -f /tmp/sa-key.json
