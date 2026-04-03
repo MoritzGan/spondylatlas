@@ -31,7 +31,7 @@ export type LegalDocument = {
 
 export const OPERATOR_DETAILS = {
   operatorName: 'Moritz Gansel',
-  address: '[REPLACE BEFORE GO-LIVE: vollständige ladungsfähige Anschrift]',
+  address: 'Rüsingstraße 45, 44894 Bochum, Deutschland',
   email: 'moritzgansel.mg@gmail.com',
   privacyEmail: 'moritzgansel.mg@gmail.com',
   legalContactEmail: 'moritzgansel.mg@gmail.com',
