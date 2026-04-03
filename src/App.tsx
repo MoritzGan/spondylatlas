@@ -18,6 +18,8 @@ const Register = lazy(() => import('./pages/Register'))
 const Profile = lazy(() => import('./pages/Profile'))
 const Hypotheses = lazy(() => import('./pages/Hypotheses'))
 const HypothesisDetail = lazy(() => import('./pages/HypothesisDetail'))
+const Trials = lazy(() => import('./pages/Trials'))
+const TrialDetail = lazy(() => import('./pages/TrialDetail'))
 const AgentArena = lazy(() => import('./pages/AgentArena'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 const Imprint = lazy(() => import('./pages/Imprint'))
@@ -48,17 +50,38 @@ export default function App() {
               element={
                 <Suspense fallback={<PageLoader />}>
                   <Routes>
-                    <Route path="forum" element={<Forum />} />
-                    <Route path="forum/:category" element={<ForumCategory />} />
+                    <Route
+                      path="forum"
+                      element={
+                        <ProtectedRoute requireVerifiedEmail requireHealthConsent>
+                          <Forum />
+                        </ProtectedRoute>
+                      }
+                    />
+                    <Route
+                      path="forum/:category"
+                      element={
+                        <ProtectedRoute requireVerifiedEmail requireHealthConsent>
+                          <ForumCategory />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route
                       path="forum/:category/new"
                       element={
-                        <ProtectedRoute>
+                        <ProtectedRoute requireVerifiedEmail requireHealthConsent>
                           <NewPost />
                         </ProtectedRoute>
                       }
                     />
-                    <Route path="forum/:category/:postId" element={<ForumThread />} />
+                    <Route
+                      path="forum/:category/:postId"
+                      element={
+                        <ProtectedRoute requireVerifiedEmail requireHealthConsent>
+                          <ForumThread />
+                        </ProtectedRoute>
+                      }
+                    />
                     <Route path="research" element={<Research />} />
                     <Route path="research/:paperId" element={<PaperDetail />} />
                     <Route path="login" element={<Login />} />
@@ -79,6 +102,8 @@ export default function App() {
                         </ProtectedRoute>
                       }
                     />
+                    <Route path="trials" element={<Trials />} />
+                    <Route path="trials/:nctId" element={<TrialDetail />} />
                     <Route path="hypotheses" element={<Hypotheses />} />
                     <Route path="hypotheses/:id" element={<HypothesisDetail />} />
                     <Route path="arena" element={<AgentArena />} />
