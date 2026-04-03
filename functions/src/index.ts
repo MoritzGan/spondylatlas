@@ -70,9 +70,16 @@ routes.use((req, _res, next) => {
   next();
 });
 
-// Mount at root (direct Cloud Run / SDK access) and at /api (Firebase Hosting rewrite)
-app.use("/", routes);
-app.use("/api", routes);
+// Strip /api prefix when request comes through Firebase Hosting rewrite.
+// Firebase Hosting forwards /api/foo as-is, so we rewrite it to /foo.
+app.use((req, _res, next) => {
+  if (req.path.startsWith("/api/") || req.path === "/api") {
+    req.url = req.url.replace(/^\/api/, "") || "/";
+  }
+  next();
+});
+
+app.use(routes);
 
 app.use(errorHandler as express.ErrorRequestHandler);
 
