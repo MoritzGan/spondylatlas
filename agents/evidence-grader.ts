@@ -33,8 +33,14 @@ Antworte NUR mit JSON:
     }]
   });
 
-  const text = (msg.content[0] as any).text.trim();
-  return JSON.parse(text);
+  const raw = (msg.content[0] as any).text.trim();
+  // Strip optional markdown code fences (```json ... ``` or ``` ... ```)
+  const text = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error(`JSON parse failed. Raw response: ${raw.substring(0, 200)}`);
+  }
 }
 
 async function run() {
@@ -67,7 +73,11 @@ async function run() {
       graded++;
       await logEvent("step", `[${result.level}] ${data.title.substring(0, 80)}`, result.rationale);
       console.log(`  ✓ [${result.level}] ${data.title.substring(0, 60)}`);
-    } catch (err) { console.error(`  ✗ ${data.title.substring(0, 40)}`, err); }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`  ✗ ${data.title.substring(0, 40)}`, msg);
+      await logEvent("step", `✗ ${data.title.substring(0, 60)}`, msg.substring(0, 120));
+    }
     await new Promise(r => setTimeout(r, 400));
   }
   await logComplete(`${graded}/${toGrade.length} Papers bewertet`, graded);
