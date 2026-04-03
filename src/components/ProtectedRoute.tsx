@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { Link, Navigate } from 'react-router-dom'
+import { Link, Navigate, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { getHealthDataConsent } from '../lib/compliance'
@@ -16,15 +16,16 @@ export default function ProtectedRoute({
 }) {
   const { i18n } = useTranslation()
   const { user, loading, resendVerificationEmail } = useAuth()
+  const location = useLocation()
   const isGerman = i18n.language.startsWith('de')
   const [consentLoading, setConsentLoading] = useState(requireHealthConsent)
   const [hasHealthConsent, setHasHealthConsent] = useState(false)
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!requireHealthConsent || !user) {
+      /* eslint-disable react-hooks/set-state-in-effect */
       setConsentLoading(false)
       setHasHealthConsent(false)
+      /* eslint-enable react-hooks/set-state-in-effect */
       return
     }
 
@@ -57,7 +58,7 @@ export default function ProtectedRoute({
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace state={{ from: location }} />
   }
 
   if (requireVerifiedEmail && !user.emailVerified) {
