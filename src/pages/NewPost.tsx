@@ -17,7 +17,7 @@ export default function NewPost() {
 
   if (!user) {
     return (
-      <div className="mx-auto max-w-2xl px-4 py-10 text-center text-gray-500">
+      <div className="mx-auto max-w-2xl px-4 py-10 text-center text-stone-500">
         {t('forum.login_to_post')}{' '}
         <Link to="/login" className="text-primary-600 hover:underline">
           {t('auth.login_button')}
@@ -52,11 +52,11 @@ export default function NewPost() {
         ← {t(`forum.categories.${category}`)}
       </Link>
 
-      <h1 className="mt-4 text-2xl font-bold text-gray-900">{t('forum.new_post')}</h1>
+      <h1 className="mt-4 text-2xl font-bold text-stone-900">{t('forum.new_post')}</h1>
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-5">
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-stone-700">
             {t('forum.post_title')}
           </label>
           <input
@@ -65,13 +65,13 @@ export default function NewPost() {
             onChange={(e) => setTitle(e.target.value)}
             maxLength={300}
             required
-            className="mt-1 w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            className="mt-1 w-full rounded-lg border border-stone-300 p-3 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
           />
-          <p className="mt-1 text-right text-xs text-gray-400">{title.length}/300</p>
+          <p className="mt-1 text-right text-xs text-stone-400">{title.length}/300</p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-medium text-stone-700">
             {t('forum.post_content')}
           </label>
           <textarea
@@ -80,9 +80,9 @@ export default function NewPost() {
             rows={8}
             maxLength={10000}
             required
-            className="mt-1 w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+            className="mt-1 w-full rounded-lg border border-stone-300 p-3 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
           />
-          <p className="mt-1 text-right text-xs text-gray-400">{content.length}/10000</p>
+          <p className="mt-1 text-right text-xs text-stone-400">{content.length}/10000</p>
         </div>
 
         {error && <p className="text-sm text-red-600">{error}</p>}

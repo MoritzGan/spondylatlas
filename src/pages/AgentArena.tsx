@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import {
   subscribeToEvents,
@@ -22,10 +23,10 @@ const EVENT_ICON: Record<string, string> = {
 
 const EVENT_COLOR: Record<string, string> = {
   start: 'text-blue-600 bg-blue-50 border-blue-200',
-  step: 'text-gray-700 bg-white border-gray-100',
+  step: 'text-stone-700 bg-white border-stone-100',
   complete: 'text-green-700 bg-green-50 border-green-200',
   error: 'text-red-700 bg-red-50 border-red-200',
-  skip: 'text-gray-400 bg-gray-50 border-gray-100',
+  skip: 'text-stone-400 bg-stone-50 border-stone-100',
 }
 
 const STATUS_BADGE: Record<string, string> = {
@@ -34,44 +35,45 @@ const STATUS_BADGE: Record<string, string> = {
   error: 'bg-red-100 text-red-700',
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  running: 'Läuft',
-  complete: 'Fertig',
-  error: 'Fehler',
+const STATUS_LABEL_KEY: Record<string, string> = {
+  running: 'arena.status_running',
+  complete: 'arena.status_complete',
+  error: 'arena.status_error',
 }
 
 // ── Agent Status Card ─────────────────────────────────────────────────────────
 
 function AgentCard({ runs }: { runs: AgentRun[] }) {
+  const { t } = useTranslation()
   const lastRun = runs[0]
   if (!lastRun) return null
   const meta = AGENT_META[lastRun.agent] ?? { label: lastRun.agent, emoji: '', color: 'gray' }
   const runningCount = runs.filter((r) => r.status === 'running').length
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4">
+    <div className="rounded-xl border border-stone-200 bg-white p-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-xl">{meta.emoji}</span>
-          <span className="font-medium text-gray-900 text-sm">{meta.label}</span>
+          <span className="font-medium text-stone-900 text-sm">{meta.label}</span>
         </div>
         <div className="flex items-center gap-2">
           {runningCount > 0 && (
             <span className="flex items-center gap-1 text-xs font-medium text-blue-600">
               <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-blue-500" />
-              Aktiv
+              {t('arena.active')}
             </span>
           )}
           <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[lastRun.status]}`}>
-            {STATUS_LABEL[lastRun.status]}
+            {t(STATUS_LABEL_KEY[lastRun.status])}
           </span>
         </div>
       </div>
-      <p className="mt-2 text-xs text-gray-500 line-clamp-2">{lastRun.summary}</p>
-      <div className="mt-2 flex items-center justify-between text-xs text-gray-400">
+      <p className="mt-2 text-xs text-stone-500 line-clamp-2">{lastRun.summary}</p>
+      <div className="mt-2 flex items-center justify-between text-xs text-stone-400">
         <span>{formatRelative(lastRun.startedAt)}</span>
         <span>
-          {lastRun.itemsProcessed > 0 && `${lastRun.itemsProcessed} Elemente · `}
+          {lastRun.itemsProcessed > 0 && `${lastRun.itemsProcessed} ${t('arena.items')} · `}
           {durationSec(lastRun.startedAt, lastRun.completedAt)}
         </span>
       </div>
@@ -86,7 +88,7 @@ function FeedItem({ event, isNew }: { event: AgentEvent; isNew: boolean }) {
   return (
     <div
       className={`flex gap-3 rounded-lg border p-3 text-sm transition-all duration-500 ${
-        EVENT_COLOR[event.type] ?? 'bg-white border-gray-100'
+        EVENT_COLOR[event.type] ?? 'bg-white border-stone-100'
       } ${isNew ? 'ring-1 ring-amber-300' : ''}`}
     >
       <span className="shrink-0 text-base leading-5">{EVENT_ICON[event.type] ?? '·'}</span>
@@ -106,35 +108,59 @@ function FeedItem({ event, isNew }: { event: AgentEvent; isNew: boolean }) {
   )
 }
 
-// ── Run History Row ───────────────────────────────────────────────────────────
+// ── Run History Row (desktop table) ──────────────────────────────────────────
 
 function RunRow({ run }: { run: AgentRun }) {
+  const { t } = useTranslation()
   const meta = AGENT_META[run.agent] ?? { label: run.agent, emoji: '' }
   return (
-    <tr className="border-b border-gray-100 hover:bg-gray-50">
+    <tr className="border-b border-stone-100 hover:bg-stone-50">
       <td className="py-2 pr-4 text-sm">
         <span className="mr-1">{meta.emoji}</span>
         <span className="font-medium">{meta.label}</span>
       </td>
       <td className="py-2 pr-4">
         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[run.status]}`}>
-          {STATUS_LABEL[run.status]}
+          {t(STATUS_LABEL_KEY[run.status])}
         </span>
       </td>
-      <td className="py-2 pr-4 text-xs text-gray-500 max-w-xs truncate">{run.summary}</td>
-      <td className="py-2 pr-4 text-xs text-gray-400 whitespace-nowrap">
-        {run.itemsProcessed > 0 ? `${run.itemsProcessed} Elemente` : '–'}
+      <td className="py-2 pr-4 text-xs text-stone-500 max-w-xs truncate">{run.summary}</td>
+      <td className="py-2 pr-4 text-xs text-stone-400 whitespace-nowrap">
+        {run.itemsProcessed > 0 ? `${run.itemsProcessed} ${t('arena.items')}` : '–'}
       </td>
-      <td className="py-2 text-xs text-gray-400 whitespace-nowrap">
+      <td className="py-2 text-xs text-stone-400 whitespace-nowrap">
         {formatRelative(run.startedAt)} · {durationSec(run.startedAt, run.completedAt)}
       </td>
     </tr>
   )
 }
 
+// ── Run History Card (mobile) ────────────────────────────────────────────────
+
+function RunCard({ run }: { run: AgentRun }) {
+  const { t } = useTranslation()
+  const meta = AGENT_META[run.agent] ?? { label: run.agent, emoji: '' }
+  return (
+    <div className="rounded-xl border border-stone-200 bg-white p-4">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium">{meta.emoji} {meta.label}</span>
+        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[run.status]}`}>
+          {t(STATUS_LABEL_KEY[run.status])}
+        </span>
+      </div>
+      {run.summary && <p className="mt-2 text-xs text-stone-500 line-clamp-2">{run.summary}</p>}
+      <div className="mt-2 flex items-center justify-between text-xs text-stone-400">
+        <span>{run.itemsProcessed > 0 ? `${run.itemsProcessed} ${t('arena.items')}` : '–'}</span>
+        <span>{formatRelative(run.startedAt)} · {durationSec(run.startedAt, run.completedAt)}</span>
+      </div>
+    </div>
+  )
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 
 export default function AgentArena() {
+  const { t } = useTranslation()
 
   const [events, setEvents] = useState<AgentEvent[]>([])
   const [runs, setRuns] = useState<AgentRun[]>([])
@@ -176,28 +202,26 @@ export default function AgentArena() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">⚙️ Agent Arena</h1>
-          <p className="mt-1 text-gray-500 text-sm">
-            Echtzeit-Einblick in die KI-Pipeline — was unsere Agenten gerade tun
-          </p>
+      <div>
+        <h1 className="text-3xl font-bold text-stone-900">⚙️ {t('arena.title')}</h1>
+        <p className="mt-1 text-stone-500 text-sm">
+          {t('arena.subtitle')}
+        </p>
+      </div>
+      <div className="mt-4 grid grid-cols-3 gap-3 text-sm">
+        <div className="rounded-lg border border-stone-200 bg-white p-3 text-center">
+          <div className="text-2xl font-bold text-amber-600">{totalItems}</div>
+          <div className="text-xs text-stone-500">{t('arena.items_processed')}</div>
         </div>
-        <div className="flex items-center gap-4 text-sm">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-amber-600">{totalItems}</div>
-            <div className="text-xs text-gray-500">Elemente verarbeitet</div>
+        <div className="rounded-lg border border-stone-200 bg-white p-3 text-center">
+          <div className="text-2xl font-bold text-blue-600">{runs.length}</div>
+          <div className="text-xs text-stone-500">{t('arena.total_runs')}</div>
+        </div>
+        <div className="rounded-lg border border-stone-200 bg-white p-3 text-center">
+          <div className={`text-2xl font-bold ${activeAgents > 0 ? 'text-green-600' : 'text-stone-400'}`}>
+            {activeAgents > 0 ? '●' : '○'} {activeAgents}
           </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">{runs.length}</div>
-            <div className="text-xs text-gray-500">Runs gesamt</div>
-          </div>
-          <div className="text-center">
-            <div className={`text-2xl font-bold ${activeAgents > 0 ? 'text-green-600' : 'text-gray-400'}`}>
-              {activeAgents > 0 ? '●' : '○'} {activeAgents}
-            </div>
-            <div className="text-xs text-gray-500">Aktive Agents</div>
-          </div>
+          <div className="text-xs text-stone-500">{t('arena.active_agents')}</div>
         </div>
       </div>
 
@@ -205,18 +229,18 @@ export default function AgentArena() {
         {/* Live Feed */}
         <div className="lg:col-span-2">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-gray-900 flex items-center gap-2">
+            <h2 className="font-semibold text-stone-900 flex items-center gap-2">
               <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-green-500" />
-              Live Feed
+              {t('arena.live_feed')}
             </h2>
-            <label className="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
+            <label className="flex items-center gap-2 text-xs text-stone-500 cursor-pointer">
               <input
                 type="checkbox"
                 checked={autoScroll}
                 onChange={e => setAutoScroll(e.target.checked)}
                 className="rounded"
               />
-              Auto-Scroll
+              {t('arena.auto_scroll')}
             </label>
           </div>
           <div
@@ -224,9 +248,9 @@ export default function AgentArena() {
             className="h-[560px] overflow-y-auto space-y-2 pr-1"
           >
             {events.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-400 text-sm">
+              <div className="flex flex-col items-center justify-center h-full text-stone-400 text-sm">
                 <span className="text-4xl mb-3"></span>
-                <p>Noch keine Events — Agenten starten bald.</p>
+                <p>{t('arena.no_events')}</p>
               </div>
             ) : (
               events.map((ev) => (
@@ -238,16 +262,16 @@ export default function AgentArena() {
 
         {/* Agent Status Cards */}
         <div>
-          <h2 className="font-semibold text-gray-900 mb-3">Agent Status</h2>
+          <h2 className="font-semibold text-stone-900 mb-3">{t('arena.agent_status')}</h2>
           <div className="space-y-3">
             {Object.entries(AGENT_META).map(([agentName]) => (
               runsByAgent[agentName] ? (
                 <AgentCard key={agentName} runs={runsByAgent[agentName]} />
               ) : (
-                <div key={agentName} className="rounded-xl border border-dashed border-gray-200 p-4 text-sm text-gray-400">
+                <div key={agentName} className="rounded-xl border border-dashed border-stone-200 p-4 text-sm text-stone-400">
                   <span className="mr-2">{AGENT_META[agentName].emoji}</span>
                   {AGENT_META[agentName].label}
-                  <span className="ml-2 text-xs">– noch kein Run</span>
+                  <span className="ml-2 text-xs">– {t('arena.no_run_yet')}</span>
                 </div>
               )
             ))}
@@ -257,28 +281,37 @@ export default function AgentArena() {
 
       {/* Run History */}
       <div className="mt-10">
-        <h2 className="font-semibold text-gray-900 mb-3">Run-Historie</h2>
+        <h2 className="font-semibold text-stone-900 mb-3">{t('arena.run_history')}</h2>
         {runs.length === 0 ? (
-          <p className="text-gray-400 text-sm">Noch keine abgeschlossenen Runs.</p>
+          <p className="text-stone-400 text-sm">{t('arena.no_runs')}</p>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-gray-100 bg-gray-50 text-xs font-medium text-gray-500 uppercase tracking-wide">
-                  <th className="px-4 py-3">Agent</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Ergebnis</th>
-                  <th className="px-4 py-3">Elemente</th>
-                  <th className="px-4 py-3">Zeit</th>
-                </tr>
-              </thead>
-              <tbody className="px-4">
-                {runs.map((run) => (
-                  <RunRow key={run.id} run={run} />
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <>
+            {/* Desktop: table */}
+            <div className="hidden md:block overflow-x-auto rounded-xl border border-stone-200 bg-white">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-stone-100 bg-stone-50 text-xs font-medium text-stone-500 uppercase tracking-wide">
+                    <th className="px-4 py-3">{t('arena.table_agent')}</th>
+                    <th className="px-4 py-3">{t('arena.table_status')}</th>
+                    <th className="px-4 py-3">{t('arena.table_result')}</th>
+                    <th className="px-4 py-3">{t('arena.table_items')}</th>
+                    <th className="px-4 py-3">{t('arena.table_time')}</th>
+                  </tr>
+                </thead>
+                <tbody className="px-4">
+                  {runs.map((run) => (
+                    <RunRow key={run.id} run={run} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {/* Mobile: cards */}
+            <div className="md:hidden space-y-3">
+              {runs.map((run) => (
+                <RunCard key={run.id} run={run} />
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>
