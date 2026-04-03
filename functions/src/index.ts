@@ -34,13 +34,18 @@ app.use((req, res, next) => {
   next();
 });
 
+// Mount all routes on a sub-router so we can serve them at both "/" and "/api"
+// Firebase Hosting rewrites /api/** to this function WITHOUT stripping the prefix,
+// while direct Cloud Run access uses paths without /api.
+const routes = express.Router();
+
 // Public routes (no auth)
-app.use("/health", healthRouter);
-app.use("/auth", publicWriteRateLimitMiddleware as express.RequestHandler, authRouter);
-app.use("/public", publicRouter);
+routes.use("/health", healthRouter);
+routes.use("/auth", publicWriteRateLimitMiddleware as express.RequestHandler, authRouter);
+routes.use("/public", publicRouter);
 
 // Browser-user routes
-app.use(
+routes.use(
   "/community",
   requireFirebaseUserAuth as express.RequestHandler,
   firebaseUserRateLimitMiddleware as express.RequestHandler,
@@ -48,14 +53,14 @@ app.use(
 );
 
 // Authenticated routes
-app.use(authMiddleware as express.RequestHandler);
-app.use(rateLimitMiddleware as express.RequestHandler);
-app.use("/papers", papersRouter);
-app.use("/hypotheses", hypothesesRouter);
-app.use("/admin", adminRouter);
+routes.use(authMiddleware as express.RequestHandler);
+routes.use(rateLimitMiddleware as express.RequestHandler);
+routes.use("/papers", papersRouter);
+routes.use("/hypotheses", hypothesesRouter);
+routes.use("/admin", adminRouter);
 
 // Audit logging for authenticated requests
-app.use((req, _res, next) => {
+routes.use((req, _res, next) => {
   const authReq = req as AuthenticatedRequest;
   if (authReq.agent) {
     console.log(
@@ -65,10 +70,13 @@ app.use((req, _res, next) => {
   next();
 });
 
+// Mount at root (direct Cloud Run / SDK access) and at /api (Firebase Hosting rewrite)
+app.use("/", routes);
+app.use("/api", routes);
+
 app.use(errorHandler as express.ErrorRequestHandler);
 
 export const api = onRequest(
   { region: "europe-west1", secrets: [jwtSecret] },
   app,
 );
-// force redeploy Fri Apr  3 06:48:18 PM CEST 2026
