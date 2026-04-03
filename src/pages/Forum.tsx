@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getCategoryStats } from '../lib/forum'
 import type { ForumCategory } from '../types/forum'
+import { useAuth } from '../contexts/AuthContext'
 
 const CATEGORIES: ForumCategory[] = [
   'general',
@@ -24,14 +25,19 @@ const CATEGORY_ICONS: Record<ForumCategory, string> = {
 
 export default function Forum() {
   const { t } = useTranslation()
+  const { user, loading: authLoading } = useAuth()
   const [counts, setCounts] = useState<Record<string, number>>({})
-  const [loading, setLoading] = useState(true)
+  const [loadingStats, setLoadingStats] = useState(true)
 
   useEffect(() => {
     getCategoryStats()
       .then(setCounts)
-      .finally(() => setLoading(false))
+      .finally(() => setLoadingStats(false))
   }, [])
+
+  if (!authLoading && !user) {
+    return <Navigate to="/login" replace />
+  }
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10">
@@ -52,8 +58,8 @@ export default function Forum() {
               </h2>
             </div>
             <p className="mt-2 text-sm text-stone-500">
-              {loading
-                ? '…'
+              {loadingStats
+                ? '...'
                 : t('forum.thread_count', { count: counts[category] ?? 0 })}
             </p>
           </Link>

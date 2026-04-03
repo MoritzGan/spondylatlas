@@ -5,20 +5,19 @@ import { submitContentReport } from '../lib/compliance'
 import { LEGAL_DOCUMENTS, localize } from '../lib/legal'
 import { usePageMeta } from '../hooks/usePageMeta'
 
-const REPORT_REASONS = [
-  'illegal_content',
-  'medical_misinformation',
-  'harassment',
-  'privacy_violation',
-  'other',
-] as const
+type ReportReason =
+  | 'illegal_content'
+  | 'medical_misinformation'
+  | 'harassment'
+  | 'privacy_violation'
+  | 'other'
 
 export default function ReportContent() {
   const { i18n } = useTranslation()
   const { user } = useAuth()
   const [contentUrl, setContentUrl] = useState('')
   const [contentType, setContentType] = useState('forum_post')
-  const [reason, setReason] = useState<(typeof REPORT_REASONS)[number]>('illegal_content')
+  const [reason, setReason] = useState<ReportReason>('illegal_content')
   const [reporterEmail, setReporterEmail] = useState(user?.email ?? '')
   const [details, setDetails] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -130,7 +129,7 @@ export default function ReportContent() {
             </span>
             <select
               value={reason}
-              onChange={(event) => setReason(event.target.value as (typeof REPORT_REASONS)[number])}
+              onChange={(event) => setReason(event.target.value as ReportReason)}
               className="mt-1 w-full rounded-xl border border-stone-300 px-4 py-2.5 text-stone-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
             >
               <option value="illegal_content">{isGerman ? 'Rechtswidriger Inhalt' : 'Illegal content'}</option>

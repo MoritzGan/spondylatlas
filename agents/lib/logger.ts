@@ -12,6 +12,61 @@ let _runId: string;
 let _agent: AgentName;
 let _db: ReturnType<typeof getFirestore>;
 
+export function createLogger(
+  agent: AgentName,
+  db: Pick<ReturnType<typeof getFirestore>, "collection">,
+  runId = `${agent}-${Date.now()}`
+) {
+  return {
+    runId,
+    async logEvent(
+      type: EventType,
+      message: string,
+      detail?: string,
+      meta?: Record<string, unknown>
+    ) {
+      await db.collection("agent_events").add({
+        agent,
+        runId,
+        type,
+        message,
+        detail: detail ?? null,
+        meta: meta ?? null,
+        timestamp: Timestamp.now(),
+      });
+    },
+    async logStart(detail?: string) {
+      await db.collection("agent_runs").doc(runId).set({
+        agent,
+        runId,
+        status: "running",
+        startedAt: Timestamp.now(),
+        completedAt: null,
+        itemsProcessed: 0,
+        summary: detail ?? "Gestartet",
+      });
+      await this.logEvent("start", `${agent} gestartet`, detail);
+    },
+    async logComplete(summary: string, itemsProcessed = 0) {
+      await db.collection("agent_runs").doc(runId).update({
+        status: "complete",
+        completedAt: Timestamp.now(),
+        itemsProcessed,
+        summary,
+      });
+      await this.logEvent("complete", summary, `${itemsProcessed} Element(e) verarbeitet`);
+    },
+    async logError(error: string) {
+      await db.collection("agent_runs").doc(runId).update({
+        status: "error",
+        completedAt: Timestamp.now(),
+        summary: error,
+      });
+      await this.logEvent("error", `Fehler: ${error}`);
+    },
+  };
+}
+
 export function initLogger(agent: AgentName, runId?: string) {
   _agent = agent;
   _runId = runId ?? `${agent}-${Date.now()}`;
@@ -26,50 +81,22 @@ export async function logEvent(
   meta?: Record<string, unknown>
 ) {
   try {
-    await _db.collection("agent_events").add({
-      agent: _agent,
-      runId: _runId,
-      type,
-      message,
-      detail: detail ?? null,
-      meta: meta ?? null,
-      timestamp: Timestamp.now(),
-    });
+    await createLogger(_agent, _db, _runId).logEvent(type, message, detail, meta);
   } catch (e) {
     console.warn("Logger write failed:", e);
   }
 }
 
 export async function logStart(detail?: string) {
-  await _db.collection("agent_runs").doc(_runId).set({
-    agent: _agent,
-    runId: _runId,
-    status: "running",
-    startedAt: Timestamp.now(),
-    completedAt: null,
-    itemsProcessed: 0,
-    summary: detail ?? "Gestartet",
-  });
-  await logEvent("start", `${_agent} gestartet`, detail);
+  await createLogger(_agent, _db, _runId).logStart(detail);
 }
 
 export async function logComplete(summary: string, itemsProcessed = 0) {
-  await _db.collection("agent_runs").doc(_runId).update({
-    status: "complete",
-    completedAt: Timestamp.now(),
-    itemsProcessed,
-    summary,
-  });
-  await logEvent("complete", summary, `${itemsProcessed} Element(e) verarbeitet`);
+  await createLogger(_agent, _db, _runId).logComplete(summary, itemsProcessed);
 }
 
 export async function logError(error: string) {
-  await _db.collection("agent_runs").doc(_runId).update({
-    status: "error",
-    completedAt: Timestamp.now(),
-    summary: error,
-  });
-  await logEvent("error", `Fehler: ${error}`);
+  await createLogger(_agent, _db, _runId).logError(error);
 }
 
 export function getRunId() {

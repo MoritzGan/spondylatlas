@@ -10,6 +10,10 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
     function matchesAuthOrNull(userId) {
       return userId == null || (isSignedIn() && request.auth.uid == userId);
     }
@@ -29,6 +33,16 @@ service cloud.firestore {
     function notChanging(field) {
       return !(field in request.resource.data) ||
              request.resource.data[field] == resource.data[field];
+    }
+
+    function hasActiveHealthConsent() {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/health_data_consents/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/health_data_consents/$(request.auth.uid)).data.granted == true;
+    }
+
+    function canAccessCommunity() {
+      return isModerator() || (isVerifiedUser() && hasActiveHealthConsent());
     }
 
     match /users/{userId} {
@@ -105,35 +119,38 @@ service cloud.firestore {
     }
 
     match /forum_posts/{postId} {
-      allow read: if isSignedIn() &&
+      allow read: if canAccessCommunity() &&
         (resource.data.status == "published" ||
          isOwner(resource.data.authorId) ||
          isModerator());
 
-      allow create: if isSignedIn() &&
+      allow create: if canAccessCommunity() &&
         request.resource.data.authorId == request.auth.uid &&
         request.resource.data.status == "pending_moderation" &&
         request.resource.data.content.size() <= 10000 &&
         request.resource.data.title.size() <= 300;
 
       allow update: if (
+          canAccessCommunity() &&
           isOwner(resource.data.authorId) &&
           notChanging("status") &&
           notChanging("authorId")
-        ) || isModerator();
+        ) || (isModerator() &&
+          request.resource.data.status in ["pending_moderation", "published", "flagged", "removed"]);
 
-      allow delete: if isAdmin() || isOwner(resource.data.authorId);
+      allow delete: if isAdmin() || (canAccessCommunity() && isOwner(resource.data.authorId));
     }
 
     match /forum_comments/{commentId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() &&
+      allow read: if canAccessCommunity();
+      allow create: if canAccessCommunity() &&
         request.resource.data.authorId == request.auth.uid &&
         request.resource.data.content.size() <= 3000;
-      allow update: if isOwner(resource.data.authorId) &&
+      allow update: if canAccessCommunity() &&
+        isOwner(resource.data.authorId) &&
         notChanging("authorId") &&
         notChanging("postId");
-      allow delete: if isAdmin() || isOwner(resource.data.authorId);
+      allow delete: if isAdmin() || (canAccessCommunity() && isOwner(resource.data.authorId));
     }
 
     match /reports/{reportId} {

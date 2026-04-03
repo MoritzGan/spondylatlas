@@ -1,14 +1,8 @@
 import { Timestamp } from 'firebase/firestore'
+import type { ForumCategory, ForumPostStatus } from '../../shared/domain/forum'
 
-export type ForumCategory =
-  | 'general'
-  | 'symptoms'
-  | 'treatment'
-  | 'exercise'
-  | 'mental_health'
-  | 'research_discussion'
-
-export type PostStatus = 'pending_moderation' | 'published' | 'rejected' | 'deleted'
+export type { ForumCategory }
+export type PostStatus = ForumPostStatus
 
 export interface ForumPost {
   id: string
