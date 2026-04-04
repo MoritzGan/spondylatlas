@@ -265,7 +265,8 @@
     "table_items": "Items",
     "table_time": "Time",
     "error_title": "Could not load data",
-    "error_text": "Arena data is currently unavailable. Please try again later."
+    "error_text": "Arena data is currently unavailable. Please try again later.",
+    "error_unavailable": "Temporarily unavailable"
   },
   "common": {
     "loading": "Just a moment...",

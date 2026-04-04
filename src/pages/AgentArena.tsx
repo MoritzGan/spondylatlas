@@ -28,6 +28,7 @@ const EVENT_COLOR: Record<string, string> = {
   skip: 'text-stone-400 bg-stone-50 border-stone-100',
 }
 
+
 const STATUS_BADGE: Record<string, string> = {
   running: 'bg-blue-100 text-blue-700',
   complete: 'bg-green-100 text-green-700',
@@ -83,7 +84,13 @@ function AgentCard({ runs }: { runs: AgentRun[] }) {
 // ── Live Feed Item ────────────────────────────────────────────────────────────
 
 function FeedItem({ event, isNew }: { event: AgentEvent; isNew: boolean }) {
+  const { t } = useTranslation()
   const meta = AGENT_META[event.agent] ?? { label: event.agent, emoji: '' }
+  const detail = event.detail
+    ? (event.type === 'error' && /\{.*"type"\s*:\s*"error"/.test(event.detail))
+      ? t('arena.error_unavailable')
+      : event.detail
+    : null
   return (
     <div
       className={`flex gap-3 rounded-lg border p-3 text-sm transition-all duration-500 ${
@@ -99,8 +106,8 @@ function FeedItem({ event, isNew }: { event: AgentEvent; isNew: boolean }) {
           </span>
         </div>
         <p className="mt-0.5 font-medium leading-snug">{event.message}</p>
-        {event.detail && (
-          <p className="mt-0.5 text-xs opacity-60 line-clamp-2">{event.detail}</p>
+        {detail && (
+          <p className="mt-0.5 text-xs opacity-60 line-clamp-2">{detail}</p>
         )}
       </div>
     </div>
