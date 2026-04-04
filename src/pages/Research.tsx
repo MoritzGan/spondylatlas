@@ -46,13 +46,15 @@ export default function Research() {
 
   const filtered = useMemo(() => {
     if (!search.trim()) return papers
-    const term = search.toLowerCase()
+    const terms = search.toLowerCase().split(/\s+/).filter(Boolean)
 
-    return papers.filter(
-      (paper) =>
-        paper.title.toLowerCase().includes(term) ||
-        paper.tags.some((tag) => tag.toLowerCase().includes(term)),
-    )
+    return papers.filter((paper) => {
+      const title = paper.title.toLowerCase()
+      const tagsJoined = paper.tags.map((tag) => tag.toLowerCase()).join(' ')
+      return terms.every(
+        (term) => title.includes(term) || tagsJoined.includes(term),
+      )
+    })
   }, [papers, search])
 
   const formatDate = (paper: Paper) => {
