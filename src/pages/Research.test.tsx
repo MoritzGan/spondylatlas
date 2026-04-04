@@ -61,7 +61,34 @@ describe('Research page', () => {
     })
   })
 
-  it('renders fetch errors', async () => {
+  it('filters by multiple search terms (AND logic)', async () => {
+    const user = userEvent.setup()
+    getDocsMock.mockResolvedValue({
+      docs: [
+        { id: 'paper-1', data: () => buildPaper({ title: 'TNF inhibitors in AS', tags: ['TNF', 'Biologika'] }) },
+        { id: 'paper-2', data: () => buildPaper({ id: 'paper-2', title: 'Mikrobiom und Darm', tags: ['Mikrobiom'] }) },
+        { id: 'paper-3', data: () => buildPaper({ id: 'paper-3', title: 'TNF und Mikrobiom', tags: ['TNF'] }) },
+      ],
+    })
+
+    render(
+      <MemoryRouter>
+        <Research />
+      </MemoryRouter>,
+    )
+
+    expect(await screen.findByText('TNF inhibitors in AS')).toBeInTheDocument()
+
+    await user.type(screen.getByRole('searchbox'), 'TNF Biologika')
+
+    await waitFor(() => {
+      expect(screen.getByText('TNF inhibitors in AS')).toBeInTheDocument()
+      expect(screen.queryByText('Mikrobiom und Darm')).not.toBeInTheDocument()
+      expect(screen.queryByText('TNF und Mikrobiom')).not.toBeInTheDocument()
+    })
+  })
+
+    it('renders fetch errors', async () => {
     getDocsMock.mockRejectedValue(new Error('boom'))
 
     render(
