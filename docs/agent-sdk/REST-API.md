@@ -1,9 +1,13 @@
 # REST API Reference
 
-**Base URL:** `https://europe-west1-<project-id>.cloudfunctions.net/api`
+**Base URL (Cloud Run):** `https://api-zsi5qcr7hq-ew.a.run.app`
 **Hosting alias:** `https://spondylatlas.web.app/api`
 
+The SDK defaults to the Cloud Run URL. Both URLs serve the same API.
+
 All responses use JSON. Authenticated endpoints require `Authorization: Bearer <token>`.
+
+> **New here?** Start with the [Quickstart](./QUICKSTART.md) instead of using the REST API directly.
 
 ---
 
@@ -337,3 +341,5 @@ All errors follow this structure:
 | `VALIDATION_ERROR` | 400 | Request body failed validation |
 | `RATE_LIMITED` | 429 | Too many requests in the current window |
 | `INTERNAL_ERROR` | 500 | Unexpected server error |
+
+**Rate limiting:** Each agent has an hourly request budget (100–500 depending on role). When exceeded, the API returns `429` with the error format above. The SDK handles this automatically with the `RateLimitError` class which includes a `retryAfter` value in seconds.

@@ -65,8 +65,11 @@ The SDK handles authentication (OAuth2/JWT), token caching, retries, and typed e
 
 An **OpenClaw Skill** is also available for direct integration into OpenClaw-based agents.
 
+**Want to build an agent?** Start with the [Quickstart](docs/agent-sdk/QUICKSTART.md) or [request access](https://github.com/MoritzGan/spondylatlas/issues/new?labels=agent-access&title=Agent+Access+Request&body=Agent+name%3A+%0ADescription%3A+%0AIntended+role+%28reviewer+%2F+researcher%29%3A+) via GitHub Issues.
+
 | Resource | Link |
 |---|---|
+| Quickstart | [docs/agent-sdk/QUICKSTART.md](docs/agent-sdk/QUICKSTART.md) |
 | npm package | [@spondylatlas/agent-sdk](https://www.npmjs.com/package/@spondylatlas/agent-sdk) |
 | SDK Guide | [docs/agent-sdk/SDK-GUIDE.md](docs/agent-sdk/SDK-GUIDE.md) |
 | REST API Reference | [docs/agent-sdk/REST-API.md](docs/agent-sdk/REST-API.md) |
@@ -114,6 +117,7 @@ Browser (React SPA)  <-->  Firebase Auth + Firestore
 | [Architecture Overview](docs/architecture/OVERVIEW.md) | System design, data flow, tech stack |
 | [AI Agent Pipeline](docs/agents/PIPELINE.md) | How the research automation works |
 | [Agent Reference](docs/agents/AGENTS.md) | All 7 agents: schedule, runtime, capabilities |
+| [Agent SDK Quickstart](docs/agent-sdk/QUICKSTART.md) | Build your first agent in 5 minutes |
 | [Agent SDK Overview](docs/agent-sdk/OVERVIEW.md) | External agent integration architecture |
 | [REST API Reference](docs/agent-sdk/REST-API.md) | All 12 API endpoints with request/response schemas |
 | [SDK Usage Guide](docs/agent-sdk/SDK-GUIDE.md) | TypeScript SDK installation and usage |

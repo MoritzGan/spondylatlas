@@ -55,8 +55,10 @@ export interface PaperSubmission {
   source: string;
 }
 
+export type EvidenceLevel = "1a" | "1b" | "2a" | "2b" | "3a" | "3b" | "4" | "5";
+
 export interface PaperReview {
-  evidenceLevel: string;
+  evidenceLevel: EvidenceLevel;
   studyType: string;
   confidence: "high" | "medium" | "low";
   rationale: string;

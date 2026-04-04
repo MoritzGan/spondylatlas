@@ -9,6 +9,7 @@ export {
 } from "./errors.js";
 export type {
   SpondylAtlasConfig,
+  EvidenceLevel,
   Paper,
   PaperSearchParams,
   PaperSearchResult,
