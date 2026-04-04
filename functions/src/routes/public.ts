@@ -144,9 +144,9 @@ router.get("/hypotheses", async (req, res, next) => {
     const docs = snap.docs.slice(params.offset, params.offset + params.limit).map(serializeHypothesis).filter(Boolean);
 
     // Enrich hypotheses with paper titles for critic references
-    const allCriticPaperIds = docs.flatMap((d: any) => d.criticPaperIds ?? []);
+    const allCriticPaperIds = docs.flatMap((d: Record<string, unknown>) => (d.criticPaperIds as string[]) ?? []);
     const paperTitles = await fetchPaperTitles(allCriticPaperIds);
-    const enriched = docs.map((d: any) => ({ ...d, criticPaperTitles: paperTitles }));
+    const enriched = docs.map((d: Record<string, unknown>) => ({ ...d, criticPaperTitles: paperTitles }));
 
     res.json({ data: enriched, total: snap.size, limit: params.limit, offset: params.offset });
   } catch (err) {
