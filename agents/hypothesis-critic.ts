@@ -17,9 +17,14 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 type CriticVerdict = "challenged" | "open" | "needs_research";
 
+interface BilingualField {
+  de: string;
+  en: string;
+}
+
 interface CriticResult {
   verdict: CriticVerdict;
-  argument: string;
+  argument: BilingualField;
   researchQuery?: string;
   paperIds: string[];
 }
@@ -77,6 +82,8 @@ Bewerte streng nach diesen Kategorien:
 - **needs_research**: Die vorhandenen Papers sind unvollständig. Definiere einen konkreten Rechercheauftrag.
 - **open**: Keine Widerlegung möglich, aber auch keine volle Bestätigung. Hypothese bleibt offen.
 
+WICHTIG: Das "argument"-Feld MUSS ein Objekt mit "de" und "en" sein (zweisprachig).
+
 WICHTIG für das "argument"-Feld:
 - Nenne Papers immer beim vollen Titel (z.B. 'Die Studie "Sex differences in clinical characteristics..." zeigt...')
 - Schreibe für Endnutzer verständlich — KEINE technischen IDs, KEINE Nummern wie "[1]" im Fließtext
@@ -88,7 +95,7 @@ WICHTIG für das "paperNumbers"-Feld:
 Antworte NUR mit diesem JSON (kein Markdown):
 {
   "verdict": "challenged|open|needs_research",
-  "argument": "Deine Begründung auf Deutsch (3-5 Sätze), Paper-Referenzen nur per vollem Titel",
+  "argument": { "de": "Deine Begründung auf Deutsch (3-5 Sätze), Paper-Referenzen nur per vollem Titel", "en": "Your reasoning in English (3-5 sentences), paper references by full title only" },
   "researchQuery": "Nur bei needs_research: Konkreter Suchauftrag für weitere Papers (1-2 Sätze)",
   "paperNumbers": [1, 2]
 }`;
@@ -107,7 +114,7 @@ Antworte NUR mit diesem JSON (kein Markdown):
     .replace(/\s*```\s*$/, "")
     .trim();
 
-  let parsed: { verdict: CriticVerdict; argument: string; researchQuery?: string; paperNumbers?: number[] } | null = null;
+  let parsed: { verdict: CriticVerdict; argument: string | BilingualField; researchQuery?: string; paperNumbers?: number[] } | null = null;
 
   // Attempt 1: direct parse
   try {
@@ -130,13 +137,13 @@ Antworte NUR mit diesem JSON (kein Markdown):
           argument: argumentMatch[1].replace(/\\n/g, "\n"),
           researchQuery: researchMatch?.[1],
           paperNumbers: [],
-        };
+        } as any;
       }
     }
   }
   if (!parsed) {
     console.warn(`JSON parse failed for hypothesis "${hypothesis.title.slice(0, 50)}". Response: ${rawText.slice(0, 300)}`);
-    return { verdict: "open", argument: "Parse-Fehler — manuelle Prüfung nötig", paperIds: [] };
+    return { verdict: "open", argument: { de: "Parse-Fehler — manuelle Prüfung nötig", en: "Parse error — manual review needed" }, paperIds: [] };
   }
 
   // Map 1-based paper numbers back to real Firestore IDs
@@ -218,7 +225,7 @@ async function main() {
     // Update hypothesis
     await doc.ref.update({
       status: result.verdict,
-      criticArgument: result.argument,
+      criticArgument: result.argument,  // BilingualField { de, en }
       criticPaperIds: result.paperIds,
       reviewedAt: Timestamp.now(),
       reviewedBy: "hypothesis-critic",
@@ -226,8 +233,8 @@ async function main() {
 
     await logEvent(
       "step" as any,
-      `[${result.verdict.toUpperCase()}] ${h.title.slice(0, 70)}`,
-      result.argument.slice(0, 120)
+      `[${result.verdict.toUpperCase()}] ${(typeof h.title === "string" ? h.title : h.title.de).slice(0, 70)}`,
+      (typeof result.argument === "string" ? result.argument : result.argument.de).slice(0, 120)
     );
 
     // Create research task if needed
