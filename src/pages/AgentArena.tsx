@@ -29,6 +29,27 @@ const EVENT_COLOR: Record<string, string> = {
 }
 
 
+
+/** Group consecutive identical error events from the same agent into one with a count badge */
+function groupConsecutiveErrors(events: AgentEvent[]): (AgentEvent & { repeatCount?: number })[] {
+  const result: (AgentEvent & { repeatCount?: number })[] = [];
+  for (const ev of events) {
+    const prev = result[result.length - 1];
+    if (
+      prev &&
+      ev.type === 'error' &&
+      prev.type === 'error' &&
+      ev.agent === prev.agent &&
+      ev.message === prev.message
+    ) {
+      prev.repeatCount = (prev.repeatCount ?? 1) + 1;
+    } else {
+      result.push({ ...ev });
+    }
+  }
+  return result;
+}
+
 const STATUS_BADGE: Record<string, string> = {
   running: 'bg-blue-100 text-blue-700',
   complete: 'bg-green-100 text-green-700',
@@ -83,7 +104,7 @@ function AgentCard({ runs }: { runs: AgentRun[] }) {
 
 // ── Live Feed Item ────────────────────────────────────────────────────────────
 
-function FeedItem({ event, isNew }: { event: AgentEvent; isNew: boolean }) {
+function FeedItem({ event, isNew }: { event: AgentEvent & { repeatCount?: number }; isNew: boolean }) {
   const { t } = useTranslation()
   const meta = AGENT_META[event.agent] ?? { label: event.agent, emoji: '' }
   const detail = event.detail
@@ -280,7 +301,7 @@ export default function AgentArena() {
                 <p>{t('arena.no_events')}</p>
               </div>
             ) : (
-              events.map((ev) => (
+              groupConsecutiveErrors(events).map((ev) => (
                 <FeedItem key={ev.id} event={ev} isNew={newIds.has(ev.id)} />
               ))
             )}

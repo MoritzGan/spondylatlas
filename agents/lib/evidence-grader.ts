@@ -95,7 +95,9 @@ export async function runEvidenceGrader({
 
   await logger.logEvent("step", `${toGrade.length} Papers zu bewerten`);
 
+  const MAX_CONSECUTIVE_FAILURES = 3;
   let graded = 0;
+  let consecutiveFailures = 0;
   for (const paper of toGrade) {
     const data = paper.data();
     try {
@@ -114,8 +116,16 @@ export async function runEvidenceGrader({
       });
       await logger.logEvent("step", `[${result.level}] ${String(data.title).slice(0, 80)}`, result.rationale);
       graded++;
+      consecutiveFailures = 0;
     } catch (error) {
-      await logger.logEvent("error", `Bewertung fehlgeschlagen`, error instanceof Error ? error.message : String(error));
+      const msg = error instanceof Error ? error.message : String(error);
+      consecutiveFailures++;
+      await logger.logEvent("error", `Bewertung fehlgeschlagen`, msg.substring(0, 200));
+      if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+        await logger.logEvent("error", `Circuit Breaker: ${MAX_CONSECUTIVE_FAILURES} aufeinanderfolgende Fehler — Run abgebrochen`, msg.substring(0, 200));
+        await logger.logComplete(`${graded}/${toGrade.length} Papers bewertet (abgebrochen)`, graded);
+        return { graded, total: toGrade.length };
+      }
     }
     await sleep(400);
   }

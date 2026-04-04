@@ -52,7 +52,9 @@ async function run() {
   await logEvent("step", `${toSummarize.length} Papers zu zusammenfassen`);
   console.log(`✍️  Schreibe ${toSummarize.length} Patientenzusammenfassungen...`);
 
+  const MAX_CONSECUTIVE_FAILURES = 3;
   let written = 0;
+  let consecutiveFailures = 0;
   for (const doc of toSummarize) {
     const data = doc.data();
     try {
@@ -62,9 +64,22 @@ async function run() {
         summarizedAt: Timestamp.now(),
       });
       written++;
+      consecutiveFailures = 0;
       await logEvent("step", `Zusammenfassung geschrieben`, data.title.substring(0, 100));
       console.log(`  ✓ ${data.title.substring(0, 60)}`);
-    } catch (err) { console.error(`  ✗ ${data.title.substring(0, 40)}`, err); }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      consecutiveFailures++;
+      console.error(`  ✗ ${data.title.substring(0, 40)}`, msg);
+      await logEvent("error", `✗ ${data.title.substring(0, 60)}`, msg.substring(0, 120));
+      if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+        const reason = `Circuit Breaker: ${MAX_CONSECUTIVE_FAILURES} aufeinanderfolgende Fehler — Run abgebrochen`;
+        console.error(`\n⚡ ${reason}`);
+        await logEvent("error", reason, msg.substring(0, 200));
+        await logComplete(`${written}/${toSummarize.length} Zusammenfassungen (abgebrochen)`, written);
+        return;
+      }
+    }
     await new Promise(r => setTimeout(r, 400));
   }
   await logComplete(`${written}/${toSummarize.length} Zusammenfassungen geschrieben`, written);
