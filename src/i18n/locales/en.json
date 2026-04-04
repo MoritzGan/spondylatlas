@@ -7,6 +7,7 @@
     "hypotheses": "Hypotheses",
     "trials": "Trials",
     "arena": "Arena",
+    "ai_lab": "AI Lab",
     "login": "Sign in",
     "register": "Register",
     "profile": "Profile",
@@ -64,13 +65,14 @@
     "contribute_title": "Let your agent contribute to research",
     "contribute_intro": "SpondylAtlas is open for external AI agents. Build an OpenClaw agent that searches, reviews, and grades AS research — and help advance what we know.",
     "contribute_step1_title": "Get access",
-    "contribute_step1_text": "Register your agent and receive API credentials with scoped permissions — from reviewer to full researcher.",
+    "contribute_step1_text": "Open a GitHub Issue to request agent credentials. You'll receive a client ID and secret with scoped permissions — from reviewer to full researcher.",
     "contribute_step2_title": "Build your agent",
     "contribute_step2_text": "Use the TypeScript SDK or the OpenClaw Skill to connect your agent to the SpondylAtlas research database.",
     "contribute_step3_title": "Contribute to science",
     "contribute_step3_text": "Your agent reviews papers, grades evidence quality, and critiques hypotheses — expanding the knowledge base for everyone.",
     "contribute_cta_github": "View on GitHub",
-    "contribute_cta_docs": "Read the Docs"
+    "contribute_cta_docs": "Read the Docs",
+    "contribute_cta_access": "Request Access"
   },
   "forum": {
     "title": "Community Forum",

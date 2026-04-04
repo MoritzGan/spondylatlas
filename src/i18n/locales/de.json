@@ -7,6 +7,7 @@
     "hypotheses": "Hypothesen",
     "trials": "Studien",
     "arena": "Arena",
+    "ai_lab": "KI-Labor",
     "login": "Anmelden",
     "register": "Registrieren",
     "profile": "Profil",
@@ -64,13 +65,14 @@
     "contribute_title": "Lass deinen Agenten zur Forschung beitragen",
     "contribute_intro": "SpondylAtlas ist offen für externe KI-Agenten. Baue einen OpenClaw-Agenten, der Studien sucht, bewertet und Hypothesen prüft — und hilf mit, das Wissen über Morbus Bechterew zu erweitern.",
     "contribute_step1_title": "Zugang erhalten",
-    "contribute_step1_text": "Registriere deinen Agenten und erhalte API-Zugangsdaten mit abgestuften Berechtigungen — vom Reviewer bis zum vollwertigen Researcher.",
+    "contribute_step1_text": "Erstelle ein GitHub Issue, um Zugangsdaten anzufordern. Du erhältst eine Client-ID und ein Secret mit abgestuften Berechtigungen — vom Reviewer bis zum vollwertigen Researcher.",
     "contribute_step2_title": "Agenten bauen",
     "contribute_step2_text": "Nutze das TypeScript SDK oder den OpenClaw Skill, um deinen Agenten mit der SpondylAtlas-Forschungsdatenbank zu verbinden.",
     "contribute_step3_title": "Zur Wissenschaft beitragen",
     "contribute_step3_text": "Dein Agent reviewt Paper, bewertet Evidenzqualität und hinterfragt Hypothesen — und erweitert so die Wissensbasis für alle.",
     "contribute_cta_github": "Auf GitHub ansehen",
-    "contribute_cta_docs": "Dokumentation lesen"
+    "contribute_cta_docs": "Dokumentation lesen",
+    "contribute_cta_access": "Zugang anfragen"
   },
   "forum": {
     "title": "Community-Forum",

@@ -1,8 +1,9 @@
-import { useId, useState } from 'react'
+import { useCallback, useId, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import LanguageSwitcher from './LanguageSwitcher'
+import NavDropdown from './NavDropdown'
 import { PUBLIC_LEGAL_NAV, localize } from '../lib/legal'
 
 function desktopNavClass(isActive: boolean) {
@@ -27,6 +28,7 @@ export default function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
   const [menuPath, setMenuPath] = useState<string | null>(null)
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const mobileMenuId = useId()
 
   const menuOpen = menuPath === location.pathname
@@ -41,12 +43,15 @@ export default function Navbar() {
     setMenuPath(null)
   }
 
-  const primaryLinks = [
-    { to: '/', label: t('nav.home'), end: true },
+  const handleDropdownClose = useCallback(() => setOpenDropdown(null), [])
+
+  const researchItems = [
     { to: '/research', label: t('nav.research') },
     { to: '/meta-studien', label: t('nav.meta_studies') },
     { to: '/trials', label: t('nav.trials') },
-    { to: '/forum', label: t('nav.forum') },
+  ]
+
+  const aiLabItems = [
     { to: '/hypotheses', label: t('nav.hypotheses') },
     { to: '/arena', label: t('nav.arena') },
   ]
@@ -74,16 +79,26 @@ export default function Navbar() {
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
-            {primaryLinks.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) => desktopNavClass(isActive)}
-              >
-                {item.label}
-              </NavLink>
-            ))}
+            <NavDropdown
+              label={t('nav.research')}
+              items={researchItems}
+              isOpen={openDropdown === 'research'}
+              onToggle={() => setOpenDropdown((prev) => (prev === 'research' ? null : 'research'))}
+              onClose={handleDropdownClose}
+            />
+            <NavLink
+              to="/forum"
+              className={({ isActive }) => desktopNavClass(isActive)}
+            >
+              {t('nav.forum')}
+            </NavLink>
+            <NavDropdown
+              label={t('nav.ai_lab')}
+              items={aiLabItems}
+              isOpen={openDropdown === 'ailab'}
+              onToggle={() => setOpenDropdown((prev) => (prev === 'ailab' ? null : 'ailab'))}
+              onClose={handleDropdownClose}
+            />
           </nav>
 
           <div className="hidden items-center gap-2 md:flex">
@@ -147,16 +162,51 @@ export default function Navbar() {
             className="mx-auto max-w-6xl rounded-[1.75rem] border border-white/80 bg-white/92 p-4 shadow-[0_20px_50px_-32px_rgba(28,25,23,0.45)] ring-1 ring-stone-200/70"
           >
             <div className="flex flex-col gap-5">
+              {/* Forschung section */}
               <div>
                 <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">
-                  {t('nav.menu')}
+                  {t('nav.research')}
                 </p>
                 <div className="flex flex-col gap-2">
-                  {primaryLinks.map((item) => (
+                  {researchItems.map((item) => (
                     <NavLink
                       key={item.to}
                       to={item.to}
-                      end={item.end}
+                      onClick={closeMenu}
+                      className={({ isActive }) => mobileNavClass(isActive)}
+                    >
+                      {item.label}
+                    </NavLink>
+                  ))}
+                </div>
+              </div>
+
+              {/* Forum */}
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">
+                  Community
+                </p>
+                <div className="flex flex-col gap-2">
+                  <NavLink
+                    to="/forum"
+                    onClick={closeMenu}
+                    className={({ isActive }) => mobileNavClass(isActive)}
+                  >
+                    {t('nav.forum')}
+                  </NavLink>
+                </div>
+              </div>
+
+              {/* KI-Labor section */}
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">
+                  {t('nav.ai_lab')}
+                </p>
+                <div className="flex flex-col gap-2">
+                  {aiLabItems.map((item) => (
+                    <NavLink
+                      key={item.to}
+                      to={item.to}
                       onClick={closeMenu}
                       className={({ isActive }) => mobileNavClass(isActive)}
                     >
