@@ -18,7 +18,7 @@ type EvidenceLevel = "1a" | "1b" | "2a" | "2b" | "3" | "4" | "5";
 
 async function gradeEvidence(title: string, abstract: string) {
   const msg = await anthropic.messages.create({
-    model: "claude-haiku-4-20250414",
+    model: "claude-3-5-haiku-latest",
     max_tokens: 512,
     messages: [{
       role: "user",
@@ -76,7 +76,7 @@ async function run() {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`  ✗ ${data.title.substring(0, 40)}`, msg);
-      await logEvent("step", `✗ ${data.title.substring(0, 60)}`, msg.substring(0, 120));
+      await logEvent("error", `✗ ${data.title.substring(0, 60)}`, "Bewertung fehlgeschlagen");
     }
     await new Promise(r => setTimeout(r, 400));
   }
