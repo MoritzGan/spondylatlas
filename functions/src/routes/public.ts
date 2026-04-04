@@ -26,7 +26,7 @@ function toIsoString(value: unknown) {
  * Returns a map of paperId → title.
  */
 async function fetchPaperTitles(paperIds: string[]): Promise<Record<string, string>> {
-  const unique = [...new Set(paperIds)].filter(Boolean);
+  const unique = [...new Set(paperIds)].filter((d): d is NonNullable<typeof d> => Boolean(d));
   if (unique.length === 0) return {};
 
   const titles: Record<string, string> = {};
@@ -121,7 +121,7 @@ function normalizeTargetId(contentType: string, rawInput: string) {
       return parsedUrl.hash.replace(/^#comment-?/, "").trim() || null;
     }
 
-    const segments = parsedUrl.pathname.split("/").filter(Boolean);
+    const segments = parsedUrl.pathname.split("/").filter((d): d is NonNullable<typeof d> => Boolean(d));
     return segments.at(-1) ?? null;
   } catch {
     return trimmed;
@@ -141,7 +141,7 @@ router.get("/hypotheses", async (req, res, next) => {
       .orderBy("generatedAt", "desc");
 
     const snap = await query.limit(params.limit + params.offset).get();
-    const docs = snap.docs.slice(params.offset, params.offset + params.limit).map(serializeHypothesis).filter(Boolean);
+    const docs = snap.docs.slice(params.offset, params.offset + params.limit).map(serializeHypothesis).filter((d): d is NonNullable<typeof d> => Boolean(d));
 
     // Enrich hypotheses with paper titles for critic references
     const allCriticPaperIds = docs.flatMap((d: Record<string, unknown>) => (d.criticPaperIds as string[]) ?? []);
@@ -239,7 +239,7 @@ router.get("/meta-studies", async (req, res, next) => {
     const docs = snap.docs
       .slice(params.offset, params.offset + params.limit)
       .map(serializeMetaStudy)
-      .filter(Boolean);
+      .filter((d): d is NonNullable<typeof d> => Boolean(d));
 
     res.json({ data: docs, total: snap.size, limit: params.limit, offset: params.offset });
   } catch (err) {
