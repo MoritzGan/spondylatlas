@@ -42,7 +42,7 @@ async function fetchTrials(): Promise<any[]> {
 
 async function summarizeTrial(title: string, description: string): Promise<string> {
   const msg = await anthropic.messages.create({
-    model: "claude-haiku-4-20250414",
+    model: "claude-3-haiku-20240307",
     max_tokens: 200,
     messages: [{
       role: "user",

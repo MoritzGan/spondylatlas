@@ -86,7 +86,7 @@ export async function fetchTrials(fetchFn: typeof fetch): Promise<Record<string,
 
 export async function summarizeTrial(client: Anthropic, title: string, description: string): Promise<string> {
   const message = await client.messages.create({
-    model: "claude-haiku-4-20250414",
+    model: "claude-3-haiku-20240307",
     max_tokens: 200,
     messages: [{
       role: "user",
