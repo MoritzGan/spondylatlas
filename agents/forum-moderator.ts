@@ -105,7 +105,7 @@ Antworte NUR mit diesem JSON-Format (kein Markdown, kein Text davor/danach):
 {"decision":"approve|reject|escalate","reason":"Kurze Begründung auf Deutsch (max 100 Zeichen)"}`;
 
   const response = await anthropic.messages.create({
-    model: "claude-haiku-4-20250414",
+    model: "claude-3-haiku-20240307",
     max_tokens: 200,
     messages: [{ role: "user", content: prompt }],
   });
