@@ -28,10 +28,15 @@ interface Paper {
   publishedAt?: Timestamp;
 }
 
+interface BilingualField {
+  de: string;
+  en: string;
+}
+
 interface Hypothesis {
-  title: string;
-  description: string;
-  rationale: string;
+  title: BilingualField;
+  description: BilingualField;
+  rationale: BilingualField;
   paperIds: string[];
   status: "pending_review";
   generatedAt: Timestamp;
@@ -62,7 +67,7 @@ async function getExistingHypothesisTitles(): Promise<Set<string>> {
 }
 
 async function generateHypotheses(papers: Paper[]): Promise<
-  { title: string; description: string; rationale: string; paperIds: string[] }[]
+  { title: BilingualField; description: BilingualField; rationale: BilingualField; paperIds: string[] }[]
 > {
   const paperSummaries = papers
     .slice(0, 20)
@@ -79,7 +84,8 @@ Analysiere die folgenden ${papers.length} aktuellen Studien und leite daraus ${M
 Anforderungen:
 - Hypothesen müssen NEU und noch NICHT explizit in den Papers bewiesen sein
 - Sie sollen testbare Zusammenhänge zwischen Faktoren beschreiben
-- Formuliere auf Deutsch, klar und präzise
+- Formuliere ALLE Textfelder (title, description, rationale) zweisprachig: Deutsch UND Englisch
+- Jedes Feld ist ein Objekt mit "de" und "en" Schlüssel
 - Beziehe dich konkret auf Paper-Titel als Basis (keine rohen IDs verwenden)
 
 Studien:
@@ -150,8 +156,9 @@ async function main() {
   let saved = 0;
 
   for (const h of hypotheses) {
-    if (existing.has(h.title)) {
-      console.log(`  → Duplicate skipped: ${h.title.slice(0, 60)}`);
+    const titleStr = typeof h.title === "string" ? h.title : h.title.de;
+    if (existing.has(titleStr)) {
+      console.log(`  → Duplicate skipped: ${titleStr.slice(0, 60)}`);
       continue;
     }
     const doc: Hypothesis = {
@@ -164,8 +171,10 @@ async function main() {
       generatedBy: "hypothesis-generator",
     };
     await db.collection("hypotheses").add(doc);
-    await logEvent("step" as any, `Hypothese gespeichert: ${h.title.slice(0, 80)}`, h.description.slice(0, 120));
-    console.log(`  ✓ ${h.title.slice(0, 70)}`);
+    const logTitle = typeof h.title === "string" ? h.title : h.title.de;
+    const logDesc = typeof h.description === "string" ? h.description : h.description.de;
+    await logEvent("step" as any, `Hypothese gespeichert: ${logTitle.slice(0, 80)}`, logDesc.slice(0, 120));
+    console.log(`  ✓ ${logTitle.slice(0, 70)}`);
     saved++;
   }
 

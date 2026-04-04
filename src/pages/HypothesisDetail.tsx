@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../contexts/AuthContext'
 import { getHypothesis, getComments, addComment, formatTs, sanitizeCriticText, type Hypothesis, type HypothesisComment } from '../lib/hypotheses'
+import { localized } from '../lib/localized'
 import { DetailSkeleton } from '../components/Skeleton'
 
 const STATUS_CONFIG: Record<string, { labelKey: string; badge: string; icon: string; descKey: string }> = {
@@ -57,7 +58,7 @@ export default function HypothesisDetail() {
       {/* Main card */}
       <article className="mt-6 rounded-xl border border-stone-200 bg-white p-7">
         <div className="flex items-start justify-between gap-4">
-          <h1 className="text-2xl font-bold text-stone-900 leading-snug">{hypo.title}</h1>
+          <h1 className="text-2xl font-bold text-stone-900 leading-snug">{localized(hypo.title)}</h1>
           {cfg && (
             <span className={`shrink-0 rounded-full px-3 py-1 text-sm font-medium ${cfg.badge}`}>
               {cfg.icon} {t(cfg.labelKey)}
@@ -69,11 +70,11 @@ export default function HypothesisDetail() {
            {t('hypotheses.generated_at', { date: formatTs(hypo.generatedAt) })}
         </div>
 
-        <p className="mt-5 text-stone-700 leading-relaxed">{hypo.description}</p>
+        <p className="mt-5 text-stone-700 leading-relaxed">{localized(hypo.description)}</p>
 
         <div className="mt-5 rounded-lg bg-amber-50 border border-amber-100 p-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 mb-1">{t('hypotheses.rationale')}</p>
-          <p className="text-sm text-stone-700 leading-relaxed">{hypo.rationale}</p>
+          <p className="text-sm text-stone-700 leading-relaxed">{localized(hypo.rationale)}</p>
         </div>
       </article>
 
@@ -87,7 +88,7 @@ export default function HypothesisDetail() {
           <p className="text-xs font-semibold uppercase tracking-wide text-stone-500 mb-2">
              {t('hypotheses.critic_agent')} — {cfg ? t(cfg.descKey) : ''}
           </p>
-          <p className="text-sm text-stone-700 leading-relaxed">{sanitizeCriticText(hypo.criticArgument, hypo.criticPaperTitles)}</p>
+          <p className="text-sm text-stone-700 leading-relaxed">{sanitizeCriticText(localized(hypo.criticArgument), hypo.criticPaperTitles)}</p>
           {hypo.reviewedAt && (
             <p className="mt-2 text-xs text-stone-400">{t('hypotheses.reviewed_at', { date: formatTs(hypo.reviewedAt) })}</p>
           )}

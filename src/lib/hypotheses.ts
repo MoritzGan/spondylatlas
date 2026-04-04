@@ -2,15 +2,17 @@ import { apiFetch } from './api'
 
 export type HypothesisStatus = 'pending_review' | 'open' | 'challenged' | 'needs_research'
 
+export type BilingualField = string | { de: string; en: string }
+
 export interface Hypothesis {
   id: string
-  title: string
-  description: string
-  rationale: string
+  title: BilingualField
+  description: BilingualField
+  rationale: BilingualField
   paperIds: string[]
   status: HypothesisStatus
   generatedAt: string | null
-  criticArgument?: string | null
+  criticArgument?: BilingualField | null
   criticPaperIds?: string[]
   criticPaperTitles?: Record<string, string>
   reviewedAt?: string | null
