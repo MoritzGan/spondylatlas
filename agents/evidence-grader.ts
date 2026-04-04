@@ -57,7 +57,9 @@ async function run() {
   console.log(`📊 Bewerte ${toGrade.length} Papers...`);
   await logEvent("step", `${toGrade.length} Papers zu bewerten`);
 
+  const MAX_CONSECUTIVE_FAILURES = 3;
   let graded = 0;
+  let consecutiveFailures = 0;
   for (const doc of toGrade) {
     const data = doc.data();
     try {
@@ -71,12 +73,21 @@ async function run() {
         tags: [...new Set([...(data.tags || []), ...result.tags])],
       });
       graded++;
+      consecutiveFailures = 0;
       await logEvent("step", `[${result.level}] ${data.title.substring(0, 80)}`, result.rationale);
       console.log(`  ✓ [${result.level}] ${data.title.substring(0, 60)}`);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
+      consecutiveFailures++;
       console.error(`  ✗ ${data.title.substring(0, 40)}`, msg);
-      await logEvent("error", `✗ ${data.title.substring(0, 60)}`, "Bewertung fehlgeschlagen");
+      await logEvent("error", `✗ ${data.title.substring(0, 60)}`, msg.substring(0, 120));
+      if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+        const reason = `Circuit Breaker: ${MAX_CONSECUTIVE_FAILURES} aufeinanderfolgende Fehler — Run abgebrochen`;
+        console.error(`\n⚡ ${reason}`);
+        await logEvent("error", reason, msg.substring(0, 200));
+        await logComplete(`${graded}/${toGrade.length} Papers bewertet (abgebrochen)`, graded);
+        return;
+      }
     }
     await new Promise(r => setTimeout(r, 400));
   }
