@@ -23,7 +23,7 @@ export default function HypothesisDetail() {
 
   useEffect(() => {
     if (!id) return
-    Promise.all([getHypothesis(id), getComments(id)]).then(([h, c]) => {
+    Promise.all([getHypothesis(id), getComments(id).catch(() => [] as HypothesisComment[])]).then(([h, c]) => {
       setHypo(h)
       setComments(c)
       setLoading(false)
