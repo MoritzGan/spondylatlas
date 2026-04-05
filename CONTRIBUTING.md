@@ -21,6 +21,12 @@ npm run build
 
 # Linting
 npm run lint
+
+# Tests
+npm test              # Watch mode
+npm run test:unit     # Headless unit tests
+npm run test:rules    # Firestore rules (Emulator)
+npm run test:ci       # Full CI suite
 ```
 
 ## Richtlinien / Guidelines
@@ -41,11 +47,17 @@ npm run lint
 
 ## Fehler melden / Bug Reports
 
-Bitte erstelle ein [Issue](https://github.com/mgemard/spondylatlas/issues) mit:
+Bitte erstelle ein [Issue](https://github.com/MoritzGan/spondylatlas/issues) mit:
 - Beschreibung des Fehlers
 - Schritte zur Reproduktion
 - Erwartetes vs. tatsächliches Verhalten
 - Browser und Betriebssystem
+
+## Ausführliche Anleitung / Detailed Guide
+
+Siehe [docs/contributing/CONTRIBUTING.md](docs/contributing/CONTRIBUTING.md) und [docs/contributing/SETUP.md](docs/contributing/SETUP.md) für das vollständige Setup und erweiterte Richtlinien.
+
+See [docs/contributing/CONTRIBUTING.md](docs/contributing/CONTRIBUTING.md) and [docs/contributing/SETUP.md](docs/contributing/SETUP.md) for the full setup guide and extended guidelines.
 
 ## Verhaltenskodex / Code of Conduct
 

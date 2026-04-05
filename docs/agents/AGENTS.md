@@ -82,6 +82,68 @@ cd agents && npx tsx forum-moderator.ts
 
 ---
 
+## hypothesis-generator.ts
+
+**Schedule:** Every 6 hours (GitHub Actions)
+**Runtime:** GitHub Actions
+**Timeout:** 10 minutes
+**Batch size:** 30 papers input, up to 5 hypotheses per run
+
+Reads recent graded papers and generates bilingual (DE/EN) research hypotheses using Claude. Each hypothesis links back to the papers that inspired it.
+
+**Run manually:**
+```bash
+cd agents && npx tsx hypothesis-generator.ts
+```
+
+---
+
+## hypothesis-critic.ts
+
+**Schedule:** Every 6 hours, offset by 30 min (GitHub Actions)
+**Runtime:** GitHub Actions
+**Timeout:** 10 minutes
+
+Reviews generated hypotheses for scientific soundness. Assigns a verdict (`challenged`, `open`, or `needs_research`) with a bilingual argument and optional follow-up research query.
+
+**Run manually:**
+```bash
+cd agents && npx tsx hypothesis-critic.ts
+```
+
+---
+
+## meta-study-writer.ts
+
+**Schedule:** Every 12 hours (GitHub Actions)
+**Runtime:** GitHub Actions
+**Timeout:** 10 minutes
+
+Generates structured meta-analysis documents from clusters of related papers. Outputs sections: abstract, introduction, methods, results, discussion, conclusion.
+
+**Run manually:**
+```bash
+cd agents && npx tsx meta-study-writer.ts
+```
+
+---
+
+## meta-study-reviewer.ts
+
+**Schedule:** Twice daily at 06:00 and 18:00 UTC (GitHub Actions)
+**Runtime:** GitHub Actions
+**Timeout:** 10 minutes
+**Max revision rounds:** 3
+
+Reviews generated meta-studies for quality. Assigns a verdict (`approved`, `revision_needed`, or `major_issues`) with strengths and weaknesses. Can trigger iterative revision rounds.
+
+**Run manually:**
+```bash
+cd agents && npx tsx meta-study-reviewer.ts
+```
+
+---
+
 ## Local Setup for Agents
 
 ```bash

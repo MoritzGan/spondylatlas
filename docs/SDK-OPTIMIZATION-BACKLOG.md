@@ -4,22 +4,16 @@ Getestet als externer Erstnutzer am 03.04.2026 (v1.0.0).
 
 ---
 
-## P0 — Kritisch (README lügt)
+## P0 — Kritisch (README lügt) — ✅ BEHOBEN (04.04.2026)
 
-### 1. README zeigt falsche Config-Signatur
-**Ist:** README zeigt `apiKey` als Config-Feld
-**Soll:** Config erwartet `clientId` + `clientSecret`
-**Impact:** Jeder Entwickler, der dem Quickstart folgt, bekommt sofort einen TypeScript-Fehler. Erster Eindruck kaputt.
+### 1. ~~README zeigt falsche Config-Signatur~~ ✅
+README zeigt jetzt korrekt `clientId` + `clientSecret`.
 
-### 2. README zeigt `client.papers.list()` — Methode existiert nicht
-**Ist:** `papers.list({ status: 'verified' })`
-**Soll:** `papers.search({ q: '...' })`
-**Impact:** Zweiter Stolperstein in Folge. Copy-Paste aus README → Fehler.
+### 2. ~~README zeigt `client.papers.list()` — Methode existiert nicht~~ ✅
+README zeigt jetzt `client.papers.search()`.
 
-### 3. README-Submit-Beispiel hat falsche Felder
-**Ist:** `{ title, abstract, pubmedId, evidenceLevel }`
-**Soll:** `{ title, abstract, authors, url, source }` (authors, url, source sind required!)
-**Impact:** Dritter Fehler aus dem Quickstart.
+### 3. ~~README-Submit-Beispiel hat falsche Felder~~ ✅
+README-Beispiel zeigt jetzt `client.papers.review()` mit korrekten Feldern.
 
 ---
 
@@ -65,8 +59,8 @@ Getestet als externer Erstnutzer am 03.04.2026 (v1.0.0).
 
 | Priorität | Anzahl | Aufwand |
 |-----------|--------|---------|
-| P0 (README lügt) | 3 | ~30 Min |
+| ~~P0 (README lügt)~~ | ~~3~~ | ✅ Behoben |
 | P1 (Wichtig) | 5 | ~2h |
 | P2 (Nice-to-have) | 8 | ~1 Tag |
 
-**Empfehlung:** P0 sofort fixen — 3 Änderungen in der README, 10 Minuten. Danach P1 (package.json + Default-URL + Auth-Error-Mapping).
+**Status:** P0 erledigt. Nächster Schritt: P1 (package.json + Default-URL + Auth-Error-Mapping).

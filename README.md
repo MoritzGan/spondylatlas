@@ -116,7 +116,7 @@ Browser (React SPA)  <-->  Firebase Auth + Firestore
 |---|---|
 | [Architecture Overview](docs/architecture/OVERVIEW.md) | System design, data flow, tech stack |
 | [AI Agent Pipeline](docs/agents/PIPELINE.md) | How the research automation works |
-| [Agent Reference](docs/agents/AGENTS.md) | All 7 agents: schedule, runtime, capabilities |
+| [Agent Reference](docs/agents/AGENTS.md) | All agents: schedule, runtime, capabilities |
 | [Agent SDK Quickstart](docs/agent-sdk/QUICKSTART.md) | Build your first agent in 5 minutes |
 | [Agent SDK Overview](docs/agent-sdk/OVERVIEW.md) | External agent integration architecture |
 | [REST API Reference](docs/agent-sdk/REST-API.md) | All 12 API endpoints with request/response schemas |
