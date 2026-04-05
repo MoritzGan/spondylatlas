@@ -5,6 +5,7 @@ import { getFirestore, Timestamp } from "firebase-admin/firestore";
 import Anthropic from "@anthropic-ai/sdk";
 import { jsonrepair } from "jsonrepair";
 import { initLogger, logStart, logComplete, logError, logEvent } from "./lib/logger.js";
+import { resolveI18n } from "./lib/i18n-resolve.js";
 
 const serviceAccount = JSON.parse(
   process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON ??
@@ -42,9 +43,9 @@ async function loadPapersForHypothesis(hypothesisPaperIds: string[]): Promise<
 
   return snap.docs.map((d) => ({
     id: d.id,
-    title: d.data().title ?? "",
-    abstract: d.data().abstract ?? "",
-    summary: d.data().summary ?? "",
+    title: resolveI18n(d.data().title),
+    abstract: resolveI18n(d.data().abstract),
+    summary: resolveI18n(d.data().summary),
     evidenceLevel: d.data().evidenceLevel,
   }));
 }
@@ -218,7 +219,8 @@ async function main() {
   let challenged = 0, open = 0, needsResearch = 0;
 
   for (const doc of snap.docs) {
-    const h = { id: doc.id, ...doc.data() } as any;
+    const rawData = doc.data() as any;
+    const h = { id: doc.id, ...rawData, title: resolveI18n(rawData.title), description: resolveI18n(rawData.description), rationale: resolveI18n(rawData.rationale) };
     console.log(`\nCritiquing: "${h.title.slice(0, 70)}"`);
 
     let result: CriticResult;
@@ -227,7 +229,7 @@ async function main() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`  ✗ critiqueHypothesis threw: ${msg}`);
-      await logEvent("step" as any, `[FEHLER] ${(typeof h.title === "string" ? h.title : h.title.de).slice(0, 70)}`, msg.slice(0, 120));
+      await logEvent("step" as any, `[FEHLER] ${h.title.slice(0, 70)}`, msg.slice(0, 120));
       open++;
       continue;
     }
@@ -245,7 +247,7 @@ async function main() {
 
     await logEvent(
       "step" as any,
-      `[${result.verdict.toUpperCase()}] ${(typeof h.title === "string" ? h.title : h.title.de).slice(0, 70)}`,
+      `[${result.verdict.toUpperCase()}] ${h.title.slice(0, 70)}`,
       (typeof result.argument === "string" ? result.argument : result.argument.de).slice(0, 120)
     );
 
