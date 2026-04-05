@@ -433,6 +433,99 @@ async function storePaper(
 // Main
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Research Task Consumption
+// ---------------------------------------------------------------------------
+
+async function consumeResearchTasks(
+  db: FirebaseFirestore.Firestore,
+  anthropic: Anthropic,
+  existing: { dois: Set<string>; pmids: Set<string> }
+): Promise<number> {
+  const snap = await db
+    .collection("research_tasks")
+    .where("status", "==", "open")
+    .orderBy("createdAt", "asc")
+    .limit(5)
+    .get();
+
+  if (snap.empty) return 0;
+
+  console.log(`\n[Research Tasks] Found ${snap.size} open research task(s)`);
+  await logEvent("step", `${snap.size} offene Rechercheaufträge gefunden`);
+
+  let totalAdded = 0;
+
+  for (const doc of snap.docs) {
+    const task = doc.data();
+    const query = task.query as string;
+    console.log(`\n[Research Task] "${query.slice(0, 80)}"`);
+
+    // Search PubMed with the specific research query
+    try {
+      const params = new URLSearchParams({
+        db: "pubmed",
+        term: `(${query}) AND ("ankylosing spondylitis" OR "axial spondyloarthritis")`,
+        retmax: "20",
+        retmode: "json",
+        sort: "relevance",
+      });
+
+      const res = await fetch(`${PUBMED_SEARCH_URL}?${params}`);
+      if (!res.ok) {
+        console.error(`  PubMed search failed: ${res.status}`);
+        continue;
+      }
+
+      const data = await res.json();
+      const ids: string[] = data.esearchresult?.idlist ?? [];
+      console.log(`  Found ${ids.length} PubMed results`);
+
+      if (ids.length > 0) {
+        const papers = await fetchPubMedDetails(ids);
+        const newPapers = papers.filter((p) => !isDuplicate(p, existing));
+        console.log(`  ${newPapers.length} new after dedup`);
+
+        let taskAdded = 0;
+        for (const paper of newPapers.slice(0, 10)) {
+          try {
+            const summary = await generateSummary(anthropic, paper.title, paper.abstract);
+            await storePaper(db, paper, summary);
+            // Add to existing set to prevent re-adding
+            if (paper.doi) existing.dois.add(paper.doi);
+            if (paper.pubmedId) existing.pmids.add(paper.pubmedId);
+            taskAdded++;
+            totalAdded++;
+          } catch (err: any) {
+            console.error(`  Error storing: ${err.message}`);
+          }
+        }
+
+        await logEvent("step", `Rechercheauftrag: ${taskAdded} Papers gefunden`, query.slice(0, 120));
+      }
+
+      // Mark task as completed
+      await doc.ref.update({
+        status: "completed",
+        completedAt: Timestamp.now(),
+        completedBy: "paper-search",
+        papersFound: ids.length,
+      });
+    } catch (err: any) {
+      console.error(`  Research task failed: ${err.message}`);
+      await doc.ref.update({
+        status: "failed",
+        failedAt: Timestamp.now(),
+        failReason: err.message?.slice(0, 200),
+      });
+    }
+
+    await new Promise((r) => setTimeout(r, 500));
+  }
+
+  return totalAdded;
+}
+
 async function main() {
   console.log("=== SpondylAtlas Paper Search Agent ===");
   console.log(`Run started at ${new Date().toISOString()}\n`);
@@ -442,6 +535,13 @@ async function main() {
   initLogger("paper-search");
   await logStart("Suche neue axSpA-Studien in PubMed & Europe PMC");
   const anthropic = createAnthropicClient();
+
+  // 0. Consume open research tasks (targeted searches from hypothesis-critic)
+  const existingIds = await getExistingIdentifiers(db);
+  const researchTaskPapers = await consumeResearchTasks(db, anthropic, existingIds);
+  if (researchTaskPapers > 0) {
+    console.log(`\n[Research Tasks] Added ${researchTaskPapers} papers from targeted searches`);
+  }
 
   // 1. Fetch from both sources in parallel
   const [pubmedIds, europeResults] = await Promise.all([
@@ -485,9 +585,8 @@ async function main() {
   });
   console.log(`[Relevance] ${relevantPapers.length} of ${uniquePapers.length} papers passed AS relevance filter`);
 
-  // 5. Deduplicate against Firestore
-  const existing = await getExistingIdentifiers(db);
-  const newPapers = relevantPapers.filter((p) => !isDuplicate(p, existing));
+  // 5. Deduplicate against Firestore (reuse set from research tasks, already updated)
+  const newPapers = relevantPapers.filter((p) => !isDuplicate(p, existingIds));
   console.log(`[Dedup] ${newPapers.length} new papers after Firestore dedup`);
   await logEvent("step", `${newPapers.length} neue Papers nach Duplikat-Prüfung`);
 

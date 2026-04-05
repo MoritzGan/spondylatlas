@@ -86,9 +86,10 @@ async function loadPapersForHypothesis(paperIds: string[]): Promise<Paper[]> {
         summary: d.data().summary ?? "",
         authors: d.data().authors ?? [],
         evidenceLevel: d.data().evidenceLevel,
+        evidenceConfidence: d.data().evidenceConfidence,
         doi: d.data().doi,
         url: d.data().url,
-      });
+      } as Paper);
     }
   }
   return papers;
@@ -157,7 +158,7 @@ async function writeNewMetaStudy(
   const paperContext = papers
     .map(
       (p, i) =>
-        `[${i + 1}] Titel: ${p.title}\nAutoren: ${(p.authors ?? []).join(", ") || "k.A."}\nEvidenzlevel: ${p.evidenceLevel ?? "?"}\nDOI: ${p.doi ?? "k.A."}\nZusammenfassung: ${(p.summary || p.abstract).slice(0, 600)}`
+        `[${i + 1}] Titel: ${p.title}\nAutoren: ${(p.authors ?? []).join(", ") || "k.A."}\nEvidenzlevel: ${p.evidenceLevel ?? "?"}\nKonfidenz: ${(p as any).evidenceConfidence ?? "?"}\nDOI: ${p.doi ?? "k.A."}\nZusammenfassung: ${(p.summary || p.abstract).slice(0, 600)}`
     )
     .join("\n\n---\n\n");
 
@@ -183,6 +184,7 @@ Anforderungen:
 - Vancouver-Zitierstil (nummeriert [1], [2], etc.)
 - Akademische Sprache: "suggests" statt "proves", Konjunktiv wo angemessen
 - Keine übertriebenen Schlussfolgerungen
+- WICHTIG: Beachte die Konfidenz-Einstufung der Evidenzgrade. Studien mit Konfidenz "low" sollten in der Diskussion als "mit Vorbehalt" eingestuft und explizit als Limitation erwähnt werden. Stütze Kernschlussfolgerungen nur auf Studien mit hoher oder mittlerer Konfidenz.
 
 Antworte NUR mit diesem JSON (kein Markdown):
 {

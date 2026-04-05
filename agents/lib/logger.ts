@@ -6,7 +6,12 @@ export type AgentName =
   | "evidence-grader"
   | "summary-writer"
   | "trial-tracker"
-  | "forum-moderator";
+  | "forum-moderator"
+  | "hypothesis-generator"
+  | "hypothesis-critic"
+  | "meta-study-writer"
+  | "meta-study-reviewer"
+  | "reference-verifier";
 
 let _runId: string;
 let _agent: AgentName;

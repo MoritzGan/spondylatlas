@@ -192,10 +192,145 @@ Antworte NUR mit diesem JSON (kein Markdown):
   };
 }
 
+type DefenseVerdict = "defense_accepted" | "defense_rejected";
+
+interface DefenseReviewResult {
+  verdict: DefenseVerdict;
+  argument: BilingualField;
+}
+
+async function reviewDefense(
+  hypothesis: { id: string; title: string; description: string; rationale: string; criticArgument: BilingualField; defenseArgument: BilingualField },
+  papers: { id: string; title: string; abstract: string; summary: string; evidenceLevel?: string }[]
+): Promise<DefenseReviewResult> {
+  const slicedPapers = papers.slice(0, 25);
+
+  const paperContext = slicedPapers
+    .map(
+      (p, i) =>
+        `[${i + 1}] Evidenz: ${p.evidenceLevel ?? "?"}\nTitel: ${p.title}\n${(p.summary || p.abstract).slice(0, 350)}`
+    )
+    .join("\n\n---\n\n");
+
+  const criticDe = typeof hypothesis.criticArgument === "string" ? hypothesis.criticArgument : hypothesis.criticArgument.de;
+  const defenseDe = typeof hypothesis.defenseArgument === "string" ? hypothesis.defenseArgument : hypothesis.defenseArgument.de;
+
+  const prompt = `Du bist ein kritischer Wissenschaftler für axiale Spondyloarthritis (Morbus Bechterew).
+
+Der Autor einer angegriffenen Hypothese hat eine Verteidigung eingereicht. Bewerte die Verteidigung.
+
+HYPOTHESE:
+Titel: "${hypothesis.title}"
+Beschreibung: ${hypothesis.description}
+
+DEINE URSPRÜNGLICHE KRITIK:
+${criticDe}
+
+VERTEIDIGUNG DES AUTORS:
+${defenseDe}
+
+VERFÜGBARE STUDIEN:
+${paperContext}
+
+Bewerte:
+- **defense_accepted**: Die Verteidigung bringt stichhaltige neue Argumente oder Evidenz. Die Hypothese wird auf "open" zurückgesetzt.
+- **defense_rejected**: Die Verteidigung ist nicht überzeugend. Die Hypothese bleibt endgültig "challenged".
+
+Sei fair aber streng. Eine Verteidigung muss konkrete neue Belege bringen, nicht nur die Kritik umformulieren.
+
+WICHTIG: Das "argument"-Feld MUSS ein Objekt mit "de" und "en" sein (zweisprachig).
+
+Antworte NUR mit JSON:
+{
+  "verdict": "defense_accepted|defense_rejected",
+  "argument": { "de": "Begründung auf Deutsch (3-5 Sätze)", "en": "Reasoning in English (3-5 sentences)" }
+}`;
+
+  const response = await anthropic.messages.create({
+    model: "claude-opus-4-5",
+    max_tokens: 800,
+    messages: [{ role: "user", content: prompt }],
+  });
+
+  const rawText = response.content[0].type === "text" ? response.content[0].text.trim() : "{}";
+  const text = rawText
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```\s*$/, "")
+    .trim();
+
+  try {
+    return JSON.parse(text) as DefenseReviewResult;
+  } catch {
+    const block = text.match(/\{[\s\S]*\}/)?.[0] ?? text;
+    try {
+      return JSON.parse(jsonrepair(block)) as DefenseReviewResult;
+    } catch {
+      return { verdict: "defense_rejected", argument: { de: "Parse-Fehler — Verteidigung abgelehnt", en: "Parse error — defense rejected" } };
+    }
+  }
+}
+
 async function main() {
   console.log("=== Hypothesis Critic ===");
   initLogger("hypothesis-critic" as any);
-  await logStart("Prüfe und widerlege offene Hypothesen");
+  await logStart("Prüfe Hypothesen und bewerte Verteidigungen");
+
+  // Phase 1: Review defenses from challenged hypotheses
+  const defenseSnap = await db
+    .collection("hypotheses")
+    .where("status", "==", "pending_defense_review")
+    .orderBy("defendedAt", "asc")
+    .limit(5)
+    .get();
+
+  if (!defenseSnap.empty) {
+    console.log(`\n--- Phase 1: Reviewing ${defenseSnap.size} defense(s) ---`);
+    await logEvent("step" as any, `${defenseSnap.size} Verteidigung(en) zu bewerten`);
+
+    const defensePapers = await loadPapersForHypothesis([]);
+
+    for (const doc of defenseSnap.docs) {
+      const h = doc.data() as any;
+      const titleStr = typeof h.title === "string" ? h.title : h.title.de;
+      console.log(`\nReviewing defense: "${titleStr.slice(0, 70)}"`);
+
+      try {
+        const result = await reviewDefense(
+          { id: doc.id, title: titleStr, description: typeof h.description === "string" ? h.description : h.description.de, rationale: typeof h.rationale === "string" ? h.rationale : h.rationale.de, criticArgument: h.criticArgument, defenseArgument: h.defenseArgument },
+          defensePapers
+        );
+
+        if (result.verdict === "defense_accepted") {
+          await doc.ref.update({
+            status: "open",
+            defenseReviewVerdict: "defense_accepted",
+            defenseReviewArgument: result.argument,
+            defenseReviewedAt: Timestamp.now(),
+          });
+          console.log(`  → Defense ACCEPTED — hypothesis reopened`);
+          await logEvent("step" as any, `[VERTEIDIGUNG AKZEPTIERT] ${titleStr.slice(0, 70)}`);
+        } else {
+          await doc.ref.update({
+            status: "challenged",
+            defenseReviewVerdict: "defense_rejected",
+            defenseReviewArgument: result.argument,
+            defenseReviewedAt: Timestamp.now(),
+          });
+          console.log(`  → Defense REJECTED — hypothesis remains challenged`);
+          await logEvent("step" as any, `[VERTEIDIGUNG ABGELEHNT] ${titleStr.slice(0, 70)}`);
+        }
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error(`  Error: ${msg}`);
+        await logEvent("step" as any, `[FEHLER] Verteidigungsbewertung: ${titleStr.slice(0, 60)}`, msg.slice(0, 120));
+      }
+
+      await new Promise((r) => setTimeout(r, 500));
+    }
+  }
+
+  // Phase 2: Critique new hypotheses
+  console.log(`\n--- Phase 2: Critiquing pending hypotheses ---`);
 
   const snap = await db
     .collection("hypotheses")

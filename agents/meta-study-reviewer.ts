@@ -35,8 +35,47 @@ interface ReviewResult {
   citationCheck: string;
 }
 
+interface VerificationReport {
+  totalReferences: number;
+  verified: number;
+  unverifiable: number;
+  mismatched: number;
+  hallucinated: number;
+  referenceDetails: { refIndex: number; claimedTitle: string; status: string; matchedTitle?: string; issues: string[] }[];
+  claimChecks: { claim: string; referencedPaperTitle: string; supportedByAbstract: boolean; explanation: string }[];
+  overallScore: number;
+}
+
+interface PaperContext {
+  id: string;
+  title: string;
+  abstract: string;
+  evidenceLevel?: string;
+}
+
+async function loadPapersForReview(paperIds: string[]): Promise<PaperContext[]> {
+  if (paperIds.length === 0) return [];
+  const chunks: string[][] = [];
+  for (let i = 0; i < paperIds.length; i += 30) {
+    chunks.push(paperIds.slice(i, i + 30));
+  }
+  const papers: PaperContext[] = [];
+  for (const chunk of chunks) {
+    const snap = await db.collection("papers").where("__name__", "in", chunk).get();
+    for (const d of snap.docs) {
+      papers.push({
+        id: d.id,
+        title: d.data().title ?? "",
+        abstract: d.data().abstract ?? "",
+        evidenceLevel: d.data().evidenceLevel,
+      });
+    }
+  }
+  return papers;
+}
+
 async function findDraftsToReview(): Promise<
-  { docId: string; title: string; sections: MetaStudySections; currentRound: number; references: unknown[] }[]
+  { docId: string; title: string; sections: MetaStudySections; currentRound: number; references: unknown[]; paperIds: string[]; verificationReport?: VerificationReport }[]
 > {
   const snap = await db
     .collection("meta_studies")
@@ -50,17 +89,54 @@ async function findDraftsToReview(): Promise<
     sections: d.data().sections as MetaStudySections,
     currentRound: (d.data().currentRound as number) ?? 1,
     references: (d.data().references ?? []) as unknown[],
+    paperIds: (d.data().paperIds ?? []) as string[],
+    verificationReport: d.data().verificationReport as VerificationReport | undefined,
   }));
 }
 
 async function reviewMetaStudy(
-  study: { title: string; sections: MetaStudySections; references: unknown[] }
+  study: { title: string; sections: MetaStudySections; references: unknown[]; papers?: PaperContext[]; verificationReport?: VerificationReport }
 ): Promise<ReviewResult> {
   const fullText = Object.entries(study.sections)
     .map(([key, val]) => `## ${key.charAt(0).toUpperCase() + key.slice(1)}\n${val}`)
     .join("\n\n");
 
   const refCount = study.references.length;
+
+  // Build source paper context for spot-checking claims
+  let paperContext = "";
+  if (study.papers && study.papers.length > 0) {
+    paperContext = `\n\nQUELL-PAPERS (zum Abgleich mit den Behauptungen der Meta-Studie):\n` +
+      study.papers.slice(0, 15).map((p, i) =>
+        `[${i + 1}] "${p.title}" (Evidenz: ${p.evidenceLevel ?? "?"})\nAbstract: ${p.abstract.slice(0, 350)}`
+      ).join("\n\n---\n\n");
+  }
+
+  // Build verification report context
+  let verificationContext = "";
+  if (study.verificationReport) {
+    const vr = study.verificationReport;
+    verificationContext = `\n\nREFERENZ-VERIFIKATIONSBERICHT (automatisch erstellt):
+- Gesamtreferenzen: ${vr.totalReferences}
+- Verifiziert: ${vr.verified} | Nicht verifizierbar: ${vr.unverifiable} | Abweichend: ${vr.mismatched} | Halluziniert: ${vr.hallucinated}
+- Gesamtscore: ${vr.overallScore}/100`;
+
+    const problematic = vr.referenceDetails.filter((r) => r.status !== "verified");
+    if (problematic.length > 0) {
+      verificationContext += `\n\nPROBLEMATISCHE REFERENZEN:\n` +
+        problematic.map((r) =>
+          `- [${r.refIndex + 1}] "${r.claimedTitle.slice(0, 80)}" → Status: ${r.status}${r.issues.length > 0 ? ` (${r.issues[0]})` : ""}`
+        ).join("\n");
+    }
+
+    const unsupportedClaims = vr.claimChecks.filter((c) => !c.supportedByAbstract);
+    if (unsupportedClaims.length > 0) {
+      verificationContext += `\n\nNICHT GESTÜTZTE BEHAUPTUNGEN:\n` +
+        unsupportedClaims.map((c) =>
+          `- "${c.claim.slice(0, 80)}" → ${c.explanation}`
+        ).join("\n");
+    }
+  }
 
   const prompt = `Du bist ein erfahrener akademischer Reviewer für systematische Reviews und Meta-Analysen im Bereich der axialen Spondyloarthritis.
 
@@ -71,7 +147,7 @@ TITEL: "${study.title}"
 VOLLTEXT:
 ${fullText}
 
-ANZAHL REFERENZEN: ${refCount}
+ANZAHL REFERENZEN: ${refCount}${paperContext}${verificationContext}
 
 Bewerte nach folgenden Kriterien:
 
@@ -140,9 +216,12 @@ async function main() {
   for (const draft of drafts) {
     console.log(`\nReviewing: "${draft.title.slice(0, 70)}" (round ${draft.currentRound})`);
 
+    // Load source papers for the reviewer to spot-check claims
+    const papers = await loadPapersForReview(draft.paperIds);
+
     let result: ReviewResult;
     try {
-      result = await reviewMetaStudy(draft);
+      result = await reviewMetaStudy({ ...draft, papers, verificationReport: draft.verificationReport });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`  ✗ Review failed: ${msg}`);

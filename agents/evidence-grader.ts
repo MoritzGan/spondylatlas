@@ -16,6 +16,45 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 type EvidenceLevel = "1a" | "1b" | "2a" | "2b" | "3" | "4" | "5";
 
+// ---------------------------------------------------------------------------
+// Heuristic cross-validation for evidence grades
+// ---------------------------------------------------------------------------
+
+interface HeuristicCheck {
+  passed: boolean;
+  flag?: string;
+}
+
+function crossValidateGrade(level: string, studyType: string, abstract: string): HeuristicCheck {
+  const text = abstract.toLowerCase();
+
+  // RCT claimed (1b) but no randomization language
+  if ((level === "1b" || studyType.toLowerCase().includes("rct")) &&
+      !text.match(/random(iz|is)/i) && !text.includes("placebo") && !text.includes("double-blind")) {
+    return { passed: false, flag: "RCT/1b claimed but no randomization/placebo/blinding language in abstract" };
+  }
+
+  // Systematic review claimed (1a/2a) but no systematic language
+  if ((level === "1a" || level === "2a") &&
+      !text.includes("systematic") && !text.includes("meta-analysis") && !text.includes("meta analysis") &&
+      !text.includes("prisma") && !text.includes("search strategy")) {
+    return { passed: false, flag: "Systematic review claimed but no systematic/meta-analysis language in abstract" };
+  }
+
+  // Case report/expert opinion (5) but mentions cohort or large sample
+  if (level === "5" &&
+      (text.includes("cohort") || text.match(/n\s*=\s*\d{3,}/) || text.includes("population-based"))) {
+    return { passed: false, flag: "Level 5 (expert opinion) claimed but abstract suggests larger study design" };
+  }
+
+  // Cohort study (2b) but mentions randomization
+  if (level === "2b" && text.match(/random(iz|is)/i) && text.includes("placebo")) {
+    return { passed: false, flag: "Cohort (2b) claimed but abstract describes randomization with placebo" };
+  }
+
+  return { passed: true };
+}
+
 async function gradeEvidence(title: string, abstract: string) {
   const msg = await anthropic.messages.create({
     model: "claude-3-haiku-20240307",
@@ -36,11 +75,23 @@ Antworte NUR mit JSON:
   const raw = (msg.content[0] as any).text.trim();
   // Strip optional markdown code fences (```json ... ``` or ``` ... ```)
   const text = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
+  let result;
   try {
-    return JSON.parse(text);
+    result = JSON.parse(text);
   } catch {
     throw new Error(`JSON parse failed. Raw response: ${raw.substring(0, 200)}`);
   }
+
+  // Cross-validate with heuristics
+  const check = crossValidateGrade(result.level, result.studyType ?? "", abstract);
+  if (!check.passed) {
+    console.log(`    ⚠ Heuristic flag: ${check.flag}`);
+    result.confidence = "low";
+    result.heuristicFlag = check.flag;
+    result.rationale = `${result.rationale} [FLAGGED: ${check.flag}]`;
+  }
+
+  return result;
 }
 
 async function run() {
@@ -64,14 +115,18 @@ async function run() {
     const data = doc.data();
     try {
       const result = await gradeEvidence(data.title, data.abstract || "");
-      await doc.ref.update({
+      const updateData: Record<string, unknown> = {
         evidenceLevel: result.level,
         studyType: result.studyType,
         evidenceConfidence: result.confidence,
         evidenceRationale: result.rationale,
         gradedAt: Timestamp.now(),
         tags: [...new Set([...(data.tags || []), ...result.tags])],
-      });
+      };
+      if (result.heuristicFlag) {
+        updateData.heuristicFlag = result.heuristicFlag;
+      }
+      await doc.ref.update(updateData);
       graded++;
       consecutiveFailures = 0;
       await logEvent("step", `[${result.level}] ${data.title.substring(0, 80)}`, result.rationale);
