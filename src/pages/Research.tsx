@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import type { Paper } from '../lib/types'
+import { localized } from '../lib/localized'
 import { usePageMeta } from '../hooks/usePageMeta'
 import { decodeHtml, stripAiPromptPrefix, stripMarkdown } from '../lib/textUtils'
 import { CardListSkeleton } from '../components/Skeleton'
@@ -145,7 +146,7 @@ export default function Research() {
                 )}
 
                 <p className="mt-2 line-clamp-3 text-stone-600">
-                  {stripMarkdown(stripAiPromptPrefix(decodeHtml(paper.summary || paper.abstract || "")))}
+                  {paper.patientSummary ? stripMarkdown(localized(paper.patientSummary)) : stripMarkdown(stripAiPromptPrefix(decodeHtml(paper.summary || paper.abstract || "")))}
                 </p>
 
                 <div className="mt-3 flex flex-wrap items-center gap-2">

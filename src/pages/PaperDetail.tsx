@@ -8,6 +8,7 @@ import { usePageMeta } from '../hooks/usePageMeta'
 import { decodeHtml, stripAiPromptPrefix } from '../lib/textUtils'
 import { DetailSkeleton } from '../components/Skeleton'
 import MarkdownContent from '../components/MarkdownContent'
+import { localized } from '../lib/localized'
 
 export default function PaperDetail() {
   const { paperId } = useParams<{ paperId: string }>()
@@ -145,10 +146,14 @@ export default function PaperDetail() {
           </div>
         )}
 
-        {paper.summary && (
+        {(paper.patientSummary || paper.summary) && (
           <section className="mt-8">
             <h2 className="text-lg font-semibold text-stone-900">{t('research.summary')}</h2>
-            <MarkdownContent className="mt-2">{stripAiPromptPrefix(decodeHtml(paper.summary))}</MarkdownContent>
+            <MarkdownContent className="mt-2">
+              {paper.patientSummary
+                ? localized(paper.patientSummary)
+                : stripAiPromptPrefix(decodeHtml(paper.summary))}
+            </MarkdownContent>
           </section>
         )}
 
