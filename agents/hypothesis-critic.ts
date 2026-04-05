@@ -156,20 +156,32 @@ Antworte NUR mit diesem JSON (kein Markdown):
   const idToTitle = new Map(slicedPapers.map((p) => [p.id, p.title]));
 
   // 1. Ersetze rohe Firestore-IDs (20 alphanumerische Zeichen) durch Studientitel
-  let safeArgument = (parsed.argument ?? "").replace(/\b([A-Za-z0-9]{20})\b/g, (_match: string, id: string) => {
-    const title = idToTitle.get(id);
-    return title ? `„${title}"` : "[unbekannte Studie]";
-  });
+  function sanitizeText(text: string): string {
+    let safe = text.replace(/\b([A-Za-z0-9]{20})\b/g, (_match: string, id: string) => {
+      const title = idToTitle.get(id);
+      return title ? `„${title}“` : "[unbekannte Studie]";
+    });
+    safe = safe.replace(/\[Studie(?:\s+\d+)?\]/g, "[unbekannte Studie]");
+    safe = safe.replace(/\[([0-9]+)\]/g, (_match: string, numStr: string) => {
+      const n = parseInt(numStr, 10);
+      if (n >= 1 && n <= slicedPapers.length) {
+        return `„${slicedPapers[n - 1].title}“`;
+      }
+      return "[unbekannte Studie]";
+    });
+    return safe;
+  }
 
-  // 2. Ersetze verbleibende Platzhalter wie [Studie], [1], [2] etc. durch echte Titel
-  safeArgument = safeArgument.replace(/\[Studie(?:\s+\d+)?\]/g, "[unbekannte Studie]");
-  safeArgument = safeArgument.replace(/\[([0-9]+)\]/g, (_match: string, numStr: string) => {
-    const n = parseInt(numStr, 10);
-    if (n >= 1 && n <= slicedPapers.length) {
-      return `„${slicedPapers[n - 1].title}"`;
-    }
-    return "[unbekannte Studie]";
-  });
+  const rawArg = parsed.argument ?? "";
+  let safeArgument: BilingualField;
+  if (typeof rawArg === "string") {
+    safeArgument = { de: sanitizeText(rawArg), en: sanitizeText(rawArg) };
+  } else {
+    safeArgument = {
+      de: sanitizeText(rawArg.de ?? ""),
+      en: sanitizeText(rawArg.en ?? rawArg.de ?? ""),
+    };
+  }
 
   return {
     verdict: parsed.verdict,
@@ -215,12 +227,12 @@ async function main() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`  ✗ critiqueHypothesis threw: ${msg}`);
-      await logEvent("step" as any, `[FEHLER] ${h.title.slice(0, 70)}`, msg.slice(0, 120));
+      await logEvent("step" as any, `[FEHLER] ${(typeof h.title === "string" ? h.title : h.title.de).slice(0, 70)}`, msg.slice(0, 120));
       open++;
       continue;
     }
     console.log(`  → Verdict: ${result.verdict}`);
-    console.log(`  → ${result.argument.slice(0, 100)}`);
+    console.log(`  → ${(typeof result.argument === "string" ? result.argument : result.argument.de).slice(0, 100)}`);
 
     // Update hypothesis
     await doc.ref.update({
