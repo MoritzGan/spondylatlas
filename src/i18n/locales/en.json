@@ -276,5 +276,10 @@
     "not_found": "Page not found",
     "not_found_desc": "This page does not exist.",
     "back_home": "Back to home"
+  },
+  "error_boundary": {
+    "title": "Page could not be loaded",
+    "text": "An error occurred while loading this page.",
+    "retry": "Try again"
   }
 }

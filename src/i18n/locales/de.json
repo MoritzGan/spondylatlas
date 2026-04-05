@@ -276,5 +276,10 @@
     "not_found": "Seite nicht gefunden",
     "not_found_desc": "Diese Seite existiert leider nicht.",
     "back_home": "Zurück zur Startseite"
+  },
+  "error_boundary": {
+    "title": "Seite konnte nicht geladen werden",
+    "text": "Beim Laden dieser Seite ist ein Fehler aufgetreten.",
+    "retry": "Erneut versuchen"
   }
 }
