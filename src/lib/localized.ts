@@ -8,5 +8,5 @@ export function localized(field: string | { de: string; en: string } | undefined
   if (!field) return "";
   if (typeof field === "string") return field;
   const lang = i18n.language as "de" | "en";
-  return field[lang] ?? field.de ?? field.en ?? "";
+  return field[lang] || field.de || field.en || "";
 }
