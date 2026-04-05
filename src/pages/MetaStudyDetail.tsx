@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { getMetaStudy, formatDate, type MetaStudyDetail as MetaStudyDetailType, type ReviewRound } from '../lib/metaStudies'
+import { localizeField } from '../lib/i18nField'
 import { DetailSkeleton } from '../components/Skeleton'
 
 const SECTION_KEYS = ['abstract', 'introduction', 'methods', 'results', 'discussion', 'conclusion'] as const
@@ -32,7 +33,7 @@ function ReviewCard({ review }: { review: ReviewRound }) {
         <div className="mt-3">
           <p className="text-xs font-semibold text-emerald-700 mb-1">{t('meta_studies.strengths')}</p>
           <ul className="list-disc list-inside text-xs text-stone-600 space-y-0.5">
-            {review.strengths.map((s, i) => <li key={i}>{s}</li>)}
+            {review.strengths.map((s, i) => <li key={i}>{localizeField(s)}</li>)}
           </ul>
         </div>
       )}
@@ -41,7 +42,7 @@ function ReviewCard({ review }: { review: ReviewRound }) {
         <div className="mt-3">
           <p className="text-xs font-semibold text-red-700 mb-1">{t('meta_studies.weaknesses')}</p>
           <ul className="list-disc list-inside text-xs text-stone-600 space-y-0.5">
-            {review.weaknesses.map((w, i) => <li key={i}>{w}</li>)}
+            {review.weaknesses.map((w, i) => <li key={i}>{localizeField(w)}</li>)}
           </ul>
         </div>
       )}
@@ -50,7 +51,7 @@ function ReviewCard({ review }: { review: ReviewRound }) {
         <div className="mt-3">
           <p className="text-xs font-semibold text-blue-700 mb-1">{t('meta_studies.suggestions')}</p>
           <ul className="list-disc list-inside text-xs text-stone-600 space-y-0.5">
-            {review.suggestions.map((s, i) => <li key={i}>{s}</li>)}
+            {review.suggestions.map((s, i) => <li key={i}>{localizeField(s)}</li>)}
           </ul>
         </div>
       )}
@@ -58,15 +59,15 @@ function ReviewCard({ review }: { review: ReviewRound }) {
       <div className="mt-3 grid gap-2 sm:grid-cols-3">
         <div className="rounded-md bg-white p-2 text-xs">
           <p className="font-semibold text-stone-500 mb-0.5">{t('meta_studies.methodology')}</p>
-          <p className="text-stone-600">{review.methodologyCritique}</p>
+          <p className="text-stone-600">{localizeField(review.methodologyCritique)}</p>
         </div>
         <div className="rounded-md bg-white p-2 text-xs">
           <p className="font-semibold text-stone-500 mb-0.5">{t('meta_studies.statistics')}</p>
-          <p className="text-stone-600">{review.statisticalCritique}</p>
+          <p className="text-stone-600">{localizeField(review.statisticalCritique)}</p>
         </div>
         <div className="rounded-md bg-white p-2 text-xs">
           <p className="font-semibold text-stone-500 mb-0.5">{t('meta_studies.citations')}</p>
-          <p className="text-stone-600">{review.citationCheck}</p>
+          <p className="text-stone-600">{localizeField(review.citationCheck)}</p>
         </div>
       </div>
     </div>
@@ -110,7 +111,7 @@ export default function MetaStudyDetail() {
 
       {/* Main card */}
       <article className="mt-4 rounded-xl border border-stone-200 bg-white p-7">
-        <h1 className="text-2xl font-bold text-stone-900 leading-snug">{study.title}</h1>
+        <h1 className="text-2xl font-bold text-stone-900 leading-snug">{localizeField(study.title)}</h1>
 
         <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-stone-400">
           <span>{t('meta_studies.published_at', { date: formatDate(study.publishedAt) })}</span>
@@ -124,10 +125,10 @@ export default function MetaStudyDetail() {
             <span className="font-medium">{t('meta_studies.based_on_hypothesis')}: </span>
             {study.hypothesisId ? (
               <Link to={`/hypotheses/${study.hypothesisId}`} className="underline hover:text-blue-900">
-                {study.hypothesisTitle}
+                {localizeField(study.hypothesisTitle)}
               </Link>
             ) : (
-              study.hypothesisTitle
+              localizeField(study.hypothesisTitle)
             )}
           </div>
         )}
@@ -142,7 +143,7 @@ export default function MetaStudyDetail() {
                 {t(`meta_studies.${key}`)}
               </h2>
               <div className="text-sm text-stone-700 leading-relaxed whitespace-pre-wrap">
-                {content}
+                {localizeField(content)}
               </div>
             </section>
           )
@@ -156,7 +157,7 @@ export default function MetaStudyDetail() {
           <ol className="list-decimal list-inside space-y-2 text-sm text-stone-600">
             {study.references.map((ref, i) => (
               <li key={i}>
-                {ref.authors}. {ref.title}. {ref.source}.
+                {localizeField(ref.authors)}. {localizeField(ref.title)}. {localizeField(ref.source)}.
                 {ref.doi && (
                   <span className="ml-1 text-xs text-stone-400">DOI: {ref.doi}</span>
                 )}
