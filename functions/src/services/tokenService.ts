@@ -1,7 +1,10 @@
 import jwt from "jsonwebtoken";
 import type { AgentRole, JwtPayload, Scope } from "../types/index.js";
 
-const JWT_SECRET = process.env.JWT_SIGNING_SECRET || "dev-secret-change-in-production";
+if (!process.env.JWT_SIGNING_SECRET) {
+  throw new Error("FATAL: JWT_SIGNING_SECRET environment variable is not set. Refusing to start.");
+}
+const JWT_SECRET = process.env.JWT_SIGNING_SECRET;
 const TOKEN_LIFETIME_SECONDS = 3600; // 1 hour
 
 export function signToken(agentId: string, role: AgentRole, scopes: Scope[]): string {
