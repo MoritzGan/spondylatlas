@@ -29,6 +29,7 @@ export interface AgentCredential {
   createdAt: FirebaseFirestore.Timestamp;
   lastActiveAt: FirebaseFirestore.Timestamp;
   createdBy: string;
+  expiresAt?: FirebaseFirestore.Timestamp;
 }
 
 export interface JwtPayload {

@@ -19,6 +19,10 @@ router.post("/token", validate(tokenRequestSchema), async (req, res, next) => {
       throw ApiError.unauthorized("Agent is disabled");
     }
 
+    if (agent.expiresAt && agent.expiresAt.toMillis() < Date.now()) {
+      throw ApiError.unauthorized("Agent credentials have expired");
+    }
+
     const valid = await verifySecret(agent, client_secret);
     if (!valid) {
       throw ApiError.unauthorized("Invalid client credentials");
