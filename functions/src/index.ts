@@ -8,6 +8,7 @@ import {
   firebaseUserRateLimitMiddleware,
   publicWriteRateLimitMiddleware,
   rateLimitMiddleware,
+  tokenRateLimitMiddleware,
 } from "./middleware/rateLimit.js";
 import { errorHandler } from "./lib/errors.js";
 import healthRouter from "./routes/health.js";
@@ -31,6 +32,7 @@ app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("Referrer-Policy", "no-referrer");
   res.setHeader("Cache-Control", "no-store");
+  res.setHeader("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   next();
 });
 
@@ -41,7 +43,7 @@ const routes = express.Router();
 
 // Public routes (no auth)
 routes.use("/health", healthRouter);
-routes.use("/auth", publicWriteRateLimitMiddleware as express.RequestHandler, authRouter);
+routes.use("/auth", publicWriteRateLimitMiddleware as express.RequestHandler, tokenRateLimitMiddleware as express.RequestHandler, authRouter);
 routes.use("/public", publicRouter);
 
 // Browser-user routes

@@ -33,8 +33,10 @@ test-results
 .env
 .env.local
 .env.*.local
+agents/.env
 
 # Firebase
 .firebase/
 firebase-debug.log
 firebase-service-account.json
+agents/firebase-service-account.json

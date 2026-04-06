@@ -86,7 +86,9 @@ service cloud.firestore {
         request.resource.data.lang in ["de", "en"] &&
         request.resource.data.role == "user" &&
         request.resource.data.ageConfirmed == true &&
-        request.resource.data.legalVersion is string;
+        request.resource.data.legalVersion is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
       allow update: if isAdmin() || (
         isOwner(userId) &&
         changedKeysAreOnly(["displayName", "lang", "updatedAt"]) &&
@@ -104,7 +106,17 @@ service cloud.firestore {
 
     match /legal_document_versions/{docId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create: if isAdmin() &&
+        request.resource.data.type is string &&
+        request.resource.data.version is string &&
+        request.resource.data.content is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
+      allow update: if isAdmin() &&
+        request.resource.data.type is string &&
+        request.resource.data.version is string &&
+        request.resource.data.content is string;
+      allow delete: if isAdmin();
     }
 
     match /user_legal_acceptances/{userId} {
@@ -134,7 +146,9 @@ service cloud.firestore {
       allow create: if isSignedIn() &&
         request.resource.data.userId == request.auth.uid &&
         request.resource.data.type in ["export", "delete"] &&
-        request.resource.data.status == "requested";
+        request.resource.data.status == "requested" &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
       allow update, delete: if isAdmin();
     }
 
@@ -143,7 +157,9 @@ service cloud.firestore {
         (resource.data.userId == request.auth.uid || isAdmin());
       allow create: if isSignedIn() &&
         request.resource.data.userId == request.auth.uid &&
-        request.resource.data.eventType is string;
+        request.resource.data.eventType is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
       allow update, delete: if false;
     }
 
@@ -155,13 +171,31 @@ service cloud.firestore {
     }
 
     match /papers/{paperId} {
-      allow read: if true;
-      allow write: if isAdmin();
+      allow read: if isSignedIn();
+      allow create: if isAdmin() &&
+        request.resource.data.title is string &&
+        request.resource.data.title.size() > 0 &&
+        request.resource.data.abstract is string &&
+        request.resource.data.source is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
+      allow update: if isAdmin() &&
+        request.resource.data.title is string &&
+        request.resource.data.title.size() > 0;
+      allow delete: if isAdmin();
     }
 
     match /trials/{trialId} {
-      allow read: if true;
-      allow write: if isAdmin();
+      allow read: if isSignedIn();
+      allow create: if isAdmin() &&
+        request.resource.data.title is string &&
+        request.resource.data.title.size() > 0 &&
+        request.resource.data.nctId is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
+      allow update: if isAdmin() &&
+        request.resource.data.title is string;
+      allow delete: if isAdmin();
     }
 
     match /forum_posts/{postId} {
@@ -188,7 +222,9 @@ service cloud.firestore {
         request.resource.data.content is string &&
         request.resource.data.content.size() <= 10000 &&
         request.resource.data.title is string &&
-        request.resource.data.title.size() <= 300;
+        request.resource.data.title.size() <= 300 &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
 
       allow update: if (
           isCommunityMember() &&
@@ -218,8 +254,17 @@ service cloud.firestore {
 
     match /hypotheses/{hypoId} {
       allow read: if false;
-      allow write: if isAdmin();
-      allow update: if isAdmin();
+      allow create: if isAdmin() &&
+        request.resource.data.title is string &&
+        request.resource.data.title.size() > 0 &&
+        request.resource.data.status is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
+      allow update: if isAdmin() &&
+        request.resource.data.title is string &&
+        request.resource.data.title.size() > 0 &&
+        request.resource.data.status is string;
+      allow delete: if isAdmin();
     }
 
     match /hypothesis_comments/{commentId} {
@@ -228,17 +273,41 @@ service cloud.firestore {
 
     match /research_tasks/{taskId} {
       allow read: if false;
-      allow write: if isAdmin();
+      allow create: if isAdmin() &&
+        request.resource.data.type is string &&
+        request.resource.data.status is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
+      allow update: if isAdmin() &&
+        request.resource.data.type is string &&
+        request.resource.data.status is string;
+      allow delete: if isAdmin();
     }
 
     match /agent_events/{eventId} {
       allow read: if false;
-      allow write: if isAdmin();
+      allow create: if isAdmin() &&
+        request.resource.data.agentId is string &&
+        request.resource.data.eventType is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
+      allow update: if isAdmin() &&
+        request.resource.data.agentId is string &&
+        request.resource.data.eventType is string;
+      allow delete: if isAdmin();
     }
 
     match /agent_runs/{runId} {
       allow read: if false;
-      allow write: if isAdmin();
+      allow create: if isAdmin() &&
+        request.resource.data.agentId is string &&
+        request.resource.data.status is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
+      allow update: if isAdmin() &&
+        request.resource.data.agentId is string &&
+        request.resource.data.status is string;
+      allow delete: if isAdmin();
     }
 
     match /agent_credentials/{agentId} {
@@ -247,7 +316,17 @@ service cloud.firestore {
 
     match /meta_studies/{studyId} {
       allow read: if resource.data.status == "published";
-      allow write: if isAdmin();
+      allow create: if isAdmin() &&
+        request.resource.data.title is string &&
+        request.resource.data.title.size() > 0 &&
+        request.resource.data.status is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
+      allow update: if isAdmin() &&
+        request.resource.data.title is string &&
+        request.resource.data.title.size() > 0 &&
+        request.resource.data.status is string;
+      allow delete: if isAdmin();
     }
 
     match /agent_submissions/{submissionId} {
@@ -256,7 +335,7 @@ service cloud.firestore {
     }
 
     match /agent_reviews/{reviewId} {
-      allow read: if true;
+      allow read: if isSignedIn();
       allow write: if false;
     }
 

@@ -81,6 +81,8 @@ router.post("/hypotheses/:id/comments", validate(hypothesisCommentSchema), async
     const hypothesisId = param(req, "id");
     const { content } = req.body;
 
+    await assertCommunityAccess(firebaseUser.uid, firebaseUser.emailVerified);
+
     const hypothesisRef = db().collection(HYPOTHESES).doc(hypothesisId);
     const commentsRef = db().collection(HYPOTHESIS_COMMENTS).doc();
 
