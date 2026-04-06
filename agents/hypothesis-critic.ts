@@ -291,12 +291,12 @@ async function main() {
 
     for (const doc of defenseSnap.docs) {
       const h = doc.data() as any;
-      const titleStr = typeof h.title === "string" ? h.title : h.title.de;
+      const titleStr = resolveI18n(h.title);
       console.log(`\nReviewing defense: "${titleStr.slice(0, 70)}"`);
 
       try {
         const result = await reviewDefense(
-          { id: doc.id, title: titleStr, description: typeof h.description === "string" ? h.description : h.description.de, rationale: typeof h.rationale === "string" ? h.rationale : h.rationale.de, criticArgument: h.criticArgument, defenseArgument: h.defenseArgument },
+          { id: doc.id, title: titleStr, description: resolveI18n(h.description), rationale: resolveI18n(h.rationale), criticArgument: h.criticArgument ?? { de: "", en: "" }, defenseArgument: h.defenseArgument ?? { de: "", en: "" } },
           defensePapers
         );
 
