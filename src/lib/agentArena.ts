@@ -119,14 +119,23 @@ export function subscribeToRuns(cb: (runs: AgentRun[]) => void, _maxItems = 50) 
   return subscribeToArena(({ runs }) => cb(runs), () => {})
 }
 
-export function formatRelative(ts: string | { toDate(): Date } | null): string {
+export function formatRelative(ts: string | { toDate(): Date } | null, locale: string = 'de'): string {
   if (!ts) return '–'
   const date = typeof ts === 'string' ? new Date(ts) : ts.toDate()
   const diff = Date.now() - date.getTime()
-  if (diff < 60000) return 'gerade eben'
-  if (diff < 3600000) return `vor ${Math.floor(diff / 60000)} Min`
-  if (diff < 86400000) return `vor ${Math.floor(diff / 3600000)} Std`
-  return date.toLocaleDateString('de-DE')
+  const lang = locale.startsWith('de') ? 'de' : 'en'
+
+  if (lang === 'de') {
+    if (diff < 60000) return 'gerade eben'
+    if (diff < 3600000) return `vor ${Math.floor(diff / 60000)} Min`
+    if (diff < 86400000) return `vor ${Math.floor(diff / 3600000)} Std`
+    return date.toLocaleDateString('de-DE')
+  }
+
+  if (diff < 60000) return 'just now'
+  if (diff < 3600000) return `${Math.floor(diff / 60000)} min ago`
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`
+  return date.toLocaleDateString('en-US')
 }
 
 export function durationSec(start: string | { toDate(): Date } | null, end: string | { toDate(): Date } | null): string {
