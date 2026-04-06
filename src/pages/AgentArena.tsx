@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
+  sanitizeErrorDetail,
   subscribeToArena,
   formatRelative,
   durationSec,
@@ -90,7 +91,7 @@ function AgentCard({ runs }: { runs: AgentRun[] }) {
           </span>
         </div>
       </div>
-      <p className="mt-2 text-xs text-stone-500 line-clamp-2">{lastRun.summary}</p>
+      <p className="mt-2 text-xs text-stone-500 line-clamp-2">{lastRun.status === 'error' ? (sanitizeErrorDetail(lastRun.summary, t('arena.error_unavailable')) ?? lastRun.summary) : lastRun.summary}</p>
       <div className="mt-2 flex items-center justify-between text-xs text-stone-400">
         <span>{formatRelative(lastRun.startedAt, i18n.language)}</span>
         <span>
@@ -107,11 +108,9 @@ function AgentCard({ runs }: { runs: AgentRun[] }) {
 function FeedItem({ event, isNew }: { event: AgentEvent & { repeatCount?: number }; isNew: boolean }) {
   const { t, i18n } = useTranslation()
   const meta = AGENT_META[event.agent] ?? { label: event.agent, emoji: '' }
-  const detail = event.detail
-    ? (event.type === 'error' && /\{.*"type"\s*:\s*"error"/.test(event.detail))
-      ? t('arena.error_unavailable')
-      : event.detail
-    : null
+  const detail = event.type === 'error'
+    ? sanitizeErrorDetail(event.detail, t('arena.error_unavailable'))
+    : event.detail ?? null
   return (
     <div
       className={`flex gap-3 rounded-lg border p-3 text-sm transition-all duration-500 ${
@@ -151,7 +150,7 @@ function RunRow({ run }: { run: AgentRun }) {
           {t(STATUS_LABEL_KEY[run.status])}
         </span>
       </td>
-      <td className="py-2 pr-4 text-xs text-stone-500 max-w-xs truncate">{run.summary}</td>
+      <td className="py-2 pr-4 text-xs text-stone-500 max-w-xs truncate">{run.status === 'error' ? (sanitizeErrorDetail(run.summary, t('arena.error_unavailable')) ?? run.summary) : run.summary}</td>
       <td className="py-2 pr-4 text-xs text-stone-400 whitespace-nowrap">
         {run.itemsProcessed > 0 ? `${run.itemsProcessed} ${t('arena.items')}` : '–'}
       </td>
@@ -175,7 +174,7 @@ function RunCard({ run }: { run: AgentRun }) {
           {t(STATUS_LABEL_KEY[run.status])}
         </span>
       </div>
-      {run.summary && <p className="mt-2 text-xs text-stone-500 line-clamp-2">{run.summary}</p>}
+      {run.summary && <p className="mt-2 text-xs text-stone-500 line-clamp-2">{run.status === 'error' ? (sanitizeErrorDetail(run.summary, t('arena.error_unavailable')) ?? run.summary) : run.summary}</p>}
       <div className="mt-2 flex items-center justify-between text-xs text-stone-400">
         <span>{run.itemsProcessed > 0 ? `${run.itemsProcessed} ${t('arena.items')}` : '–'}</span>
         <span>{formatRelative(run.startedAt, i18n.language)} · {durationSec(run.startedAt, run.completedAt)}</span>
