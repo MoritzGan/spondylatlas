@@ -119,6 +119,23 @@ export function subscribeToRuns(cb: (runs: AgentRun[]) => void, _maxItems = 50) 
   return subscribeToArena(({ runs }) => cb(runs), () => {})
 }
 
+/**
+ * Sanitize agent error messages to prevent leaking internal details
+ * (Firebase console URLs, Firestore index links, project IDs, stack traces).
+ * Returns a generic placeholder when sensitive content is detected.
+ */
+export function sanitizeErrorDetail(text: string | null, fallback: string): string | null {
+  if (!text) return null
+  const sensitive =
+    /console\.firebase\.google\.com/i.test(text) ||
+    /firestore\/indexes/i.test(text) ||
+    /FAILED_PRECONDITION/i.test(text) ||
+    /project\/[a-z0-9-]+\//i.test(text) ||
+    /googleapis\.com/i.test(text) ||
+    /\{.*"type"\s*:\s*"error"/.test(text)
+  return sensitive ? fallback : text
+}
+
 export function formatRelative(ts: string | { toDate(): Date } | null, locale: string = 'de'): string {
   if (!ts) return '–'
   const date = typeof ts === 'string' ? new Date(ts) : ts.toDate()
