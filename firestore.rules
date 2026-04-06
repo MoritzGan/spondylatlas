@@ -86,7 +86,9 @@ service cloud.firestore {
         request.resource.data.lang in ["de", "en"] &&
         request.resource.data.role == "user" &&
         request.resource.data.ageConfirmed == true &&
-        request.resource.data.legalVersion is string;
+        request.resource.data.legalVersion is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
       allow update: if isAdmin() || (
         isOwner(userId) &&
         changedKeysAreOnly(["displayName", "lang", "updatedAt"]) &&
@@ -107,7 +109,9 @@ service cloud.firestore {
       allow create: if isAdmin() &&
         request.resource.data.type is string &&
         request.resource.data.version is string &&
-        request.resource.data.content is string;
+        request.resource.data.content is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
       allow update: if isAdmin() &&
         request.resource.data.type is string &&
         request.resource.data.version is string &&
@@ -142,7 +146,9 @@ service cloud.firestore {
       allow create: if isSignedIn() &&
         request.resource.data.userId == request.auth.uid &&
         request.resource.data.type in ["export", "delete"] &&
-        request.resource.data.status == "requested";
+        request.resource.data.status == "requested" &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
       allow update, delete: if isAdmin();
     }
 
@@ -151,7 +157,9 @@ service cloud.firestore {
         (resource.data.userId == request.auth.uid || isAdmin());
       allow create: if isSignedIn() &&
         request.resource.data.userId == request.auth.uid &&
-        request.resource.data.eventType is string;
+        request.resource.data.eventType is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
       allow update, delete: if false;
     }
 
@@ -168,7 +176,9 @@ service cloud.firestore {
         request.resource.data.title is string &&
         request.resource.data.title.size() > 0 &&
         request.resource.data.abstract is string &&
-        request.resource.data.source is string;
+        request.resource.data.source is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
       allow update: if isAdmin() &&
         request.resource.data.title is string &&
         request.resource.data.title.size() > 0;
@@ -180,7 +190,9 @@ service cloud.firestore {
       allow create: if isAdmin() &&
         request.resource.data.title is string &&
         request.resource.data.title.size() > 0 &&
-        request.resource.data.nctId is string;
+        request.resource.data.nctId is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
       allow update: if isAdmin() &&
         request.resource.data.title is string;
       allow delete: if isAdmin();
@@ -210,7 +222,9 @@ service cloud.firestore {
         request.resource.data.content is string &&
         request.resource.data.content.size() <= 10000 &&
         request.resource.data.title is string &&
-        request.resource.data.title.size() <= 300;
+        request.resource.data.title.size() <= 300 &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
 
       allow update: if (
           isCommunityMember() &&
@@ -243,7 +257,9 @@ service cloud.firestore {
       allow create: if isAdmin() &&
         request.resource.data.title is string &&
         request.resource.data.title.size() > 0 &&
-        request.resource.data.status is string;
+        request.resource.data.status is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
       allow update: if isAdmin() &&
         request.resource.data.title is string &&
         request.resource.data.title.size() > 0 &&
@@ -259,7 +275,9 @@ service cloud.firestore {
       allow read: if false;
       allow create: if isAdmin() &&
         request.resource.data.type is string &&
-        request.resource.data.status is string;
+        request.resource.data.status is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
       allow update: if isAdmin() &&
         request.resource.data.type is string &&
         request.resource.data.status is string;
@@ -270,7 +288,9 @@ service cloud.firestore {
       allow read: if false;
       allow create: if isAdmin() &&
         request.resource.data.agentId is string &&
-        request.resource.data.eventType is string;
+        request.resource.data.eventType is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
       allow update: if isAdmin() &&
         request.resource.data.agentId is string &&
         request.resource.data.eventType is string;
@@ -281,7 +301,9 @@ service cloud.firestore {
       allow read: if false;
       allow create: if isAdmin() &&
         request.resource.data.agentId is string &&
-        request.resource.data.status is string;
+        request.resource.data.status is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
       allow update: if isAdmin() &&
         request.resource.data.agentId is string &&
         request.resource.data.status is string;
@@ -297,7 +319,9 @@ service cloud.firestore {
       allow create: if isAdmin() &&
         request.resource.data.title is string &&
         request.resource.data.title.size() > 0 &&
-        request.resource.data.status is string;
+        request.resource.data.status is string &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.createdAt <= request.time;
       allow update: if isAdmin() &&
         request.resource.data.title is string &&
         request.resource.data.title.size() > 0 &&
