@@ -65,7 +65,7 @@ const STATUS_LABEL_KEY: Record<string, string> = {
 // ── Agent Status Card ─────────────────────────────────────────────────────────
 
 function AgentCard({ runs }: { runs: AgentRun[] }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const lastRun = runs[0]
   if (!lastRun) return null
   const meta = AGENT_META[lastRun.agent] ?? { label: lastRun.agent, emoji: '', color: 'gray' }
@@ -92,7 +92,7 @@ function AgentCard({ runs }: { runs: AgentRun[] }) {
       </div>
       <p className="mt-2 text-xs text-stone-500 line-clamp-2">{lastRun.summary}</p>
       <div className="mt-2 flex items-center justify-between text-xs text-stone-400">
-        <span>{formatRelative(lastRun.startedAt)}</span>
+        <span>{formatRelative(lastRun.startedAt, i18n.language)}</span>
         <span>
           {lastRun.itemsProcessed > 0 && `${lastRun.itemsProcessed} ${t('arena.items')} · `}
           {durationSec(lastRun.startedAt, lastRun.completedAt)}
@@ -105,7 +105,7 @@ function AgentCard({ runs }: { runs: AgentRun[] }) {
 // ── Live Feed Item ────────────────────────────────────────────────────────────
 
 function FeedItem({ event, isNew }: { event: AgentEvent & { repeatCount?: number }; isNew: boolean }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const meta = AGENT_META[event.agent] ?? { label: event.agent, emoji: '' }
   const detail = event.detail
     ? (event.type === 'error' && /\{.*"type"\s*:\s*"error"/.test(event.detail))
@@ -123,7 +123,7 @@ function FeedItem({ event, isNew }: { event: AgentEvent & { repeatCount?: number
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium opacity-60">{meta.emoji} {meta.label}</span>
           <span className="ml-auto shrink-0 text-xs opacity-40">
-            {formatRelative(event.timestamp)}
+            {formatRelative(event.timestamp, i18n.language)}
           </span>
         </div>
         <p className="mt-0.5 font-medium leading-snug">{event.message}</p>
@@ -138,7 +138,7 @@ function FeedItem({ event, isNew }: { event: AgentEvent & { repeatCount?: number
 // ── Run History Row (desktop table) ──────────────────────────────────────────
 
 function RunRow({ run }: { run: AgentRun }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const meta = AGENT_META[run.agent] ?? { label: run.agent, emoji: '' }
   return (
     <tr className="border-b border-stone-100 hover:bg-stone-50">
@@ -156,7 +156,7 @@ function RunRow({ run }: { run: AgentRun }) {
         {run.itemsProcessed > 0 ? `${run.itemsProcessed} ${t('arena.items')}` : '–'}
       </td>
       <td className="py-2 text-xs text-stone-400 whitespace-nowrap">
-        {formatRelative(run.startedAt)} · {durationSec(run.startedAt, run.completedAt)}
+        {formatRelative(run.startedAt, i18n.language)} · {durationSec(run.startedAt, run.completedAt)}
       </td>
     </tr>
   )
@@ -165,7 +165,7 @@ function RunRow({ run }: { run: AgentRun }) {
 // ── Run History Card (mobile) ────────────────────────────────────────────────
 
 function RunCard({ run }: { run: AgentRun }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const meta = AGENT_META[run.agent] ?? { label: run.agent, emoji: '' }
   return (
     <div className="rounded-xl border border-stone-200 bg-white p-4">
@@ -178,7 +178,7 @@ function RunCard({ run }: { run: AgentRun }) {
       {run.summary && <p className="mt-2 text-xs text-stone-500 line-clamp-2">{run.summary}</p>}
       <div className="mt-2 flex items-center justify-between text-xs text-stone-400">
         <span>{run.itemsProcessed > 0 ? `${run.itemsProcessed} ${t('arena.items')}` : '–'}</span>
-        <span>{formatRelative(run.startedAt)} · {durationSec(run.startedAt, run.completedAt)}</span>
+        <span>{formatRelative(run.startedAt, i18n.language)} · {durationSec(run.startedAt, run.completedAt)}</span>
       </div>
     </div>
   )
