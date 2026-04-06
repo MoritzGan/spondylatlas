@@ -2,6 +2,7 @@
 
 **The open research and community platform for Ankylosing Spondylitis (axSpA)**
 
+[![Deploy](https://github.com/MoritzGan/spondylatlas/actions/workflows/deploy.yml/badge.svg)](https://github.com/MoritzGan/spondylatlas/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Open Source](https://img.shields.io/badge/Open%20Source-%E2%9D%A4-red)](https://github.com/MoritzGan/spondylatlas)
 [![Built with Claude](https://img.shields.io/badge/Built%20with-Claude%20%26%20OpenClaw-orange)]()
@@ -159,6 +160,10 @@ Browser (React SPA)  <-->  Firebase Auth + Firestore
 - [ ] Pattern recognition across papers
 
 ---
+
+## Security
+
+Please report security vulnerabilities responsibly. See [SECURITY.md](SECURITY.md) for details.
 
 ## License
 
