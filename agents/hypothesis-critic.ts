@@ -70,9 +70,9 @@ async function critiqueHypothesis(
 Deine Aufgabe: Versuche die folgende Hypothese auf Basis der verfügbaren Studien zu WIDERLEGEN.
 
 HYPOTHESE:
-Titel: "${hypothesis.title}"
-Beschreibung: ${hypothesis.description}
-Begründung: ${hypothesis.rationale}
+Titel: "${resolveI18n(hypothesis.title)}"
+Beschreibung: ${resolveI18n(hypothesis.description)}
+Begründung: ${resolveI18n(hypothesis.rationale)}
 
 VERFÜGBARE STUDIEN (nummeriert [1]–[${slicedPapers.length}]):
 ${paperContext}
@@ -143,7 +143,7 @@ Antworte NUR mit diesem JSON (kein Markdown):
     }
   }
   if (!parsed) {
-    console.warn(`JSON parse failed for hypothesis "${hypothesis.title.slice(0, 50)}". Response: ${rawText.slice(0, 300)}`);
+    console.warn(`JSON parse failed for hypothesis "${resolveI18n(hypothesis.title).slice(0, 50)}". Response: ${rawText.slice(0, 300)}`);
     return { verdict: "open", argument: { de: "Parse-Fehler — manuelle Prüfung nötig", en: "Parse error — manual review needed" }, paperIds: [] };
   }
 
@@ -221,7 +221,7 @@ async function main() {
   for (const doc of snap.docs) {
     const rawData = doc.data() as any;
     const h = { id: doc.id, ...rawData, title: resolveI18n(rawData.title), description: resolveI18n(rawData.description), rationale: resolveI18n(rawData.rationale) };
-    console.log(`\nCritiquing: "${h.title.slice(0, 70)}"`);
+    console.log(`\nCritiquing: "${resolveI18n(h.title).slice(0, 70)}"`);
 
     let result: CriticResult;
     try {
@@ -229,7 +229,7 @@ async function main() {
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`  ✗ critiqueHypothesis threw: ${msg}`);
-      await logEvent("step" as any, `[FEHLER] ${h.title.slice(0, 70)}`, msg.slice(0, 120));
+      await logEvent("step" as any, `[FEHLER] ${resolveI18n(h.title).slice(0, 70)}`, msg.slice(0, 120));
       open++;
       continue;
     }
@@ -247,7 +247,7 @@ async function main() {
 
     await logEvent(
       "step" as any,
-      `[${result.verdict.toUpperCase()}] ${h.title.slice(0, 70)}`,
+      `[${result.verdict.toUpperCase()}] ${resolveI18n(h.title).slice(0, 70)}`,
       (typeof result.argument === "string" ? result.argument : result.argument.de).slice(0, 120)
     );
 
@@ -255,7 +255,7 @@ async function main() {
     if (result.verdict === "needs_research" && result.researchQuery) {
       await db.collection("research_tasks").add({
         hypothesisId: doc.id,
-        hypothesisTitle: h.title,
+        hypothesisTitle: resolveI18n(h.title),
         query: result.researchQuery,
         reason: result.argument,
         status: "open",
