@@ -1,4 +1,5 @@
 import { Router } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { scopeGuard } from "../middleware/scopeGuard.js";
 import { validate, registerAgentSchema, updateAgentSchema } from "../middleware/validate.js";
 import { registerAgent, listAgents, updateAgent, findById } from "../services/agentRegistry.js";
@@ -7,8 +8,18 @@ import { getAgent, param } from "../types/index.js";
 
 const router = Router();
 
+function requireAdminRole(req: Request, _res: Response, next: NextFunction) {
+  const agent = getAgent(req);
+  if (agent.role !== "admin") {
+    next(ApiError.forbidden("Admin role required"));
+    return;
+  }
+  next();
+}
+
 router.post(
   "/agents",
+  requireAdminRole,
   scopeGuard("admin:agents"),
   validate(registerAgentSchema),
   async (req, res, next) => {
@@ -23,7 +34,7 @@ router.post(
   },
 );
 
-router.get("/agents", scopeGuard("admin:agents"), async (_req, res, next) => {
+router.get("/agents", requireAdminRole, scopeGuard("admin:agents"), async (_req, res, next) => {
   try {
     const agents = await listAgents();
     // Strip sensitive fields
@@ -37,6 +48,7 @@ router.get("/agents", scopeGuard("admin:agents"), async (_req, res, next) => {
 
 router.patch(
   "/agents/:id",
+  requireAdminRole,
   scopeGuard("admin:agents"),
   validate(updateAgentSchema),
   async (req, res, next) => {
