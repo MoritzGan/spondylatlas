@@ -155,12 +155,12 @@ service cloud.firestore {
     }
 
     match /papers/{paperId} {
-      allow read: if true;
+      allow read: if isSignedIn();
       allow write: if isAdmin();
     }
 
     match /trials/{trialId} {
-      allow read: if true;
+      allow read: if isSignedIn();
       allow write: if isAdmin();
     }
 
@@ -256,7 +256,7 @@ service cloud.firestore {
     }
 
     match /agent_reviews/{reviewId} {
-      allow read: if true;
+      allow read: if isSignedIn();
       allow write: if false;
     }
 
