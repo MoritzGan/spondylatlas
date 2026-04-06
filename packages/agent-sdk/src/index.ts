@@ -10,6 +10,7 @@ export {
 export type {
   SpondylAtlasConfig,
   EvidenceLevel,
+  PingResult,
   Paper,
   PaperSearchParams,
   PaperSearchResult,

@@ -52,9 +52,20 @@ export class TokenManager {
     });
 
     if (!res.ok) {
-      const body = await res.json().catch(() => null) as { error?: { message?: string } } | null;
-      const detail = body?.error?.message ?? `HTTP ${res.status}`;
-      throw new AuthenticationError(`Token exchange failed: ${detail}`);
+      const body = await res.json().catch(() => null) as Record<string, unknown> | null;
+      // Extract error detail from various API response formats
+      const detail =
+        (body?.error && typeof body.error === "object" && (body.error as Record<string, unknown>).message as string) ||
+        (typeof body?.error === "string" && body.error) ||
+        (typeof body?.message === "string" && body.message) ||
+        (body ? JSON.stringify(body) : `HTTP ${res.status}`);
+      const hint =
+        res.status === 400
+          ? " — check that SPONDYLATLAS_CLIENT_ID is a valid UUID and SPONDYLATLAS_CLIENT_SECRET is correct"
+          : res.status === 401
+            ? " — credentials are invalid or agent has been disabled"
+            : "";
+      throw new AuthenticationError(`Token exchange failed: ${detail}${hint}`);
     }
 
     const data = (await res.json()) as TokenResponse;

@@ -9,6 +9,7 @@ import {
 } from "./errors.js";
 import type {
   SpondylAtlasConfig,
+  PingResult,
   Paper,
   PaperSearchParams,
   PaperSearchResult,
@@ -50,6 +51,50 @@ export class SpondylAtlasClient {
     this.hypotheses = new HypothesesResource(this);
   }
 
+  /**
+   * Verify connectivity and credentials in a single call.
+   * Use this as the very first call to confirm everything is set up correctly.
+   *
+   * @example
+   * ```typescript
+   * const info = await client.ping();
+   * console.log(`Connected as "${info.agent}" (${info.role})`);
+   * ```
+   */
+  async ping(): Promise<PingResult> {
+    // 1. Check API reachability
+    const healthRes = await fetch(`${this.baseUrl}/health`, {
+      signal: AbortSignal.timeout(this.timeout),
+    });
+    if (!healthRes.ok) {
+      throw new SpondylAtlasError(
+        `API not reachable (HTTP ${healthRes.status}). Check baseUrl: ${this.baseUrl}`,
+        "CONNECTION_ERROR",
+        healthRes.status,
+      );
+    }
+    const health = (await healthRes.json()) as { status: string };
+
+    // 2. Verify credentials by fetching a token
+    const token = await this.tokenManager.getToken();
+
+    // 3. Decode JWT payload (server already verified it — we just read the claims)
+    const payloadB64 = token.split(".")[1];
+    if (!payloadB64) {
+      throw new SpondylAtlasError("Invalid token format", "AUTH_ERROR", 401);
+    }
+    const payload = JSON.parse(
+      Buffer.from(payloadB64, "base64url").toString("utf-8"),
+    ) as { sub?: string; role?: string; scopes?: string[] };
+
+    return {
+      status: health.status,
+      agent: payload.sub ?? "unknown",
+      role: payload.role ?? "unknown",
+      scopes: payload.scopes ?? [],
+    };
+  }
+
   /** @internal */
   async request<T>(method: string, path: string, body?: unknown): Promise<T> {
     let lastError: Error | null = null;
@@ -81,7 +126,11 @@ export class SpondylAtlasClient {
         const errorBody = (await res.json().catch(() => null)) as ApiErrorResponse | null;
         const message = errorBody?.error?.message ?? `HTTP ${res.status}`;
 
-        throw this.mapError(res.status, message);
+        // Parse Retry-After header for rate limit errors
+        const retryAfterRaw = res.headers.get("Retry-After");
+        const retryAfter = retryAfterRaw ? parseInt(retryAfterRaw, 10) : undefined;
+
+        throw this.mapError(res.status, message, retryAfter);
       } catch (err) {
         if (err instanceof SpondylAtlasError) throw err;
         lastError = err as Error;
@@ -93,7 +142,7 @@ export class SpondylAtlasClient {
     throw lastError ?? new SpondylAtlasError("Request failed", "UNKNOWN", 0);
   }
 
-  private mapError(status: number, message: string): SpondylAtlasError {
+  private mapError(status: number, message: string, retryAfter?: number): SpondylAtlasError {
     switch (status) {
       case 401:
         return new AuthenticationError(message);
@@ -104,7 +153,7 @@ export class SpondylAtlasClient {
       case 400:
         return new ValidationError(message);
       case 429:
-        return new RateLimitError(message);
+        return new RateLimitError(message, retryAfter);
       default:
         return new SpondylAtlasError(message, "API_ERROR", status);
     }
@@ -113,6 +162,11 @@ export class SpondylAtlasClient {
 
 class PapersResource {
   constructor(private client: SpondylAtlasClient) {}
+
+  /** List all papers. Alias for `search()` without a query. */
+  async list(params?: PaperSearchParams): Promise<PaperSearchResult> {
+    return this.search(params);
+  }
 
   async search(params?: PaperSearchParams): Promise<PaperSearchResult> {
     const qs = new URLSearchParams();

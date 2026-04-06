@@ -106,6 +106,13 @@ export interface HypothesisReview {
   referencePaperIds?: string[];
 }
 
+export interface PingResult {
+  status: string;
+  agent: string;
+  role: string;
+  scopes: string[];
+}
+
 export interface ApiErrorResponse {
   error: {
     code: string;
