@@ -46,7 +46,46 @@ interface ModerationResult {
   reason: string;
 }
 
-const ALLOWED_DECISIONS = new Set<ModerationDecision>(["approve", "reject", "escalate"]);
+const ALLOWED_DECISIONS: ReadonlySet<string> = new Set(["approve", "reject", "escalate"] as const);
+
+// ── Deterministic pre-checks ─────────────────────────────────────────────────
+// Catch obviously malicious or spam content before making an LLM call.
+
+const MALICIOUS_PATTERNS: ReadonlyArray<{ pattern: RegExp; reason: string }> = [
+  { pattern: /https?:\/\/\S+/gi, reason: "Spam: zu viele Links" },
+  { pattern: /<script[\s>]/i, reason: "HTML-Injection-Versuch" },
+  { pattern: /on\w+=["']/i, reason: "HTML-Event-Handler-Injection" },
+  { pattern: /javascript:/i, reason: "JavaScript-URI-Injection" },
+];
+
+function deterministicPreCheck(title: string, content: string): ModerationResult | null {
+  const combined = `${title} ${content}`;
+
+  // Empty or near-empty content
+  if (combined.trim().length < 5) {
+    return { decision: "reject", reason: "Inhalt zu kurz oder leer" };
+  }
+
+  // Excessive URL count (>5 links = likely spam)
+  const urlMatches = combined.match(/https?:\/\/\S+/gi);
+  if (urlMatches && urlMatches.length > 5) {
+    return { decision: "reject", reason: "Spam: zu viele Links" };
+  }
+
+  // Check for injection patterns
+  for (const { pattern, reason } of MALICIOUS_PATTERNS) {
+    if (pattern.test(combined) && reason.includes("Injection")) {
+      return { decision: "reject", reason };
+    }
+  }
+
+  // Repeated character spam (e.g., "aaaaaaa" x20+)
+  if (/(.)\1{19,}/.test(combined)) {
+    return { decision: "reject", reason: "Spam: repetitiver Inhalt" };
+  }
+
+  return null; // No pre-check trigger — proceed to LLM
+}
 
 function normalizePromptText(value: string, maxLength: number) {
   return value.replace(/\u0000/g, "").trim().slice(0, maxLength);
@@ -84,6 +123,13 @@ async function moderateContent(
   content: string,
   context: string = "Morbus Bechterew Community-Forum"
 ): Promise<ModerationResult> {
+  // Deterministic pre-check — skip LLM for obviously malicious content
+  const preCheckResult = deterministicPreCheck(title, content);
+  if (preCheckResult) {
+    console.log(`  [pre-check] ${preCheckResult.decision}: ${preCheckResult.reason}`);
+    return preCheckResult;
+  }
+
   const safeTitle = normalizePromptText(title, 300);
   const safeContent = normalizePromptText(content, 4000);
   const safeContext = normalizePromptText(context, 300);
