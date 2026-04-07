@@ -132,7 +132,8 @@ export function sanitizeErrorDetail(text: string | null, fallback: string): stri
     /FAILED_PRECONDITION/i.test(text) ||
     /project\/[a-z0-9-]+\//i.test(text) ||
     /googleapis\.com/i.test(text) ||
-    /\{.*"type"\s*:\s*"error"/.test(text)
+    /\{.*"type"\s*:\s*"error"/.test(text) ||
+    /at\s+\S+\s+\(.*:\d+:\d+\)/.test(text)
   return sensitive ? fallback : text
 }
 

@@ -111,6 +111,9 @@ function FeedItem({ event, isNew }: { event: AgentEvent & { repeatCount?: number
   const detail = event.type === 'error'
     ? sanitizeErrorDetail(event.detail, t('arena.error_unavailable'))
     : event.detail ?? null
+  const message = event.type === 'error'
+    ? (sanitizeErrorDetail(event.message, t('arena.error_unavailable')) ?? event.message)
+    : event.message
   return (
     <div
       className={`flex gap-3 rounded-lg border p-3 text-sm transition-all duration-500 ${
@@ -125,7 +128,7 @@ function FeedItem({ event, isNew }: { event: AgentEvent & { repeatCount?: number
             {formatRelative(event.timestamp, i18n.language)}
           </span>
         </div>
-        <p className="mt-0.5 font-medium leading-snug">{event.message}</p>
+        <p className="mt-0.5 font-medium leading-snug">{message}</p>
         {detail && (
           <p className="mt-0.5 text-xs opacity-60 line-clamp-2">{detail}</p>
         )}
