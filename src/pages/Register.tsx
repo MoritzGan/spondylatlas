@@ -5,6 +5,11 @@ import { FirebaseError } from 'firebase/app'
 import { useAuth } from '../contexts/AuthContext'
 import { usePageMeta } from '../hooks/usePageMeta'
 
+function FieldError({ message }: { message: string | undefined }) {
+  if (!message) return null
+  return <p className="mt-1 text-sm text-red-600">{message}</p>
+}
+
 export default function Register() {
   const { t, i18n } = useTranslation()
   const { register } = useAuth()
@@ -19,6 +24,7 @@ export default function Register() {
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [privacyAccepted, setPrivacyAccepted] = useState(false)
   const [healthNoticeAccepted, setHealthNoticeAccepted] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
   const isGerman = i18n.language.startsWith('de')
 
   usePageMeta({
@@ -26,14 +32,33 @@ export default function Register() {
     robots: 'noindex, nofollow',
   })
 
+  function getFieldErrors() {
+    const errors: Record<string, string> = {}
+    if (!displayName.trim()) errors.displayName = t('auth.error_name_required')
+    if (!email.trim()) errors.email = t('auth.error_email_required')
+    if (!password) {
+      errors.password = t('auth.error_password_required')
+    } else if (password.length < 12) {
+      errors.password = t('auth.error_password_min_length')
+    }
+    if (!confirmPassword) {
+      errors.confirmPassword = t('auth.error_confirm_password_required')
+    } else if (password !== confirmPassword) {
+      errors.confirmPassword = t('auth.error_password_mismatch')
+    }
+    return errors
+  }
+
+  const fieldErrors = submitted ? getFieldErrors() : {}
+  const hasFieldErrors = Object.keys(fieldErrors).length > 0
+
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
+    setSubmitted(true)
     setError('')
 
-    if (password !== confirmPassword) {
-      setError(t('auth.error_password_mismatch'))
-      return
-    }
+    const errors = getFieldErrors()
+    if (Object.keys(errors).length > 0) return
 
     setLoading(true)
 
@@ -64,7 +89,7 @@ export default function Register() {
         <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>
       )}
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+      <form onSubmit={handleSubmit} noValidate className="mt-8 space-y-4">
         <div>
           <label htmlFor="displayName" className="block text-sm font-medium text-stone-700">
             {t('auth.display_name')}
@@ -72,11 +97,13 @@ export default function Register() {
           <input
             id="displayName"
             type="text"
-            required
             value={displayName}
             onChange={(event) => setDisplayName(event.target.value)}
-            className="mt-1 w-full rounded-lg border border-stone-300 px-4 py-2.5 text-stone-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+            aria-invalid={!!fieldErrors.displayName}
+            aria-describedby={fieldErrors.displayName ? 'displayName-error' : undefined}
+            className={`mt-1 w-full rounded-lg border px-4 py-2.5 text-stone-900 focus:outline-none focus:ring-2 ${fieldErrors.displayName ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 'border-stone-300 focus:border-primary-500 focus:ring-primary-500/20'}`}
           />
+          <FieldError message={fieldErrors.displayName} />
         </div>
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-stone-700">
@@ -85,11 +112,13 @@ export default function Register() {
           <input
             id="email"
             type="email"
-            required
             value={email}
             onChange={(event) => setEmail(event.target.value)}
-            className="mt-1 w-full rounded-lg border border-stone-300 px-4 py-2.5 text-stone-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+            aria-invalid={!!fieldErrors.email}
+            aria-describedby={fieldErrors.email ? 'email-error' : undefined}
+            className={`mt-1 w-full rounded-lg border px-4 py-2.5 text-stone-900 focus:outline-none focus:ring-2 ${fieldErrors.email ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 'border-stone-300 focus:border-primary-500 focus:ring-primary-500/20'}`}
           />
+          <FieldError message={fieldErrors.email} />
         </div>
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-stone-700">
@@ -98,12 +127,13 @@ export default function Register() {
           <input
             id="password"
             type="password"
-            required
-            minLength={12}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            className="mt-1 w-full rounded-lg border border-stone-300 px-4 py-2.5 text-stone-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+            aria-invalid={!!fieldErrors.password}
+            aria-describedby={fieldErrors.password ? 'password-error' : undefined}
+            className={`mt-1 w-full rounded-lg border px-4 py-2.5 text-stone-900 focus:outline-none focus:ring-2 ${fieldErrors.password ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 'border-stone-300 focus:border-primary-500 focus:ring-primary-500/20'}`}
           />
+          <FieldError message={fieldErrors.password} />
         </div>
         <div>
           <label htmlFor="confirmPassword" className="block text-sm font-medium text-stone-700">
@@ -112,12 +142,13 @@ export default function Register() {
           <input
             id="confirmPassword"
             type="password"
-            required
-            minLength={12}
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
-            className="mt-1 w-full rounded-lg border border-stone-300 px-4 py-2.5 text-stone-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+            aria-invalid={!!fieldErrors.confirmPassword}
+            aria-describedby={fieldErrors.confirmPassword ? 'confirmPassword-error' : undefined}
+            className={`mt-1 w-full rounded-lg border px-4 py-2.5 text-stone-900 focus:outline-none focus:ring-2 ${fieldErrors.confirmPassword ? 'border-red-400 focus:border-red-500 focus:ring-red-500/20' : 'border-stone-300 focus:border-primary-500 focus:ring-primary-500/20'}`}
           />
+          <FieldError message={fieldErrors.confirmPassword} />
         </div>
 
         <label className="flex items-start gap-3 rounded-2xl bg-stone-50 px-4 py-3 text-sm leading-6 text-stone-700">
@@ -187,6 +218,14 @@ export default function Register() {
         >
           {t('auth.register_button')}
         </button>
+
+        {submitted && hasFieldErrors && (
+          <p className="text-center text-sm text-red-600">
+            {isGerman
+              ? 'Bitte fülle alle Pflichtfelder aus.'
+              : 'Please fill in all required fields.'}
+          </p>
+        )}
       </form>
 
       <p className="mt-6 text-center text-sm text-stone-600">
