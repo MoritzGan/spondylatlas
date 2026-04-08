@@ -63,9 +63,55 @@ async function loadRecentPapers(): Promise<Paper[]> {
   }));
 }
 
-async function getExistingHypothesisTitles(): Promise<Set<string>> {
+function normalizeTitle(t: string): string {
+  return t.toLowerCase().replace(/[^a-zäöüß0-9 ]/g, "").replace(/\s+/g, " ").trim();
+}
+
+/** Dice coefficient on bigrams — returns 0..1 (1 = identical) */
+function similarity(a: string, b: string): number {
+  const na = normalizeTitle(a);
+  const nb = normalizeTitle(b);
+  if (na === nb) return 1;
+  if (na.length < 2 || nb.length < 2) return 0;
+  const bigrams = (s: string): Map<string, number> => {
+    const m = new Map<string, number>();
+    for (let i = 0; i < s.length - 1; i++) {
+      const bg = s.slice(i, i + 2);
+      m.set(bg, (m.get(bg) ?? 0) + 1);
+    }
+    return m;
+  };
+  const ba = bigrams(na);
+  const bb = bigrams(nb);
+  let overlap = 0;
+  for (const [k, v] of ba) overlap += Math.min(v, bb.get(k) ?? 0);
+  return (2 * overlap) / (na.length - 1 + nb.length - 1);
+}
+
+const SIMILARITY_THRESHOLD = 0.75;
+
+async function getExistingHypothesisTitles(): Promise<string[]> {
   const snap = await db.collection("hypotheses").get();
-  return new Set(snap.docs.map((d) => d.data().title as string));
+  return snap.docs.flatMap((d) => {
+    const t = d.data().title;
+    if (typeof t === "string") return [t];
+    if (t && typeof t === "object") {
+      const titles: string[] = [];
+      if (t.de) titles.push(t.de);
+      if (t.en) titles.push(t.en);
+      return titles;
+    }
+    return [];
+  });
+}
+
+function isDuplicate(title: string, existing: string[]): boolean {
+  const norm = normalizeTitle(title);
+  for (const e of existing) {
+    if (normalizeTitle(e) === norm) return true;
+    if (similarity(title, e) >= SIMILARITY_THRESHOLD) return true;
+  }
+  return false;
 }
 
 async function generateHypotheses(papers: Paper[]): Promise<
@@ -327,11 +373,15 @@ async function main() {
   let saved = 0;
 
   for (const h of hypotheses) {
-    const titleStr = typeof h.title === "string" ? h.title : h.title.de;
-    if (existing.has(titleStr)) {
-      console.log(`  → Duplicate skipped: ${titleStr.slice(0, 60)}`);
+    const titleDe = typeof h.title === "string" ? h.title : h.title.de;
+    const titleEn = typeof h.title === "object" ? h.title.en : "";
+    if (isDuplicate(titleDe, existing) || (titleEn && isDuplicate(titleEn, existing))) {
+      console.log(`  → Duplicate skipped: ${titleDe.slice(0, 60)}`);
       continue;
     }
+    // Track newly added titles to catch intra-batch duplicates
+    existing.push(titleDe);
+    if (titleEn) existing.push(titleEn);
     const doc: Hypothesis = {
       title: h.title,
       description: h.description,
@@ -342,7 +392,7 @@ async function main() {
       generatedBy: "hypothesis-generator",
     };
     await db.collection("hypotheses").add(doc);
-    const logTitle = typeof h.title === "string" ? h.title : h.title.de;
+    const logTitle = titleDe;
     const logDesc = typeof h.description === "string" ? h.description : h.description.de;
     await logEvent("step" as any, `Hypothese gespeichert: ${logTitle.slice(0, 80)}`, logDesc.slice(0, 120));
     console.log(`  ✓ ${logTitle.slice(0, 70)}`);
