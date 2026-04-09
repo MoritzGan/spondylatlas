@@ -122,7 +122,8 @@
     "summary": "Zusammenfassung",
     "abstract": "Abstract",
     "paper_not_found": "Studie nicht gefunden.",
-    "paper_count": "{{count}} Studie(n) gefunden"
+    "paper_count": "{{count}} Studie(n) gefunden",
+    "patient_summary": "Zusammenfassung für medizinische Laien"
   },
   "auth": {
     "login_title": "Willkommen zurück",

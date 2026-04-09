@@ -5,7 +5,7 @@ import { doc, getDoc } from 'firebase/firestore'
 import { db } from '../lib/firebase'
 import type { Paper } from '../lib/types'
 import { usePageMeta } from '../hooks/usePageMeta'
-import { decodeHtml, stripAiPromptPrefix } from '../lib/textUtils'
+import { decodeHtml, stripAiPromptPrefix, stripLeadingSummaryHeading } from '../lib/textUtils'
 import { DetailSkeleton } from '../components/Skeleton'
 import MarkdownContent from '../components/MarkdownContent'
 import { localized } from '../lib/localized'
@@ -148,10 +148,12 @@ export default function PaperDetail() {
 
         {(paper.patientSummary || paper.summary) && (
           <section className="mt-8">
-            <h2 className="text-lg font-semibold text-stone-900">{t('research.summary')}</h2>
+            <h2 className="text-lg font-semibold text-stone-900">
+              {paper.patientSummary ? t('research.patient_summary') : t('research.summary')}
+            </h2>
             <MarkdownContent className="mt-2">
               {paper.patientSummary
-                ? localized(paper.patientSummary)
+                ? stripLeadingSummaryHeading(localized(paper.patientSummary))
                 : stripAiPromptPrefix(decodeHtml(paper.summary))}
             </MarkdownContent>
           </section>
