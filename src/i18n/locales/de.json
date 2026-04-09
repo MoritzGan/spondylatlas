@@ -146,7 +146,14 @@
     "forgot_password_description": "Gib deine E-Mail-Adresse ein. Wir schicken dir einen Link zum Zurücksetzen deines Passworts.",
     "forgot_password_button": "Reset-Link senden",
     "forgot_password_success": "Falls ein Konto mit dieser E-Mail-Adresse existiert, hast du in Kürze eine E-Mail mit einem Reset-Link erhalten. Bitte prüfe auch deinen Spam-Ordner.",
-    "back_to_login": "Zurück zur Anmeldung"
+    "back_to_login": "Zurück zur Anmeldung",
+    "error_name_required": "Bitte gib deinen Namen ein.",
+    "error_email_required": "Bitte gib deine E-Mail-Adresse ein.",
+    "error_email_invalid": "Bitte gib eine gültige E-Mail-Adresse ein.",
+    "error_password_required": "Bitte gib ein Passwort ein.",
+    "error_password_too_short": "Das Passwort muss mindestens 12 Zeichen lang sein.",
+    "error_confirm_password_required": "Bitte wiederhole dein Passwort.",
+    "error_checkboxes_required": "Bitte bestätige alle Pflichtfelder."
   },
   "profile": {
     "title": "Mein Profil",
