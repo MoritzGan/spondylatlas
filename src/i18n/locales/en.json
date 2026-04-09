@@ -122,7 +122,8 @@
     "summary": "Summary",
     "abstract": "Abstract",
     "paper_not_found": "Paper not found.",
-    "paper_count": "{{count}} paper(s) found"
+    "paper_count": "{{count}} paper(s) found",
+    "patient_summary": "Summary for patients"
   },
   "auth": {
     "login_title": "Welcome back",

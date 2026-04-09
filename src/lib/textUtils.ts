@@ -38,6 +38,18 @@ export function stripAiPromptPrefix(text: string): string {
 }
 
 /**
+ * Strips a leading markdown heading from patient summaries that duplicates
+ * the UI section title (e.g. "## Zusammenfassung für medizinische Laien").
+ * This heading is rendered via i18n instead, so we remove it from the content.
+ */
+export function stripLeadingSummaryHeading(text: string): string {
+  return text.replace(
+    /^#{1,3}\s*(Zusammenfassung\s+für\s+medizinische\s+Laien|Summary\s+for\s+patients)\s*\n+/i,
+    '',
+  )
+}
+
+/**
  * Entfernt grundlegende Markdown-Syntax für reine Textvorschauen.
  * Beispiel: "# Zusammenfassung\n\nText" → "Zusammenfassung Text"
  */
